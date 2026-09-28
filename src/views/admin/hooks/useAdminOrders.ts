@@ -94,6 +94,11 @@ export function usePrepareWhatsAppMessage(code: string) {
     return useMutation({ mutationFn: () => AdminOrderService.prepareWhatsAppMessage(code) })
 }
 
+/** A fresh private customer link (e.g. for the order QR); the older links keep working. */
+export function useIssueAccessLink(code: string) {
+    return useMutation({ mutationFn: () => AdminOrderService.issueAccessLink(code) })
+}
+
 /** Leaves the "Aviso por WhatsApp preparado" note once WhatsApp is opened. */
 export function useRecordWhatsAppOpened(code: string) {
     const sync = useSyncOrder()

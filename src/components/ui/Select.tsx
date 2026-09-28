@@ -67,6 +67,8 @@ const optionVariants = cva(
 export interface SelectOption {
     value: string
     label: string
+    /** A quieter second line in the list (the trigger shows only the label). */
+    description?: string
     disabled?: boolean
 }
 
@@ -436,7 +438,16 @@ export function Select({
                                         isDisabled: option.disabled === true,
                                     })}
                                 >
-                                    <span className="truncate">{option.label}</span>
+                                    {option.description ? (
+                                        <span className="flex min-w-0 flex-col gap-0.5">
+                                            <span className="truncate">{option.label}</span>
+                                            <span className="text-xs leading-snug font-normal text-ink-soft">
+                                                {option.description}
+                                            </span>
+                                        </span>
+                                    ) : (
+                                        <span className="truncate">{option.label}</span>
+                                    )}
                                     {isSelected ? (
                                         <Check aria-hidden="true" className="size-4 shrink-0" />
                                     ) : null}

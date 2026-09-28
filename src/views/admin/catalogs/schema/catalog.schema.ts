@@ -75,3 +75,15 @@ export const bankFormSchema = z.object({
 })
 
 export type BankFormValues = z.infer<typeof bankFormSchema>
+
+export const MOBILE_PREFIX_CODE_PATTERN = /^04\d{2}$/
+
+/** Mirrors the API's `CreateMobilePrefixDto`. */
+export const mobilePrefixFormSchema = z.object({
+    code: z
+        .string()
+        .trim()
+        .regex(MOBILE_PREFIX_CODE_PATTERN, 'Usa 4 dígitos que empiecen por 04, por ejemplo 0426'),
+})
+
+export type MobilePrefixFormValues = z.infer<typeof mobilePrefixFormSchema>

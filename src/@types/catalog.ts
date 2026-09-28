@@ -90,3 +90,25 @@ export interface BankCreateInput {
 }
 
 export type BankInput = Partial<Omit<BankCreateInput, 'code'>>
+
+/** An active mobile operator code ("0424"), as `GET /catalogs/mobile-prefixes` lists it. */
+export interface MobilePrefix {
+    code: string
+}
+
+/** Content fields checked against the mobile codes. */
+export type ContentPhoneField = 'payment.phone' | 'contact.whatsapp'
+
+export interface AdminMobilePrefix extends MobilePrefix {
+    isActive: boolean
+    sortOrder: number
+    /** Orders in progress (not delivered, cancelled or expired) with a phone on this code. */
+    activeOrderCount: number
+    /** Store content with a phone on this code (defaults included). */
+    contentFields: ContentPhoneField[]
+}
+
+export interface MobilePrefixCreateInput {
+    code: string
+    isActive?: boolean
+}

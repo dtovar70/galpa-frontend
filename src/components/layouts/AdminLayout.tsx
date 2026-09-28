@@ -11,7 +11,9 @@ import {
     Package,
     PanelLeftClose,
     PanelLeftOpen,
+    Send,
     Tags,
+    Users,
 } from 'lucide-react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 
@@ -45,34 +47,60 @@ const NAV_LINKS: readonly {
     { label: 'Categorías', to: ADMIN_ROUTES.categories, icon: Tags },
     { label: 'Contenido', to: ADMIN_ROUTES.content, icon: FileText },
     { label: 'Catálogos', to: ADMIN_ROUTES.catalogs, icon: ListChecks, roles: ['ADMIN'] },
+    // Before Telegram: chats are linked on behalf of a user, and deactivating one mutes them.
+    { label: 'Usuarios', to: ADMIN_ROUTES.users, icon: Users, roles: ['ADMIN'] },
+    { label: 'Telegram', to: ADMIN_ROUTES.telegram, icon: Send, roles: ['ADMIN'] },
 ]
 
 const SIDEBAR_ID = 'admin-sidebar'
+/** Rail tooltips start past the sidebar's edge, so a card never covers the other column. */
+const RAIL_EDGE = `#${SIDEBAR_ID}`
 const SIDEBAR_STORAGE_KEY = 'mr-admin-sidebar-collapsed'
 /** Tailwind's `lg`: the sidebar (and so the collapse) only exists from here up. */
 const DESKTOP_QUERY = '(min-width: 64rem)'
 
+/** Every rail control is the same 44px squircle, so hover, focus and active read as tiles. */
+const RAIL_SQUARE_CLASS =
+    'flex size-11 shrink-0 items-center justify-center rounded-2xl transition duration-200'
+
 const navLinkVariants = cva(
-    'flex h-12 items-center gap-3 rounded-2xl font-display text-base whitespace-nowrap transition duration-200',
+    'flex items-center rounded-2xl font-display text-base whitespace-nowrap transition duration-200',
     {
         variants: {
-            isActive: {
-                true: 'bg-blush-100 text-blush-700',
-                false: 'text-ink hover:bg-blush-50',
-            },
-            // The rail is exactly one 48px square wide, so every icon shares its centre.
+            isActive: { true: '', false: 'text-ink' },
             isCollapsed: {
-                true: 'justify-center',
-                false: 'px-4',
+                true: RAIL_SQUARE_CLASS,
+                // 44px rows on short windows, so the nine admin links never need a scrollbar.
+                false: 'h-12 gap-3 px-4 [@media(max-height:720px)]:h-11',
             },
         },
+        compoundVariants: [
+            { isCollapsed: false, isActive: true, class: 'bg-blush-100 text-blush-700' },
+            { isCollapsed: false, isActive: false, class: 'hover:bg-blush-50' },
+            { isCollapsed: true, isActive: true, class: 'bg-blush-200 text-blush-800' },
+            { isCollapsed: true, isActive: false, class: 'hover:bg-blush-100/80' },
+        ],
         defaultVariants: { isActive: false, isCollapsed: false },
     },
 )
 
-/** Icon-only buttons in the rail: the same 48px square and hover as its nav links. */
-const RAIL_BUTTON_CLASS =
-    'flex size-12 shrink-0 items-center justify-center rounded-2xl text-ink transition duration-200 hover:bg-blush-50'
+/**
+ * Hover and keyboard focus of the controls in the tinted top and bottom zones: a deeper pink
+ * of the zone itself, never a white tile.
+ */
+const ZONE_HOVER_CLASS = 'hover:bg-blush-200/60 focus-visible:bg-blush-200/60'
+
+/** Icon-only buttons in the rail's tinted top and bottom zones. */
+const RAIL_BUTTON_CLASS = cn(RAIL_SQUARE_CLASS, 'text-ink', ZONE_HOVER_CLASS)
+
+/**
+ * The sidebar's header and user zones: a touch pinker than the menu between them, so the
+ * brand and the session never read as menu items.
+ */
+const SIDEBAR_ZONE_CLASS = 'shrink-0 border-line bg-blush-100/70'
+
+/** The account link is a `group` for its avatar, and hands its focus ring to the circle. */
+const ACCOUNT_LINK_CLASS = 'group outline-none focus-visible:ring-0 focus-visible:ring-offset-0'
 
 /** Read synchronously for the first render, so a reload never flashes the other width. */
 function readCollapsed(): boolean {
@@ -195,7 +223,11 @@ function SidebarToggle({ isCollapsed, onToggle }: SidebarToggleProps) {
 
     return (
         // The icon alone never says what it does, so it has a tooltip in both states.
-        <RailTooltip enabled content={<RailTip title={label} shortcut={SHORTCUT_LABEL} />}>
+        <RailTooltip
+            enabled
+            sideEdge={RAIL_EDGE}
+            content={<RailTip title={label} shortcut={SHORTCUT_LABEL} />}
+        >
             <button
                 type="button"
                 onClick={onToggle}
@@ -206,7 +238,10 @@ function SidebarToggle({ isCollapsed, onToggle }: SidebarToggleProps) {
                 className={
                     isCollapsed
                         ? RAIL_BUTTON_CLASS
-                        : 'flex size-10 shrink-0 items-center justify-center rounded-xl text-ink-soft transition hover:bg-blush-100 hover:text-ink'
+                        : cn(
+                              'flex size-10 shrink-0 items-center justify-center rounded-xl text-ink-soft transition duration-200 hover:text-ink',
+                              ZONE_HOVER_CLASS,
+                          )
                 }
             >
                 <Icon aria-hidden="true" className="size-5" />
@@ -230,7 +265,15 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
 
     return (
         <nav aria-label="Administración">
-            <ul className="space-y-1">
+            {/* The rail lays its icons out two by two, row by row (the tab order too). An odd
+                last icon ("Ver tienda" for admins) gets a centred row of its own. */}
+            <ul
+                className={
+                    isCollapsed
+                        ? 'grid grid-cols-[repeat(2,2.75rem)] justify-center gap-2 [&>li:last-child:nth-child(odd)]:col-span-2 [&>li:last-child:nth-child(odd)]:justify-self-center'
+                        : 'space-y-1 [@media(max-height:720px)]:space-y-0.5'
+                }
+            >
                 {links.map(({ label, to, icon: Icon }) => {
                     const count = to === ADMIN_ROUTES.orders ? pending : 0
                     const countText = `${count} por verificar`
@@ -239,6 +282,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                         <li key={to}>
                             <RailTooltip
                                 enabled={isCollapsed}
+                                sideEdge={RAIL_EDGE}
                                 content={
                                     <RailTip
                                         title={label}
@@ -295,6 +339,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                 <li>
                     <RailTooltip
                         enabled={isCollapsed}
+                        sideEdge={RAIL_EDGE}
                         content={
                             <RailTip title="Ver tienda" detail="Se abre en una pestaña nueva" />
                         }
@@ -354,17 +399,28 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
                         {roleLabel}
                     </span>
                     <span>{user.email}</span>
+                    <span className="font-semibold text-blush-600">
+                        Mi cuenta: nombre y contraseña
+                    </span>
                 </>
             }
         />
     )
+    const accountLabel = `Mi cuenta: ${user.name}, ${roleLabel}, ${user.email}`
 
-    const avatar = (size: string) => (
+    /*
+     * The circle itself reacts, never a tile behind it: a blush ring and a slight lift on hover,
+     * and the keyboard focus ring drawn around the circle. The link that holds it is a group
+     * and drops its own ring.
+     */
+    const avatar = (isActive: boolean) => (
         <span
             aria-hidden="true"
             className={cn(
-                'flex shrink-0 items-center justify-center rounded-full bg-blush-100 font-display font-semibold text-blush-700 ring-1 ring-blush-200',
-                size,
+                'flex size-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-semibold ring-1 transition duration-200 group-hover:scale-105 group-hover:ring-2 group-hover:ring-blush-300 group-focus-visible:ring-2 group-focus-visible:ring-blush-400 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-blush-50 motion-reduce:transform-none',
+                isActive
+                    ? 'bg-blush-200 text-blush-800 ring-blush-300'
+                    : 'bg-blush-100 text-blush-700 ring-blush-200',
             )}
         >
             {initialOf(user.name)}
@@ -375,6 +431,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
         <RailTooltip
             enabled
             placement={isCollapsed ? 'side' : 'top'}
+            sideEdge={RAIL_EDGE}
             content={<RailTip title="Cerrar sesión" />}
         >
             <button
@@ -399,42 +456,62 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
 
     if (isCollapsed) {
         return (
-            <div className="flex flex-col items-center gap-2 border-t border-line pt-4">
-                <RailTooltip enabled content={userTip}>
-                    {/* Focusable only so keyboard users can reach the same details. */}
-                    <span
-                        role="img"
-                        tabIndex={0}
-                        aria-label={`Sesión de ${user.name}, ${roleLabel}, ${user.email}`}
-                        className="flex rounded-full"
+            <div className="flex flex-col items-center gap-2">
+                <RailTooltip enabled sideEdge={RAIL_EDGE} content={userTip}>
+                    {/* The circle keeps the rail's 44px hit area, without a tile of its own. */}
+                    <NavLink
+                        to={ADMIN_ROUTES.account}
+                        onClick={onNavigate}
+                        aria-label={accountLabel}
+                        className={cn(RAIL_SQUARE_CLASS, ACCOUNT_LINK_CLASS)}
                     >
-                        {avatar('size-10 text-base')}
-                    </span>
+                        {({ isActive }) => avatar(isActive)}
+                    </NavLink>
                 </RailTooltip>
                 {logoutButton(RAIL_BUTTON_CLASS)}
             </div>
         )
     }
 
+    // Same pink family as its zone (no white card), a shade deeper so the row still reads as one block.
     return (
-        <div className="flex items-center gap-1 rounded-2xl border border-line bg-white p-1.5 pl-2">
+        <div className="flex items-center gap-1 rounded-2xl border border-blush-200/80 bg-blush-200/30 p-1.5 pl-2">
             {/* The row is narrow: the role, and the email when it truncates, live in a tooltip. */}
-            <RailTooltip
-                enabled
-                placement="top"
-                content={userTip}
-                className="flex min-w-0 flex-1 items-center gap-2.5"
-            >
-                {avatar('size-9 text-sm')}
-                <span className="flex min-w-0 flex-col">
-                    <span className="truncate font-display text-sm leading-5 font-semibold text-ink">
-                        {user.name}
-                    </span>
-                    <span className="truncate text-xs leading-4 text-ink-soft">{user.email}</span>
-                </span>
+            <RailTooltip enabled placement="top" content={userTip} className="flex min-w-0 flex-1">
+                {/* The name/avatar area opens "Mi cuenta"; logout stays a separate button. Like
+                    the rail, hovering it lights the circle (and the name), not a tile. */}
+                <NavLink
+                    to={ADMIN_ROUTES.account}
+                    onClick={onNavigate}
+                    aria-label={accountLabel}
+                    className={({ isActive }) =>
+                        cn(
+                            ACCOUNT_LINK_CLASS,
+                            'flex min-w-0 flex-1 items-center gap-2.5 rounded-xl py-0.5 pr-1.5 transition duration-200',
+                            isActive && 'bg-blush-200/40',
+                        )
+                    }
+                >
+                    {({ isActive }) => (
+                        <>
+                            {avatar(isActive)}
+                            <span className="flex min-w-0 flex-col">
+                                <span className="truncate font-display text-sm leading-5 font-semibold text-ink transition-colors duration-200 group-hover:text-blush-700">
+                                    {user.name}
+                                </span>
+                                <span className="truncate text-xs leading-4 text-ink-soft">
+                                    {user.email}
+                                </span>
+                            </span>
+                        </>
+                    )}
+                </NavLink>
             </RailTooltip>
             {logoutButton(
-                'flex size-10 shrink-0 items-center justify-center rounded-xl transition duration-200 hover:bg-blush-50',
+                cn(
+                    'flex size-10 shrink-0 items-center justify-center rounded-xl transition duration-200',
+                    ZONE_HOVER_CLASS,
+                ),
             )}
         </div>
     )
@@ -463,18 +540,18 @@ export function AdminLayout() {
             <aside
                 id={SIDEBAR_ID}
                 className={cn(
-                    'fixed inset-y-0 left-0 hidden flex-col overflow-hidden border-r border-line bg-blush-50/60 py-5 transition-[width,padding] duration-300 ease-out motion-reduce:transition-none lg:flex',
-                    // Collapsed, the content box (80 - 16 - 15 - the 1px border) is exactly
-                    // one 48px rail button wide, so every icon shares the rail's centre.
-                    isCollapsed ? 'w-20 pr-[15px] pl-4' : 'w-72 px-5',
+                    'fixed inset-y-0 left-0 hidden flex-col overflow-hidden border-r border-line bg-blush-50/60 transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex',
+                    // Collapsed, the rail holds two 44px columns of icons.
+                    isCollapsed ? 'w-32' : 'w-72',
                 )}
             >
                 <div
                     className={cn(
-                        'flex shrink-0',
+                        SIDEBAR_ZONE_CLASS,
+                        'flex border-b py-4 [@media(max-height:720px)]:py-3',
                         isCollapsed
-                            ? 'flex-col items-center gap-2'
-                            : 'items-center justify-between gap-2',
+                            ? 'flex-col items-center gap-2 px-3'
+                            : 'items-center justify-between gap-2 px-5',
                     )}
                 >
                     <AdminBrand compact={isCollapsed} />
@@ -487,11 +564,20 @@ export function AdminLayout() {
                     focus outlines clear of the scroll box's clipping edge. */}
                 <div
                     data-sidebar-scroll=""
-                    className="-mx-1 mt-6 min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-1"
+                    className={cn(
+                        'min-h-0 flex-1 overflow-x-hidden overflow-y-auto',
+                        isCollapsed ? 'px-3 py-4' : 'px-5 py-5 [@media(max-height:720px)]:py-3',
+                    )}
                 >
                     <AdminNav user={user} isCollapsed={isCollapsed} />
                 </div>
-                <div className="mt-4 shrink-0">
+                <div
+                    className={cn(
+                        SIDEBAR_ZONE_CLASS,
+                        'border-t py-4 [@media(max-height:720px)]:py-3',
+                        isCollapsed ? 'px-3' : 'px-5',
+                    )}
+                >
                     <AdminUserBlock user={user} isCollapsed={isCollapsed} />
                 </div>
             </aside>
@@ -533,7 +619,7 @@ export function AdminLayout() {
             <main
                 className={cn(
                     'transition-[padding] duration-300 ease-out motion-reduce:transition-none',
-                    isCollapsed ? 'lg:pl-20' : 'lg:pl-72',
+                    isCollapsed ? 'lg:pl-32' : 'lg:pl-72',
                 )}
             >
                 {/* The rail frees room, so collapsed pages may also grow wider on large screens. */}

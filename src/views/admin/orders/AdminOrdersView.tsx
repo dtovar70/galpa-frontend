@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { AlertTriangle, Check, ChevronRight, ClipboardList, Search, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 
@@ -30,9 +30,11 @@ import {
     groupOfStatus,
 } from '@/views/admin/orders/utils/orderGroups'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 350
 const SKELETON_ROWS = 6
+/** The search field's width from which the full placeholder fits without an ellipsis. */
+const FULL_SEARCH_PLACEHOLDER_MIN_PX = 368
 
 const headerCellClass =
     'px-3 py-3 text-left text-xs font-bold tracking-wide text-ink-soft uppercase first:pl-4'
@@ -81,6 +83,21 @@ function FilterChip({
     )
 }
 
+/** Whether the element is at least `minWidth` pixels wide, kept in sync as it resizes. */
+function useIsWiderThan(ref: RefObject<HTMLElement | null>, minWidth: number): boolean {
+    const [isWider, setIsWider] = useState(true)
+    useEffect(() => {
+        const element = ref.current
+        if (!element) return
+        const observer = new ResizeObserver(([entry]) => {
+            if (entry) setIsWider(entry.contentRect.width >= minWidth)
+        })
+        observer.observe(element)
+        return () => observer.disconnect()
+    }, [ref, minWidth])
+    return isWider
+}
+
 export function AdminOrdersView() {
     const idPrefix = useId()
     const [searchParams, setSearchParams] = useSearchParams()
@@ -93,6 +110,8 @@ export function AdminOrdersView() {
     const from = isCalendarDay(searchParams.get('desde')) ? (searchParams.get('desde') ?? '') : ''
     const to = isCalendarDay(searchParams.get('hasta')) ? (searchParams.get('hasta') ?? '') : ''
     const [searchInput, setSearchInput] = useState(search)
+    const searchBoxRef = useRef<HTMLDivElement>(null)
+    const isSearchWide = useIsWiderThan(searchBoxRef, FULL_SEARCH_PLACEHOLDER_MIN_PX)
     const debouncedSearch = useDebouncedValue(searchInput.trim(), SEARCH_DEBOUNCE_MS)
 
     const summaryQuery = useAdminOrdersSummary()
@@ -270,12 +289,18 @@ export function AdminOrdersView() {
 
             {/* 17.5rem fits the longest status and its count ("Pendiente por verificación · 12"). */}
             <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_17.5rem_minmax(12rem,auto)]">
-                <div className="sm:col-span-2 lg:col-span-1">
+                <div ref={searchBoxRef} className="sm:col-span-2 lg:col-span-1">
+                    {/* The (hidden) label always says what the search covers; a narrow field
+                        shows a shorter placeholder instead of a clipped one. */}
                     <Input
-                        label="Buscar pedidos"
+                        label="Buscar pedidos por código, cliente, teléfono o referencia"
                         hideLabel
                         type="search"
-                        placeholder="Código, cliente, teléfono o referencia"
+                        placeholder={
+                            isSearchWide
+                                ? 'Código, cliente, teléfono o referencia'
+                                : 'Buscar pedido…'
+                        }
                         value={searchInput}
                         onChange={(event) => setSearchInput(event.target.value)}
                         leadingIcon={<Search className="size-4" />}

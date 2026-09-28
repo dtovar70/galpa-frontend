@@ -5,6 +5,7 @@ import {
     TEXT_INPUT_MAX_LENGTH as MAX_TEXT,
     TEXT_INPUT_MAX_MESSAGE as MAX_TEXT_MESSAGE,
 } from '@/constants/ui.constant'
+import { mobilePhoneSchema } from '@/utils/veFormats'
 
 export const DELIVERY_METHODS = ['delivery', 'pickup'] as const
 
@@ -12,11 +13,12 @@ export type DeliveryMethod = (typeof DELIVERY_METHODS)[number]
 
 export const DELIVERY_METHOD_LABELS: Record<DeliveryMethod, string> = LABELS
 
-/** Same rules as the API's CreateOrderDto, so most mistakes are caught before sending. */
-const PHONE_PATTERN = /^[\d+\s()-]{7,20}$/
-/** The phone field stops at the longest shape the pattern accepts. */
-export const CHECKOUT_PHONE_MAX_LENGTH = 20
 export const CHECKOUT_NOTES_MAX_LENGTH = 300
+
+/**
+ * Same rules as the API's CreateOrderDto, so most mistakes are caught before sending. The phone
+ * is a mobile ("0424-1234567", from `MobilePhoneField`): order notices go out by WhatsApp.
+ */
 
 export const checkoutSchema = z.object({
     fullName: z
@@ -29,11 +31,7 @@ export const checkoutSchema = z.object({
         .trim()
         .max(MAX_TEXT, MAX_TEXT_MESSAGE)
         .pipe(z.email('Escribe un correo válido, por ejemplo hola@correo.com')),
-    phone: z
-        .string()
-        .trim()
-        .max(CHECKOUT_PHONE_MAX_LENGTH, `Máximo ${CHECKOUT_PHONE_MAX_LENGTH} caracteres`)
-        .regex(PHONE_PATTERN, 'Escribe un teléfono válido'),
+    phone: mobilePhoneSchema({ required: 'Escribe tu número de celular' }),
     city: z.string().trim().min(2, 'Escribe tu ciudad').max(80, 'Máximo 80 caracteres'),
     address: z
         .string()

@@ -24,6 +24,7 @@ import { OrderTimeline } from '@/views/order/components/OrderTimeline'
 import { PagoMovilCard } from '@/views/order/components/PagoMovilCard'
 import { PaymentDeadline } from '@/views/order/components/PaymentDeadline'
 import { PaymentForm } from '@/views/order/components/PaymentForm'
+import { OrderQrCard } from '@/views/order/components/OrderQrCard'
 import { PaymentHistory } from '@/views/order/components/PaymentHistory'
 import { StatusMessage } from '@/views/order/components/StatusMessage'
 import { useOrder, useSubmitPayment } from '@/views/order/hooks/useOrder'
@@ -269,6 +270,7 @@ export function OrderView() {
                         <OrderTimeline order={order} />
                     </Card>
                     <OrderItemsCard order={order} />
+                    <OrderQrCard code={order.code} url={link} />
                 </aside>
             </div>
         </div>

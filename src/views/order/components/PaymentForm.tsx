@@ -3,6 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 
 import type { SubmitPaymentInput } from '@/@types/order'
+import { IdNumberField } from '@/components/shared/IdNumberField'
+import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
 import { Alert, Button, Input, Select } from '@/components/ui'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { getErrorMessage, isApiError } from '@/services/errors'
@@ -119,23 +121,29 @@ export function PaymentForm({
                     }
                     {...register('payerBankCode')}
                 />
-                <Input
-                    label="Teléfono desde el que pagaste"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    placeholder="0412-5550134"
-                    error={errors.payerPhone?.message}
-                    {...register('payerPhone')}
+                <Controller
+                    control={control}
+                    name="payerPhone"
+                    render={({ field }) => (
+                        <MobilePhoneField
+                            label="Teléfono del pagador"
+                            hint="El celular desde el que hiciste el Pago Móvil."
+                            error={errors.payerPhone?.message}
+                            {...field}
+                        />
+                    )}
                 />
-                <Input
-                    label="Cédula del titular"
-                    optional
-                    autoCapitalize="characters"
-                    spellCheck={false}
-                    placeholder="V-12345678"
-                    error={errors.payerIdNumber?.message}
-                    {...register('payerIdNumber')}
+                <Controller
+                    control={control}
+                    name="payerIdNumber"
+                    render={({ field }) => (
+                        <IdNumberField
+                            label="Cédula del pagador"
+                            optional
+                            error={errors.payerIdNumber?.message}
+                            {...field}
+                        />
+                    )}
                 />
                 <Controller
                     control={control}

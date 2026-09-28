@@ -1,17 +1,19 @@
-import type { KeyboardEvent } from 'react'
-import { Landmark, ListChecks, Lock } from 'lucide-react'
+import { useEffect, type KeyboardEvent } from 'react'
+import { Landmark, ListChecks, Lock, Smartphone } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 
 import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/utils/cn'
 import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
 import { BanksSection } from '@/views/admin/catalogs/components/BanksSection'
+import { MobilePrefixesSection } from '@/views/admin/catalogs/components/MobilePrefixesSection'
 import { OrderStatusesSection } from '@/views/admin/catalogs/components/OrderStatusesSection'
 import { useSession } from '@/views/admin/hooks/useSession'
 
 const SECTIONS = [
     { id: 'estados', label: 'Estados de pedido', icon: ListChecks },
     { id: 'bancos', label: 'Bancos', icon: Landmark },
+    { id: 'celulares', label: 'Códigos de celular', icon: Smartphone },
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
@@ -24,13 +26,20 @@ const TAB_PREFIX = 'catalog-section'
 
 /**
  * "Catálogos" (ADMIN only): the lists the business names and orders itself, kept in the
- * database. `?seccion=estados|bancos` picks the section, so a reload keeps it.
+ * database. `?seccion=estados|bancos|celulares` picks the section, so a reload keeps it.
  */
 export function AdminCatalogsView() {
     const { data: session } = useSession()
     const [searchParams, setSearchParams] = useSearchParams()
     const raw = searchParams.get('seccion')
     const active: SectionId = isSectionId(raw) ? raw : 'estados'
+
+    // On narrow screens the tabs scroll sideways: keep the open one in view (e.g. after a reload).
+    useEffect(() => {
+        document
+            .getElementById(`${TAB_PREFIX}-${active}`)
+            ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    }, [active])
 
     const select = (id: SectionId) =>
         setSearchParams(
@@ -61,7 +70,7 @@ export function AdminCatalogsView() {
                 <AdminPageHeader title="Catálogos" />
                 <EmptyState
                     title="Solo un administrador puede editar los catálogos"
-                    description="Pide a un administrador que cambie los estados de pedido o los bancos."
+                    description="Pide a un administrador que cambie los estados de pedido, los bancos o los códigos de celular."
                     icon={<Lock className="size-6" />}
                 />
             </>
@@ -72,7 +81,7 @@ export function AdminCatalogsView() {
         <>
             <AdminPageHeader
                 title="Catálogos"
-                description="Nombres y textos que se ven en la tienda y en el panel: los estados de los pedidos y los bancos de Pago Móvil."
+                description="Nombres y textos que se ven en la tienda y en el panel: los estados de los pedidos, los bancos de Pago Móvil y los códigos de celular."
             />
 
             <div
@@ -112,7 +121,13 @@ export function AdminCatalogsView() {
                 role="tabpanel"
                 aria-labelledby={`${TAB_PREFIX}-${active}`}
             >
-                {active === 'estados' ? <OrderStatusesSection /> : <BanksSection />}
+                {active === 'estados' ? (
+                    <OrderStatusesSection />
+                ) : active === 'bancos' ? (
+                    <BanksSection />
+                ) : (
+                    <MobilePrefixesSection />
+                )}
             </div>
         </>
     )

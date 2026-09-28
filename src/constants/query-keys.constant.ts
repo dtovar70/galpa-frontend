@@ -1,6 +1,7 @@
 import type { AdminProductQueryParams } from '@/@types/admin'
 import type { ProductQueryParams } from '@/@types/common'
 import type { AdminOrderQueryParams } from '@/@types/order'
+import type { AdminUserQueryParams } from '@/@types/user'
 
 /**
  * Hierarchical key factory: every list/detail key starts with its parent key so a
@@ -31,6 +32,7 @@ export const queryKeys = {
         all: ['catalogs'] as const,
         orderStatuses: () => [...queryKeys.catalogs.all, 'order-statuses'] as const,
         banks: () => [...queryKeys.catalogs.all, 'banks'] as const,
+        mobilePrefixes: () => [...queryKeys.catalogs.all, 'mobile-prefixes'] as const,
     },
     /** Current BCV rate for the approximate bolívar amounts (`GET /exchange-rate/current`). */
     exchangeRate: ['exchange-rate'] as const,
@@ -63,7 +65,16 @@ export const queryKeys = {
         },
         exchangeRate: () => [...queryKeys.admin.all, 'exchange-rate'] as const,
         banks: () => [...queryKeys.admin.all, 'banks'] as const,
+        mobilePrefixes: () => [...queryKeys.admin.all, 'mobile-prefixes'] as const,
         /** The status catalog with the WhatsApp templates (Catálogos). */
         orderStatuses: () => [...queryKeys.admin.all, 'order-statuses'] as const,
+        /** Telegram bot status and linked chats (`GET /admin/telegram`). */
+        telegram: () => [...queryKeys.admin.all, 'telegram'] as const,
+        /** Panel accounts (`GET /admin/users`), ADMIN only. */
+        users: {
+            all: () => [...queryKeys.admin.all, 'users'] as const,
+            list: (params: AdminUserQueryParams) =>
+                [...queryKeys.admin.users.all(), 'list', params] as const,
+        },
     },
 } as const

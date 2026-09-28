@@ -22,6 +22,8 @@ export type RoutePath = (typeof ROUTES)[RouteKey]
  */
 export const ADMIN_ROUTES = {
     login: '/admin/login',
+    /** "¿Olvidaste tu contraseña?": code by Telegram, then a new password. */
+    recover: '/admin/recuperar',
     root: '/admin',
     orders: '/admin/pedidos',
     orderDetail: '/admin/pedidos/:code',
@@ -32,6 +34,9 @@ export const ADMIN_ROUTES = {
     categories: '/admin/categorias',
     content: '/admin/contenido',
     catalogs: '/admin/catalogos',
+    telegram: '/admin/telegram',
+    users: '/admin/usuarios',
+    account: '/admin/cuenta',
 } as const
 
 export function adminOrderPath(code: string): string {
@@ -51,13 +56,22 @@ export function adminProductPath(id: string): string {
 export interface AdminLoginState {
     next?: string
     reason?: string
+    /** A success notice to show once, e.g. after resetting the password. */
+    notice?: AdminLoginNotice
 }
 
+export type AdminLoginNotice = 'password-reset'
+
 /** Navigation state for `navigate(ADMIN_ROUTES.login, { state })` and `<Navigate state>`. */
-export function adminLoginState(next?: string, reason?: string): AdminLoginState {
+export function adminLoginState(
+    next?: string,
+    reason?: string,
+    notice?: AdminLoginNotice,
+): AdminLoginState {
     const state: AdminLoginState = {}
     if (next) state.next = next
     if (reason) state.reason = reason
+    if (notice) state.notice = notice
     return state
 }
 

@@ -8,6 +8,7 @@ import {
     type SiteContent,
 } from '@/@types/content'
 import { findUnknownPlaceholder, hasBrokenHighlights } from '@/utils/content'
+import { idNumberSchema, mobilePhoneSchema, VE_PHONE_PATTERN } from '@/utils/veFormats'
 
 /**
  * Admin forms for the site content. They mirror the API DTOs (backend-cups/src/content/dto):
@@ -54,9 +55,7 @@ export const CONTENT_LIST_SIZES = {
 
 export const CONTENT_MAX_MONEY = 100_000
 
-export const VE_PHONE_PATTERN = /^0\d{3}-\d{7}$/
-export const VE_MOBILE_PATTERN = /^04\d{2}-\d{7}$/
-export const ID_NUMBER_PATTERN = /^[VEJPG]-\d{6,9}$/
+export { ID_NUMBER_PATTERN, VE_MOBILE_PATTERN, VE_PHONE_PATTERN } from '@/utils/veFormats'
 export const BANK_CODE_PATTERN = /^\d{4}$/
 export const SOCIAL_HANDLE_PATTERN = /^(?:[A-Za-z0-9._]{1,30})?$/
 
@@ -287,7 +286,7 @@ export const contactSchema = z.object({
         .max(L.email, `Máximo ${L.email} caracteres`)
         .pipe(z.email('Escribe un correo válido, por ejemplo hola@correo.com')),
     phone: pattern(VE_PHONE_PATTERN, PHONE_MESSAGE, 12),
-    whatsapp: pattern(VE_MOBILE_PATTERN, 'Usa un celular con el formato 0412-5550134', 12),
+    whatsapp: mobilePhoneSchema({ required: 'Escribe el número de WhatsApp' }),
     city: text(L.city),
     schedule: text(L.schedule),
     instagram: handle,
@@ -331,12 +330,8 @@ export type ShippingFormValues = z.input<typeof shippingSchema>
 export const paymentSchema = z.object({
     bankCode: pattern(BANK_CODE_PATTERN, 'Elige el banco', 4),
     bankName: text(L.bankName, { required: 'Elige el banco' }),
-    phone: pattern(VE_MOBILE_PATTERN, 'Usa un celular con el formato 0412-5550134', 12),
-    idNumber: z
-        .string()
-        .trim()
-        .toUpperCase()
-        .regex(ID_NUMBER_PATTERN, 'Usa el formato V-12345678 o J-123456789'),
+    phone: mobilePhoneSchema({ required: 'Escribe el teléfono de Pago Móvil' }),
+    idNumber: idNumberSchema({ required: 'Escribe la cédula o RIF' }),
     holderName: text(L.holderName, { required: 'Escribe el nombre del titular' }),
     instructions: text(L.instructions, { optional: true }),
 })

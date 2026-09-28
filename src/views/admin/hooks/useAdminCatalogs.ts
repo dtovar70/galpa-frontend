@@ -2,9 +2,11 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tansta
 
 import type {
     AdminBank,
+    AdminMobilePrefix,
     AdminOrderStatusCatalog,
     BankCreateInput,
     BankInput,
+    MobilePrefixCreateInput,
     OrderStatusCatalog,
     OrderStatusGroupInput,
     OrderStatusInput,
@@ -179,5 +181,96 @@ export function useReorderBanks() {
         },
         onSuccess: (banks) => queryClient.setQueryData<AdminBank[]>(listKey, banks),
         onSettled: () => invalidateBankCaches(queryClient),
+    })
+}
+
+/** The codes feed every mobile phone field (content, checkout, payments): both lists go stale. */
+function invalidateMobilePrefixCaches(queryClient: QueryClient): Promise<void> {
+    return Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.mobilePrefixes() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.catalogs.mobilePrefixes() }),
+    ]).then(() => undefined)
+}
+
+export function useAdminMobilePrefixes() {
+    return useQuery({
+        queryKey: queryKeys.admin.mobilePrefixes(),
+        queryFn: CatalogService.getAdminMobilePrefixes,
+    })
+}
+
+export function useCreateMobilePrefix() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (input: MobilePrefixCreateInput) => CatalogService.createMobilePrefix(input),
+        onSuccess: (prefix) => {
+            queryClient.setQueryData<AdminMobilePrefix[]>(
+                queryKeys.admin.mobilePrefixes(),
+                (current) => (current ? [...current, prefix] : current),
+            )
+            return invalidateMobilePrefixCaches(queryClient)
+        },
+    })
+}
+
+export function useSetMobilePrefixActive() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ code, isActive }: { code: string; isActive: boolean }) =>
+            CatalogService.setMobilePrefixActive(code, isActive),
+        onSuccess: (prefix) => {
+            queryClient.setQueryData<AdminMobilePrefix[]>(
+                queryKeys.admin.mobilePrefixes(),
+                (current) => current?.map((item) => (item.code === prefix.code ? prefix : item)),
+            )
+            return invalidateMobilePrefixCaches(queryClient)
+        },
+    })
+}
+
+export function useDeleteMobilePrefix() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (code: string) => CatalogService.deleteMobilePrefix(code),
+        onSuccess: (_data, code) => {
+            queryClient.setQueryData<AdminMobilePrefix[]>(
+                queryKeys.admin.mobilePrefixes(),
+                (current) => current?.filter((item) => item.code !== code),
+            )
+            return invalidateMobilePrefixCaches(queryClient)
+        },
+        // A 409 means the usage shown was stale: refresh it.
+        onError: () =>
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.mobilePrefixes() }),
+    })
+}
+
+/** Saves the select order; the admin list moves optimistically and rolls back on failure. */
+export function useReorderMobilePrefixes() {
+    const queryClient = useQueryClient()
+    const listKey = queryKeys.admin.mobilePrefixes()
+
+    return useMutation({
+        mutationFn: (codes: string[]) => CatalogService.reorderMobilePrefixes(codes),
+        onMutate: async (codes) => {
+            await queryClient.cancelQueries({ queryKey: listKey })
+            const previous = queryClient.getQueryData<AdminMobilePrefix[]>(listKey)
+            if (previous) {
+                const byCode = new Map(previous.map((prefix) => [prefix.code, prefix]))
+                queryClient.setQueryData<AdminMobilePrefix[]>(
+                    listKey,
+                    codes.flatMap((code, sortOrder) => {
+                        const prefix = byCode.get(code)
+                        return prefix ? [{ ...prefix, sortOrder }] : []
+                    }),
+                )
+            }
+            return { previous }
+        },
+        onError: (_error, _codes, context) => {
+            if (context?.previous) queryClient.setQueryData(listKey, context.previous)
+        },
+        onSuccess: (prefixes) => queryClient.setQueryData<AdminMobilePrefix[]>(listKey, prefixes),
+        onSettled: () => invalidateMobilePrefixCaches(queryClient),
     })
 }

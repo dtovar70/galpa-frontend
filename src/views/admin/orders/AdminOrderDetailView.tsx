@@ -18,6 +18,7 @@ import { OrderHistory } from '@/views/admin/orders/components/OrderHistory'
 import { OrderItemsTable } from '@/views/admin/orders/components/OrderItemsTable'
 import { OrderNotes } from '@/views/admin/orders/components/OrderNotes'
 import { OrderPayments } from '@/views/admin/orders/components/OrderPayments'
+import { OrderQrAction } from '@/views/admin/orders/components/OrderQrAction'
 import { WhatsAppNoticeAction } from '@/views/admin/orders/components/WhatsAppNoticeAction'
 
 function BackLink() {
@@ -100,6 +101,7 @@ export function AdminOrderDetailView() {
 
             <div className="mb-4 flex flex-wrap items-start gap-2">
                 <WhatsAppNoticeAction order={order} />
+                <OrderQrAction order={order} />
                 {order.receiptAvailable ? (
                     <ReceiptDownloadButton
                         code={order.code}

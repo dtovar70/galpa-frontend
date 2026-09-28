@@ -21,7 +21,8 @@ import {
 import { cn } from '@/utils/cn'
 import { useMediaQuery } from '@/utils/hooks/useMediaQuery'
 
-const TWO_MONTHS_QUERY = '(min-width: 860px)'
+/** Two months need ~750px (presets included); narrower windows get one, never a squeeze. */
+const TWO_MONTHS_QUERY = '(min-width: 50rem)'
 
 /*
  * The range reads as one pill: the cells carry the pale band (rounded at both ends) and the
@@ -206,12 +207,15 @@ export function DateRangePicker({
                 aria-label="Elegir rango de fechas"
                 className="sm:w-max"
             >
-                <div className="flex flex-col sm:flex-row">
-                    <div className="border-line px-4 pt-3 sm:w-44 sm:border-r-2 sm:py-4 sm:pr-3 sm:pl-3">
-                        <p className="mb-2 px-1 text-xs font-bold tracking-wide text-ink-soft uppercase sm:mb-2.5">
+                {/* Phones: presets, calendar and actions stacked. Wider: the presets and the
+                    actions share a slim left column, so the panel is only as tall as the
+                    calendar and fits short windows. */}
+                <div className="flex flex-col sm:grid sm:grid-cols-[11rem_auto] sm:grid-rows-[auto_1fr]">
+                    <div className="px-4 pt-3 sm:col-start-1 sm:row-start-1 sm:px-3 sm:pt-3">
+                        <p className="mb-2 px-1 text-xs font-bold tracking-wide text-ink-soft uppercase sm:mb-1.5 sm:px-2.5 sm:text-[0.7rem]">
                             Atajos
                         </p>
-                        <ul className="-mx-4 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-col sm:gap-0.5 sm:overflow-visible sm:px-0 sm:pb-0">
+                        <ul className="-mx-4 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-col sm:gap-0 sm:overflow-visible sm:px-0 sm:pb-0">
                             {DATE_RANGE_PRESETS.map((preset) => {
                                 const isActive = activePreset === preset.id
                                 return (
@@ -221,7 +225,7 @@ export function DateRangePicker({
                                             aria-pressed={isActive}
                                             onClick={() => applyPreset(preset.range(today))}
                                             className={cn(
-                                                'w-full rounded-full border-2 px-3 py-1.5 text-left text-sm font-semibold whitespace-nowrap transition sm:rounded-xl sm:border-0 sm:py-2',
+                                                'w-full rounded-full border-2 px-3 py-1.5 text-left text-sm font-semibold whitespace-nowrap transition sm:rounded-lg sm:border-0 sm:px-2.5 sm:py-1',
                                                 isActive
                                                     ? 'border-blush-400 bg-blush-100 text-blush-700'
                                                     : 'border-line text-ink-soft hover:bg-blush-50 hover:text-ink',
@@ -235,67 +239,60 @@ export function DateRangePicker({
                         </ul>
                     </div>
 
-                    <div className="flex flex-col">
-                        <div className="flex justify-center px-4 pt-3 sm:px-5 sm:pt-4">
-                            <DayPicker
-                                mode="range"
-                                locale={es}
-                                weekStartsOn={1}
-                                numberOfMonths={twoMonths ? 2 : 1}
-                                month={month}
-                                onMonthChange={setMonth}
-                                endMonth={today}
-                                today={today}
-                                disabled={{ after: today }}
-                                modifiers={{ preview_end: preview }}
-                                modifiersClassNames={{ preview_end: PREVIEW_END_CLASS }}
-                                selected={shown}
-                                onSelect={(_range, day) => pick(day)}
-                                onDayMouseEnter={(day) => setHovered(day)}
-                                onDayMouseLeave={() => setHovered(undefined)}
-                                onDayFocus={(day) => setHovered(day)}
-                                autoFocus
-                                classNames={{
-                                    ...RANGE_CALENDAR_CLASSES,
-                                    root: cn(
-                                        RANGE_CALENDAR_CLASSES.root,
-                                        preview && 'is-previewing',
-                                    ),
-                                }}
-                                components={{ Chevron: CalendarChevron }}
-                            />
-                        </div>
+                    <div className="flex justify-center px-4 pt-3 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:border-l-2 sm:border-line sm:px-4 sm:py-3">
+                        <DayPicker
+                            mode="range"
+                            locale={es}
+                            weekStartsOn={1}
+                            numberOfMonths={twoMonths ? 2 : 1}
+                            month={month}
+                            onMonthChange={setMonth}
+                            endMonth={today}
+                            today={today}
+                            disabled={{ after: today }}
+                            modifiers={{ preview_end: preview }}
+                            modifiersClassNames={{ preview_end: PREVIEW_END_CLASS }}
+                            selected={shown}
+                            onSelect={(_range, day) => pick(day)}
+                            onDayMouseEnter={(day) => setHovered(day)}
+                            onDayMouseLeave={() => setHovered(undefined)}
+                            onDayFocus={(day) => setHovered(day)}
+                            autoFocus
+                            classNames={{
+                                ...RANGE_CALENDAR_CLASSES,
+                                root: cn(RANGE_CALENDAR_CLASSES.root, preview && 'is-previewing'),
+                            }}
+                            components={{ Chevron: CalendarChevron }}
+                        />
+                    </div>
 
-                        <div className="mt-2 flex flex-col gap-3 border-t-2 border-line px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                            <p
-                                aria-live="polite"
-                                className={cn(
-                                    'text-sm',
-                                    draft.from && draft.to
-                                        ? 'font-semibold text-ink'
-                                        : 'text-ink-soft',
-                                )}
+                    <div className="mt-2 flex flex-col gap-3 border-t-2 border-line px-4 py-3 sm:col-start-1 sm:row-start-2 sm:mt-0 sm:gap-2 sm:self-end sm:border-t-0 sm:px-3 sm:pt-2 sm:pb-3">
+                        <p
+                            aria-live="polite"
+                            className={cn(
+                                'text-sm sm:px-1 sm:text-xs sm:leading-4',
+                                draft.from && draft.to ? 'font-semibold text-ink' : 'text-ink-soft',
+                            )}
+                        >
+                            {status}
+                        </p>
+                        <div className="flex gap-2 sm:gap-1.5">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={closeAndReturn}
+                                className="flex-1 sm:px-2"
                             >
-                                {status}
-                            </p>
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={closeAndReturn}
-                                    className="flex-1 sm:flex-none"
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    onClick={apply}
-                                    disabled={!draft.from && !hasValue}
-                                    className="flex-1 sm:flex-none"
-                                >
-                                    Aplicar
-                                </Button>
-                            </div>
+                                Cancelar
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={apply}
+                                disabled={!draft.from && !hasValue}
+                                className="flex-1 sm:px-2"
+                            >
+                                Aplicar
+                            </Button>
                         </div>
                     </div>
                 </div>

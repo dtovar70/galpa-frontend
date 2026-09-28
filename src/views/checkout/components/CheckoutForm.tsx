@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useEffect } from 'react'
 
+import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
 import { Alert, Button, Input, Select, Textarea, type SelectOption } from '@/components/ui'
 import { isApiError } from '@/services/errors'
 import {
     CHECKOUT_FIELDS,
     CHECKOUT_NOTES_MAX_LENGTH,
-    CHECKOUT_PHONE_MAX_LENGTH,
     checkoutSchema,
     DELIVERY_METHOD_LABELS,
     DELIVERY_METHODS,
@@ -91,13 +91,18 @@ export function CheckoutForm({
                     error={errors.email?.message}
                     {...register('email')}
                 />
-                <Input
-                    label="Teléfono"
-                    type="tel"
-                    autoComplete="tel"
-                    maxLength={CHECKOUT_PHONE_MAX_LENGTH}
-                    error={errors.phone?.message}
-                    {...register('phone')}
+                <Controller
+                    control={control}
+                    name="phone"
+                    render={({ field }) => (
+                        <MobilePhoneField
+                            label="Celular"
+                            autoComplete="tel-national"
+                            hint="Te avisamos por WhatsApp cómo va tu pedido."
+                            error={errors.phone?.message}
+                            {...field}
+                        />
+                    )}
                 />
                 <Input
                     label="Ciudad"

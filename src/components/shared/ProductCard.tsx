@@ -32,6 +32,7 @@ export function ProductCard({ product }: ProductCardProps) {
     const { min: fromPrice, max: toPrice } = priceRange(product)
     const accentColor = useCategory(product.category)?.colorHex
     const surface = categorySurface(product.category, accentColor ?? product.colorHex)
+    const coverImage = product.images.at(0)
 
     const prefetchDetail = () => {
         void queryClient.prefetchQuery(productDetailQueryOptions(product.slug))
@@ -45,14 +46,18 @@ export function ProductCard({ product }: ProductCardProps) {
             onFocus={prefetchDetail}
             className="group relative flex h-full flex-col overflow-hidden"
         >
+            {/*
+              Fixed square frame. Photos (usually shot on white) get a white surface and are
+              contained below the badges, uncropped; drawings keep the category surface.
+            */}
             <div
                 className={cn(
-                    'relative flex items-center justify-center px-6 py-6',
-                    surface.className,
+                    'relative flex aspect-square items-center justify-center overflow-hidden px-6 py-6',
+                    coverImage ? 'bg-white' : surface.className,
                 )}
-                style={surface.style}
+                style={coverImage ? undefined : surface.style}
             >
-                <ul className="absolute top-4 left-4 flex flex-wrap gap-1.5">
+                <ul className="absolute top-4 left-4 z-10 flex flex-wrap gap-1.5">
                     {product.tags.slice(0, VISIBLE_TAGS).map((tag) => (
                         <li key={tag}>
                             <Badge tone={TAG_TONE[tag]} size="sm">
@@ -67,10 +72,15 @@ export function ProductCard({ product }: ProductCardProps) {
                     color={product.colorHex}
                     printText={product.printText}
                     accentColor={accentColor}
-                    image={product.images.at(0)}
+                    image={coverImage}
                     fallbackAlt={product.name}
                     size="md"
-                    className="transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transform-none"
+                    className={cn(
+                        'transition-transform duration-300 motion-reduce:transform-none',
+                        coverImage
+                            ? 'absolute inset-0 size-full max-w-none rounded-none object-contain px-6 pt-14 pb-6 group-hover:scale-105'
+                            : 'group-hover:-translate-y-1',
+                    )}
                 />
             </div>
 

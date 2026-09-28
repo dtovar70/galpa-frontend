@@ -53,6 +53,12 @@ export const AdminShell = lazy(() =>
     import('@/views/admin/AdminShell').then((module) => ({ default: module.AdminShell })),
 )
 
+export const AdminPasswordRecoveryView = lazy(() =>
+    import('@/views/admin/auth/AdminPasswordRecoveryView').then((module) => ({
+        default: module.AdminPasswordRecoveryView,
+    })),
+)
+
 export const AdminLoginView = lazy(() =>
     import('@/views/admin/auth/AdminLoginView').then((module) => ({
         default: module.AdminLoginView,
@@ -92,6 +98,24 @@ export const AdminContentView = lazy(() =>
 export const AdminCatalogsView = lazy(() =>
     import('@/views/admin/catalogs/AdminCatalogsView').then((module) => ({
         default: module.AdminCatalogsView,
+    })),
+)
+
+export const AdminTelegramView = lazy(() =>
+    import('@/views/admin/telegram/AdminTelegramView').then((module) => ({
+        default: module.AdminTelegramView,
+    })),
+)
+
+export const AdminUsersView = lazy(() =>
+    import('@/views/admin/users/AdminUsersView').then((module) => ({
+        default: module.AdminUsersView,
+    })),
+)
+
+export const AdminAccountView = lazy(() =>
+    import('@/views/admin/account/AdminAccountView').then((module) => ({
+        default: module.AdminAccountView,
     })),
 )
 

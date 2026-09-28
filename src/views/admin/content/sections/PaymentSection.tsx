@@ -1,5 +1,7 @@
-import { useWatch } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 
+import { IdNumberField } from '@/components/shared/IdNumberField'
+import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
 import { Input, Select, Textarea } from '@/components/ui'
 import { bankOptionLabel, useBanks } from '@/utils/hooks/useBanks'
 import { FieldGroup, FieldRow } from '@/views/admin/content/components/FieldGroup'
@@ -60,20 +62,28 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
                     {...bankField}
                 />
                 <FieldRow>
-                    <Input
-                        label="Teléfono"
-                        inputMode="tel"
-                        placeholder="0412-5550134"
-                        error={errors.phone?.message}
-                        {...register('phone')}
+                    <Controller
+                        control={control}
+                        name="phone"
+                        render={({ field }) => (
+                            <MobilePhoneField
+                                label="Teléfono"
+                                hint="Los códigos se editan en Catálogos."
+                                error={errors.phone?.message}
+                                {...field}
+                            />
+                        )}
                     />
-                    <Input
-                        label="Cédula o RIF"
-                        placeholder="V-12345678"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        error={errors.idNumber?.message}
-                        {...register('idNumber')}
+                    <Controller
+                        control={control}
+                        name="idNumber"
+                        render={({ field }) => (
+                            <IdNumberField
+                                label="Cédula o RIF"
+                                error={errors.idNumber?.message}
+                                {...field}
+                            />
+                        )}
                     />
                 </FieldRow>
                 <Input

@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LogIn } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 
 import { RouteFallback } from '@/components/route/RouteFallback'
-import { Alert, Button, Card, Input } from '@/components/ui'
-import { appConfig } from '@/configs/app.config'
+import { Alert, Button, Input } from '@/components/ui'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { isSessionEndReason, SESSION_END_NOTICES } from '@/configs/session.config'
-import { ADMIN_ROUTES, adminLoginState } from '@/constants/route.constant'
+import { ADMIN_ROUTES, adminLoginState, type AdminLoginNotice } from '@/constants/route.constant'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { useSessionStore } from '@/store/sessionStore'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
+import { AdminAuthCard } from '@/views/admin/auth/components/AdminAuthCard'
 import {
     LOGIN_PASSWORD_MAX_LENGTH,
     loginSchema,
@@ -31,13 +32,30 @@ function resolveNext(next: string | null | undefined): string {
     return next.startsWith(ADMIN_ROUTES.login) ? ADMIN_ROUTES.orders : next
 }
 
+/** One-time success notices other pages send along (`notice` in the navigation state). */
+const LOGIN_NOTICES: Record<AdminLoginNotice, string> = {
+    'password-reset': 'Tu contraseña se cambió. Inicia sesión con la nueva.',
+}
+
+interface LoginStateFields {
+    next: string | null
+    reason: string | null
+    notice: AdminLoginNotice | null
+}
+
 /** Navigation state is untyped (`unknown`): read only the string fields we expect. */
-function readLoginState(state: unknown): { next: string | null; reason: string | null } {
-    if (typeof state !== 'object' || state === null) return { next: null, reason: null }
-    const { next, reason } = state as Record<string, unknown>
+function readLoginState(state: unknown): LoginStateFields {
+    if (typeof state !== 'object' || state === null) {
+        return { next: null, reason: null, notice: null }
+    }
+    const { next, reason, notice } = state as Record<string, unknown>
     return {
         next: typeof next === 'string' ? next : null,
         reason: typeof reason === 'string' ? reason : null,
+        notice:
+            typeof notice === 'string' && Object.hasOwn(LOGIN_NOTICES, notice)
+                ? (notice as AdminLoginNotice)
+                : null,
     }
 }
 
@@ -59,6 +77,7 @@ export function AdminLoginView() {
     const next = resolveNext(fromState.next ?? searchParams.get('next'))
     const endReason = fromState.reason ?? searchParams.get('reason')
     const endNotice = isSessionEndReason(endReason) ? SESSION_END_NOTICES[endReason] : null
+    const successNotice = fromState.notice ? LOGIN_NOTICES[fromState.notice] : null
     const setEndReason = useSessionStore((state) => state.setEndReason)
     const { data: user, isPending: isCheckingSession } = useSession()
     const login = useLogin()
@@ -109,85 +128,74 @@ export function AdminLoginView() {
     if (user && !login.isPending) return <Navigate to={next} replace />
 
     return (
-        <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream px-4 py-12">
-            <span
-                aria-hidden="true"
-                className="absolute top-1/4 -left-24 size-80 rounded-full bg-sky-200 opacity-50 blur-3xl"
-            />
-            <span
-                aria-hidden="true"
-                className="absolute -right-24 bottom-1/4 size-80 rounded-full bg-blush-200 opacity-50 blur-3xl"
-            />
-
-            <Card padding="lg" elevation="lift" className="relative w-full max-w-md space-y-6">
-                <div className="flex flex-col items-center gap-3 text-center">
-                    <img
-                        src={appConfig.logo.src}
-                        srcSet={appConfig.logo.srcSet}
-                        sizes="64px"
-                        alt=""
-                        width={64}
-                        height={64}
-                        className="size-16 rounded-2xl ring-1 ring-ink/5"
-                    />
-                    <div className="space-y-1">
-                        <h1 className="font-display text-3xl text-ink">Panel de administración</h1>
-                        <p className="text-sm text-ink-soft">{general.brandName}</p>
-                    </div>
-                </div>
-
-                <form onSubmit={onSubmit} noValidate className="space-y-5">
-                    {endNotice ? (
-                        <Alert
-                            tone="info"
-                            autoDismissMs={NOTICE_DISMISS_MS}
-                            onDismiss={dismissNotice}
-                        >
-                            {endNotice}
-                        </Alert>
-                    ) : null}
-                    {errorMessage ? (
-                        // Like the success notices: it drains away, pauses on hover and can be
-                        // closed; clearing the mutation error is what removes it.
-                        <Alert
-                            key={`${attempt}:${errorMessage}`}
-                            autoDismissMs={NOTICE_DISMISS_MS}
-                            onDismiss={login.reset}
-                        >
-                            {errorMessage}
-                        </Alert>
-                    ) : null}
-
-                    <fieldset className="space-y-5" disabled={login.isPending}>
-                        <legend className="sr-only">Inicia sesión</legend>
-                        <Input
-                            label="Correo"
-                            type="email"
-                            autoComplete="username"
-                            autoFocus
-                            error={errors.email?.message}
-                            {...register('email')}
-                        />
-                        <Input
-                            label="Contraseña"
-                            type="password"
-                            autoComplete="current-password"
-                            maxLength={LOGIN_PASSWORD_MAX_LENGTH}
-                            error={errors.password?.message}
-                            {...register('password')}
-                        />
-                    </fieldset>
-
-                    <Button
-                        type="submit"
-                        fullWidth
-                        isLoading={login.isPending}
-                        leadingIcon={<LogIn aria-hidden="true" className="size-4" />}
+        <AdminAuthCard
+            title="Panel de administración"
+            subtitle={general.brandName}
+            footer={<p>¿No recuerdas tu correo? Pídeselo a un administrador.</p>}
+        >
+            <form onSubmit={onSubmit} noValidate className="space-y-5">
+                {successNotice ? (
+                    <Alert
+                        tone="success"
+                        autoDismissMs={NOTICE_DISMISS_MS}
+                        onDismiss={dismissNotice}
                     >
-                        Iniciar sesión
-                    </Button>
-                </form>
-            </Card>
-        </main>
+                        {successNotice}
+                    </Alert>
+                ) : null}
+                {endNotice ? (
+                    <Alert tone="info" autoDismissMs={NOTICE_DISMISS_MS} onDismiss={dismissNotice}>
+                        {endNotice}
+                    </Alert>
+                ) : null}
+                {errorMessage ? (
+                    // Like the success notices: it drains away, pauses on hover and can be
+                    // closed; clearing the mutation error is what removes it.
+                    <Alert
+                        key={`${attempt}:${errorMessage}`}
+                        autoDismissMs={NOTICE_DISMISS_MS}
+                        onDismiss={login.reset}
+                    >
+                        {errorMessage}
+                    </Alert>
+                ) : null}
+
+                <fieldset className="space-y-5" disabled={login.isPending}>
+                    <legend className="sr-only">Inicia sesión</legend>
+                    <Input
+                        label="Correo"
+                        type="email"
+                        autoComplete="username"
+                        autoFocus
+                        error={errors.email?.message}
+                        {...register('email')}
+                    />
+                    <PasswordInput
+                        label="Contraseña"
+                        autoComplete="current-password"
+                        maxLength={LOGIN_PASSWORD_MAX_LENGTH}
+                        error={errors.password?.message}
+                        {...register('password')}
+                    />
+                    <p className="-mt-2 text-right text-sm">
+                        <Link
+                            to={ADMIN_ROUTES.recover}
+                            className="font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400"
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </Link>
+                    </p>
+                </fieldset>
+
+                <Button
+                    type="submit"
+                    fullWidth
+                    isLoading={login.isPending}
+                    leadingIcon={<LogIn aria-hidden="true" className="size-4" />}
+                >
+                    Iniciar sesión
+                </Button>
+            </form>
+        </AdminAuthCard>
     )
 }

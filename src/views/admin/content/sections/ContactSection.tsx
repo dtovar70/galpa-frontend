@@ -1,6 +1,7 @@
 import { AtSign } from 'lucide-react'
-import { useWatch } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 
+import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
 import { Input } from '@/components/ui'
 import { formatVePhone, whatsappUrl } from '@/utils/content'
 import { FieldGroup, FieldRow } from '@/views/admin/content/components/FieldGroup'
@@ -54,17 +55,21 @@ export function ContactSection(props: SectionFormProps<'contact'>) {
                         error={errors.phone?.message}
                         {...register('phone')}
                     />
-                    <Input
-                        label="WhatsApp"
-                        inputMode="tel"
-                        placeholder="0412-5550134"
-                        hint={
-                            VE_MOBILE_PATTERN.test(whatsapp.trim())
-                                ? `Enlace: ${whatsappUrl(whatsapp.trim())}`
-                                : 'Un celular con el formato 0412-5550134.'
-                        }
-                        error={errors.whatsapp?.message}
-                        {...register('whatsapp')}
+                    <Controller
+                        control={control}
+                        name="whatsapp"
+                        render={({ field }) => (
+                            <MobilePhoneField
+                                label="WhatsApp"
+                                hint={
+                                    VE_MOBILE_PATTERN.test(whatsapp.trim())
+                                        ? `Enlace: ${whatsappUrl(whatsapp.trim())}`
+                                        : 'Elige el código y escribe los 7 números.'
+                                }
+                                error={errors.whatsapp?.message}
+                                {...field}
+                            />
+                        )}
                     />
                 </FieldRow>
                 <FieldRow>

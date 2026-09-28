@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent } from 'react'
+import type { KeyboardEvent } from 'react'
 
 import type { OrderStatus } from '@/@types/order'
 import { Skeleton } from '@/components/ui'
@@ -10,6 +10,16 @@ import {
 } from '@/views/admin/orders/utils/orderGroups'
 
 const SKELETON_TABS = 5
+
+/*
+ * The control's width decides the layout (a container query): wide, one segmented row; narrow,
+ * the tabs wrap into rows of equal pills that fill each row, so every tab stays visible.
+ * 42rem fits the whole row with two-digit counts.
+ */
+const TABLIST_CLASS =
+    'flex flex-wrap gap-1 rounded-3xl border-2 border-line bg-white p-1 @2xl:w-max @2xl:flex-nowrap @2xl:rounded-full'
+/** Narrow, each pill grows from 9.5rem: two per row on phones, three on wider containers. */
+const TAB_SIZE_CLASS = 'flex-[1_1_9.5rem] @2xl:flex-none'
 
 export interface OrderGroupTabsProps {
     /** The catalog's tabs plus "Todos", in order. */
@@ -24,9 +34,10 @@ export interface OrderGroupTabsProps {
 }
 
 /**
- * The orders page's main switch, one tab per workflow step. A segmented control that scrolls
- * sideways on phones instead of wrapping into a wall of chips. Arrow keys move between tabs
- * (and select them), following the ARIA tabs pattern.
+ * The orders page's main switch, one tab per workflow step. A segmented control on wide
+ * containers; on narrow ones the tabs wrap into rows of equal pills (see `TABLIST_CLASS`).
+ * Arrow keys move between tabs in reading order (and select them), following the ARIA tabs
+ * pattern.
  */
 export function OrderGroupTabs({
     groups,
@@ -36,21 +47,6 @@ export function OrderGroupTabs({
     idPrefix,
     onSelect,
 }: OrderGroupTabsProps) {
-    const scrollerRef = useRef<HTMLDivElement>(null)
-
-    /* On phones the row scrolls: bring the selected tab into view ("Todos" sits past the edge). */
-    useEffect(() => {
-        const scroller = scrollerRef.current
-        const tab = active ? document.getElementById(`${idPrefix}-tab-${active}`) : null
-        if (!scroller || !tab || scroller.scrollWidth <= scroller.clientWidth) return
-        // The scroller is `relative`, so it is the offset parent.
-        const tabStart = tab.offsetLeft
-        const tabEnd = tabStart + tab.offsetWidth
-        if (tabStart < scroller.scrollLeft || tabEnd > scroller.scrollLeft + scroller.clientWidth) {
-            scroller.scrollLeft = tabStart - (scroller.clientWidth - tab.offsetWidth) / 2
-        }
-    }, [active, idPrefix])
-
     const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         const ids = groups.map((group) => group.id)
         const current = ids.indexOf(active ?? ALL_ORDERS_GROUP_ID)
@@ -78,21 +74,27 @@ export function OrderGroupTabs({
 
     if (isLoading) {
         return (
-            <div className="flex w-max gap-1 rounded-full border-2 border-line bg-white p-1">
-                {Array.from({ length: SKELETON_TABS }, (_, index) => (
-                    <Skeleton key={index} shape="circle" className="h-9 w-24" />
-                ))}
+            <div className="@container">
+                <div className={TABLIST_CLASS}>
+                    {Array.from({ length: SKELETON_TABS }, (_, index) => (
+                        <Skeleton
+                            key={index}
+                            shape="circle"
+                            className={cn('h-9 @2xl:w-24', TAB_SIZE_CLASS)}
+                        />
+                    ))}
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="-mx-4 [scrollbar-width:none] overflow-x-auto px-4 py-1 sm:mx-0 sm:px-0">
+        <div className="@container">
             <div
                 role="tablist"
                 aria-label="Pedidos por etapa"
                 onKeyDown={onKeyDown}
-                className="flex w-max gap-1 rounded-full border-2 border-line bg-white p-1"
+                className={TABLIST_CLASS}
             >
                 {groups.map((group) => {
                     const { id } = group
@@ -112,7 +114,8 @@ export function OrderGroupTabs({
                             }
                             onClick={() => onSelect(id)}
                             className={cn(
-                                'inline-flex items-center gap-2 rounded-full py-2 pr-2.5 pl-4 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-offset-white',
+                                'inline-flex items-center justify-center gap-2 rounded-full py-2 pr-2.5 pl-4 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-offset-white',
+                                TAB_SIZE_CLASS,
                                 isActive
                                     ? 'bg-blush-100 text-blush-800'
                                     : 'text-ink-soft hover:bg-blush-50 hover:text-ink',

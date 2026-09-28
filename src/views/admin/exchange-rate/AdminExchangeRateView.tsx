@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type ClipboardEvent, type FormEvent } from 'react'
 import { Landmark, RefreshCw } from 'lucide-react'
 
 import type { RateSyncResult } from '@/@types/exchange-rate'
@@ -30,6 +30,11 @@ function latestValueDate(): string {
     return date.toISOString().slice(0, 10)
 }
 
+/** Ends a sentence without doubling the period of "12:00 a. m.". */
+function withPeriod(text: string): string {
+    return text.endsWith('.') ? text : `${text}.`
+}
+
 const headerCellClass =
     'px-4 py-3 text-left text-xs font-bold tracking-wide text-ink-soft uppercase'
 const cellClass = 'px-4 py-3 align-middle'
@@ -50,11 +55,54 @@ function syncMessage(sync: RateSyncResult): { tone: 'success' | 'error' | 'info'
         : { tone: 'info', text: `La tasa no cambió (${rate}).` }
 }
 
-/** "854,4637" -> 854.4637 */
+/*
+ * The manual rate mirrors the API's `ManualRateDto`: more than 0, at most 100.000.000 (the
+ * providers' MAX_PLAUSIBLE_RATE) and 4 decimals. The field takes digits and one decimal comma.
+ */
+const RATE_MAX = 100_000_000
+const RATE_MAX_INTEGER_DIGITS = 9
+const RATE_MAX_DECIMALS = 4
+/** "100000000,0000" */
+const RATE_MAX_LENGTH = RATE_MAX_INTEGER_DIGITS + 1 + RATE_MAX_DECIMALS
+
+/** Rates the way the field takes them: no thousands separator, comma, 4 decimals. */
+const rateFieldFormatter = new Intl.NumberFormat('es-VE', {
+    minimumFractionDigits: RATE_MAX_DECIMALS,
+    maximumFractionDigits: RATE_MAX_DECIMALS,
+    useGrouping: false,
+})
+
+/**
+ * Keeps what a rate can hold while typing: digits and one decimal comma (a dot becomes the
+ * comma), up to 9 integer digits and 4 decimals. Anything else is dropped. "85x7.0" -> "857,0"
+ */
+function sanitizeRateInput(value: string): string {
+    const [integer = '', ...rest] = value
+        .replace(/\./g, ',')
+        .replace(/[^\d,]/g, '')
+        .split(',')
+    const head = integer.slice(0, RATE_MAX_INTEGER_DIGITS)
+    return rest.length ? `${head},${rest.join('').slice(0, RATE_MAX_DECIMALS)}` : head
+}
+
+/**
+ * A pasted rate may come formatted: "857.0058", "Bs 1.234,56", "1,234.56". With both marks the
+ * last one is the decimal; a mark repeated alone is a thousands separator.
+ */
+function normalizePastedRate(text: string): string {
+    const kept = text.replace(/[^\d.,]/g, '')
+    const lastMark = Math.max(kept.lastIndexOf('.'), kept.lastIndexOf(','))
+    if (lastMark === -1) return kept
+    const mark = kept.charAt(lastMark)
+    const hasBoth = kept.includes('.') && kept.includes(',')
+    const repeated = kept.split(mark).length > 2
+    if (!hasBoth && repeated) return kept.replace(/[.,]/g, '')
+    return `${kept.slice(0, lastMark).replace(/[.,]/g, '')},${kept.slice(lastMark + 1)}`
+}
+
+/** "857,0058" -> 857.0058 (the field only ever holds digits and one comma). */
 function parseRate(value: string): number {
-    const text = value.trim()
-    const normalized = text.includes(',') ? text.replace(/\./g, '').replace(',', '.') : text
-    return /^\d+(?:\.\d{1,4})?$/.test(normalized) ? Number(normalized) : Number.NaN
+    return /^\d+(?:,\d{1,4})?$/.test(value) ? Number(value.replace(',', '.')) : Number.NaN
 }
 
 export function AdminExchangeRateView() {
@@ -71,11 +119,33 @@ export function AdminExchangeRateView() {
         text: string
     } | null>(null)
 
+    const current = data?.current
+    const currentRateText = current ? rateFieldFormatter.format(current.rate) : undefined
+    const rateExample = currentRateText ?? '36,5000'
+
+    /* Pasting replaces the selection with the normalized rate, e.g. "857.0058" -> "857,0058". */
+    const pasteRate = (event: ClipboardEvent<HTMLInputElement>) => {
+        event.preventDefault()
+        const input = event.currentTarget
+        const start = input.selectionStart ?? input.value.length
+        const end = input.selectionEnd ?? start
+        const pasted = normalizePastedRate(event.clipboardData.getData('text'))
+        setRateInput(
+            sanitizeRateInput(input.value.slice(0, start) + pasted + input.value.slice(end)),
+        )
+    }
+
     const submitManual = (event: FormEvent) => {
         event.preventDefault()
         const rate = parseRate(rateInput)
         if (!(rate > 0)) {
-            setRateError('Escribe la tasa con hasta 4 decimales, por ejemplo 854,4637')
+            setRateError(
+                `Escribe un precio mayor que 0, con hasta 4 decimales (por ejemplo ${rateExample}).`,
+            )
+            return
+        }
+        if (rate > RATE_MAX) {
+            setRateError('El precio no puede pasar de 100.000.000 Bs.')
             return
         }
         setRateError(undefined)
@@ -106,8 +176,6 @@ export function AdminExchangeRateView() {
                 setNotice({ tone: 'error', text: getErrorMessage(refreshError) }),
         })
     }
-
-    const current = data?.current
 
     return (
         <>
@@ -180,14 +248,16 @@ export function AdminExchangeRateView() {
                                     </p>
                                     {current.isStale ? (
                                         <Alert>
-                                            Esta tasa tiene más de {data.maxAgeHours} horas: la
+                                            Esta tasa venció el{' '}
+                                            {withPeriod(formatDateTime(current.usableUntil))} La
                                             tienda no acepta pedidos hasta que haya una más
                                             reciente.
                                         </Alert>
                                     ) : (
                                         <p className="text-xs text-ink-soft">
-                                            Válida para pedidos hasta el{' '}
-                                            {formatDateTime(current.usableUntil)}.
+                                            Se reemplaza sola cuando el BCV publique una nueva. Si
+                                            no llega ninguna, los pedidos se pausan el{' '}
+                                            {withPeriod(formatDateTime(current.usableUntil))}
                                         </p>
                                     )}
                                 </>
@@ -202,7 +272,7 @@ export function AdminExchangeRateView() {
                                 {Math.round(data.syncIntervalMinutes / 60) || 1} h (primero
                                 bcv.org.ve y, si no responde, DolarApi).
                                 {data.lastSync
-                                    ? ` Última consulta: ${formatDateTime(data.lastSync.at)}.`
+                                    ? ` Última consulta: ${withPeriod(formatDateTime(data.lastSync.at))}`
                                     : ''}
                             </p>
                         </Card>
@@ -214,15 +284,32 @@ export function AdminExchangeRateView() {
                                 hasta que el BCV publique una tasa distinta, que la reemplaza sola.
                             </p>
                             {isAdmin ? (
-                                <form onSubmit={submitManual} noValidate className="space-y-3">
-                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <form
+                                    onSubmit={submitManual}
+                                    noValidate
+                                    className="@container space-y-4"
+                                >
+                                    {/* Side by side only on a wide card, so "25 sep 2026" never
+                                        truncates; tops aligned, so hints of different lengths
+                                        never push one field down. */}
+                                    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-3 @lg:grid-cols-2">
                                         <Input
-                                            label="Tasa (Bs por dólar)"
+                                            label="Precio del dólar en bolívares"
+                                            hint="Cuántos Bs cuesta 1$ según el BCV."
                                             inputMode="decimal"
-                                            placeholder="854,4637"
+                                            autoComplete="off"
+                                            maxLength={RATE_MAX_LENGTH}
+                                            placeholder={
+                                                currentRateText
+                                                    ? `Actual: ${currentRateText}`
+                                                    : '0,0000'
+                                            }
                                             value={rateInput}
                                             error={rateError}
-                                            onChange={(event) => setRateInput(event.target.value)}
+                                            onChange={(event) =>
+                                                setRateInput(sanitizeRateInput(event.target.value))
+                                            }
+                                            onPaste={pasteRate}
                                         />
                                         <DatePicker
                                             label="Fecha valor"

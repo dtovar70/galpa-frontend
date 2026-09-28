@@ -59,11 +59,18 @@ export interface RailTooltipProps {
      * would cover their neighbours.
      */
     placement?: 'side' | 'top'
+    /**
+     * `side` only: a selector for an ancestor (e.g. the rail) whose edge the card starts from,
+     * instead of the trigger's own edge. In a grid of icons, the card of the first column then
+     * clears the second one. The card stays vertically centred on the trigger.
+     */
+    sideEdge?: string
 }
 
 /**
- * A tooltip for the admin sidebar: a white card to the right of the trigger (or above it,
- * see `placement`), with an arrow pointing at it. It is portalled so the sidebar's `overflow` never clips it, centred
+ * A tooltip for the admin sidebar: a white card to the right of the trigger (or of the rail,
+ * see `sideEdge`; or above it, see `placement`), with an arrow pointing at it. It is
+ * portalled so the sidebar's `overflow` never clips it, centred
  * on the trigger, flipped to the left or clamped when the viewport has no room, shown after
  * a short hover or on keyboard focus and hidden at once on leave, blur, click or Escape.
  */
@@ -73,6 +80,7 @@ export function RailTooltip({
     children,
     className,
     placement = 'side',
+    sideEdge,
 }: RailTooltipProps) {
     const anchorRef = useRef<HTMLDivElement>(null)
     const cardRef = useRef<HTMLDivElement>(null)
@@ -128,10 +136,11 @@ export function RailTooltip({
             return
         }
 
-        const roomRight = window.innerWidth - rect.right - GAP_PX - VIEWPORT_MARGIN_PX
-        const roomLeft = rect.left - GAP_PX - VIEWPORT_MARGIN_PX
+        const edge = (sideEdge ? anchor.closest(sideEdge) : null)?.getBoundingClientRect() ?? rect
+        const roomRight = window.innerWidth - edge.right - GAP_PX - VIEWPORT_MARGIN_PX
+        const roomLeft = edge.left - GAP_PX - VIEWPORT_MARGIN_PX
         const side = roomRight < width && roomLeft > roomRight ? 'left' : 'right'
-        const preferredLeft = side === 'right' ? rect.right + GAP_PX : rect.left - GAP_PX - width
+        const preferredLeft = side === 'right' ? edge.right + GAP_PX : edge.left - GAP_PX - width
         const left = clamp(preferredLeft, VIEWPORT_MARGIN_PX, maxLeft)
 
         const anchorCenter = rect.top + rect.height / 2
@@ -143,7 +152,7 @@ export function RailTooltip({
             side,
             arrowOffset: clamp(anchorCenter - top, ARROW_INSET_PX, height - ARROW_INSET_PX),
         })
-    }, [placement])
+    }, [placement, sideEdge])
 
     /* Measured before paint, then kept in place while anything scrolls or resizes. */
     useLayoutEffect(() => {

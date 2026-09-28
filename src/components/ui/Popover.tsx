@@ -59,12 +59,15 @@ interface Position {
     left: number
     side: 'bottom' | 'top'
     arrowLeft: number
+    /** Set only when the panel is taller than the room on either side: it then scrolls. */
+    maxHeight?: number
 }
 
 /**
  * A floating panel rendered in a portal, so no `overflow` container clips it. It is placed
- * against the viewport, flips above or below to find room, stays inside the screen and
- * closes on Escape (handing focus back to the anchor) and on a press outside.
+ * against the viewport, flips above or below to find room, stays inside the screen (scrolling
+ * inside only when neither side fits it) and closes on Escape (handing focus back to the
+ * anchor) and on a press outside.
  */
 export function Popover({
     open,
@@ -97,7 +100,8 @@ export function Popover({
         if (!anchor || !panel) return
         const rect = anchor.getBoundingClientRect()
         const width = panel.offsetWidth
-        const height = panel.offsetHeight
+        // The natural height, even while a previous `maxHeight` is clipping it.
+        const height = panel.scrollHeight + panel.offsetHeight - panel.clientHeight
 
         const roomBelow = window.innerHeight - rect.bottom - offset - VIEWPORT_MARGIN_PX
         const roomAbove = rect.top - offset - VIEWPORT_MARGIN_PX
@@ -109,6 +113,8 @@ export function Popover({
                 : roomAbove < height && roomBelow > roomAbove
                   ? 'bottom'
                   : 'top'
+        const room = side === 'bottom' ? roomBelow : roomAbove
+        const shownHeight = Math.min(height, room)
 
         const preferredLeft =
             align === 'start'
@@ -118,7 +124,7 @@ export function Popover({
                   : rect.left + rect.width / 2 - width / 2
         const maxLeft = window.innerWidth - VIEWPORT_MARGIN_PX - width
         const left = Math.max(VIEWPORT_MARGIN_PX, Math.min(preferredLeft, maxLeft))
-        const top = side === 'bottom' ? rect.bottom + offset : rect.top - offset - height
+        const top = side === 'bottom' ? rect.bottom + offset : rect.top - offset - shownHeight
         const anchorCenter = rect.left + rect.width / 2 - left
 
         setPosition({
@@ -126,6 +132,8 @@ export function Popover({
             left,
             side,
             arrowLeft: Math.max(ARROW_INSET_PX, Math.min(anchorCenter, width - ARROW_INSET_PX)),
+            // Last resort, on very short windows: scroll inside rather than leave the screen.
+            maxHeight: height > room ? Math.max(room, 0) : undefined,
         })
     }, [align, anchorRef, offset, placement])
 
@@ -224,11 +232,13 @@ export function Popover({
             style={{
                 top: position?.top ?? 0,
                 left: position?.left ?? 0,
+                maxHeight: position?.maxHeight,
                 // Transparent rather than hidden until measured, so content can take focus on mount.
                 opacity: position ? undefined : 0,
             }}
             className={cn(
                 'fixed z-60 max-w-[calc(100vw-1rem)] rounded-2xl border-2 border-line bg-white shadow-lift',
+                position?.maxHeight !== undefined && 'overflow-y-auto overscroll-contain',
                 position?.side === 'top' ? 'origin-bottom' : 'origin-top',
                 position && 'animate-select-pop',
                 decorative && 'pointer-events-none',
