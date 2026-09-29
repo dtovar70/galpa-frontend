@@ -29,7 +29,7 @@ import {
     type ProductEditFromState,
 } from '@/views/admin/products/schema/product.schema'
 
-const PAGE_SIZE = 12
+const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 350
 const SKELETON_ROWS = 6
 
@@ -41,6 +41,12 @@ const cellClass = 'px-4 py-3 align-middle'
  * table ever has to scroll sideways. It needs its own background to cover what slides under.
  */
 const actionsCellClass = 'sticky right-0 bg-white px-3 transition group-hover:bg-cream'
+
+/** "S: 3 · M: 0" on hover; the stock shown is their sum. */
+function stockBreakdown(product: AdminProduct): string | undefined {
+    if (product.variants.length === 0) return undefined
+    return product.variants.map((variant) => `${variant.label}: ${variant.stock}`).join(' · ')
+}
 
 function Thumbnail({ product }: { product: AdminProduct }) {
     return (
@@ -340,6 +346,7 @@ export function AdminProductsView() {
                                             </td>
                                             <td
                                                 className={`${cellClass} text-center tabular-nums ${product.stock === 0 ? 'font-semibold text-blush-700' : ''}`}
+                                                title={stockBreakdown(product)}
                                             >
                                                 {product.stock}
                                             </td>
@@ -385,7 +392,10 @@ export function AdminProductsView() {
                                             >
                                                 {product.name}
                                             </Link>
-                                            <p className="text-xs text-ink-soft">
+                                            <p
+                                                className="text-xs text-ink-soft"
+                                                title={stockBreakdown(product)}
+                                            >
                                                 {categoryName(product.category)} · Stock{' '}
                                                 {product.stock}
                                             </p>

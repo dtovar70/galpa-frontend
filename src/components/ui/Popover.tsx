@@ -209,7 +209,7 @@ export function Popover({
                     {...a11y}
                     onKeyDown={onPanelKeyDown}
                     className={cn(
-                        'relative max-h-[88dvh] animate-sheet-up overflow-y-auto overscroll-contain rounded-t-3xl border-t-2 border-line bg-white pb-[env(safe-area-inset-bottom)] shadow-lift',
+                        'scroll-soft relative max-h-[88dvh] animate-sheet-up overflow-y-auto overscroll-contain rounded-t-3xl border-t-2 border-line bg-white pb-[env(safe-area-inset-bottom)] shadow-lift',
                         className,
                     )}
                 >
@@ -238,7 +238,8 @@ export function Popover({
             }}
             className={cn(
                 'fixed z-60 max-w-[calc(100vw-1rem)] rounded-2xl border-2 border-line bg-white shadow-lift',
-                position?.maxHeight !== undefined && 'overflow-y-auto overscroll-contain',
+                position?.maxHeight !== undefined &&
+                    'scroll-soft overflow-y-auto overscroll-contain',
                 position?.side === 'top' ? 'origin-bottom' : 'origin-top',
                 position && 'animate-select-pop',
                 decorative && 'pointer-events-none',

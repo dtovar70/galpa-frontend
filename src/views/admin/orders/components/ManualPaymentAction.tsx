@@ -54,6 +54,7 @@ export function ManualPaymentAction({ order }: { order: AdminOrder }) {
                     formId={formId}
                     createdAt={order.createdAt}
                     totalBs={order.totals.totalBs}
+                    referenceHint="Los encuentras al final del número de referencia del comprobante del cliente."
                     onSubmit={async (input) => {
                         await recordPayment.mutateAsync(input)
                         setIsOpen(false)

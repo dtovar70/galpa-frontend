@@ -1,6 +1,5 @@
 import type { Paginated, ProductQueryParams } from '@/@types/common'
 import type { Category, Product } from '@/@types/product'
-import { fetchTestimonials } from '@/mock/api/products.api'
 import { apiClient } from '@/services/ApiClient'
 import { isApiError, NotFoundError } from '@/services/errors'
 
@@ -53,8 +52,7 @@ function getCategories(): Promise<Category[]> {
 }
 
 /**
- * Single seam between the views and the data source. Products and categories come from the
- * API; testimonials still come from the mock module because the API has no such resource.
+ * Single seam between the views and the products and categories of the API.
  */
 export const ProductService = {
     getProducts,
@@ -62,7 +60,6 @@ export const ProductService = {
     getFeaturedProducts,
     getRelatedProducts,
     getCategories,
-    getTestimonials: fetchTestimonials,
 } as const
 
 export { NotFoundError } from '@/services/errors'

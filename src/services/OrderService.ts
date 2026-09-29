@@ -34,6 +34,13 @@ export const OrderService = {
     getReceipt: (code: string, token: string) =>
         apiClient.getBlob(orderPath(code, '/receipt.pdf'), { query: { t: token } }),
 
+    /**
+     * "Consultar mi pedido": always the same answer; when the code and the email match an
+     * order, the API emails a fresh private link to it.
+     */
+    lookup: (input: { code: string; email: string }) =>
+        apiClient.post<{ message: string }>('/orders/lookup', input),
+
     submitPayment: (code: string, token: string, input: SubmitPaymentInput) =>
         apiClient.post<PublicOrder>(orderPath(code, '/payment'), paymentFormData(input), {
             query: { t: token },

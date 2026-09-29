@@ -22,9 +22,6 @@ export const queryKeys = {
     categories: {
         all: ['categories'] as const,
     },
-    testimonials: {
-        all: ['testimonials'] as const,
-    },
     /** Editable site content (`GET /content`), loaded once at start-up. */
     content: ['content'] as const,
     /** Business catalogs kept in the API's database, loaded once and rarely refreshed. */

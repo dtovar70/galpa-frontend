@@ -51,9 +51,12 @@ export interface AdminProductQueryParams {
 }
 
 export interface ProductVariantInput {
+    /** Sent for an existing variant so orders and carts keep pointing to it. */
+    id?: string
     label: string
     priceDelta: number
     colorHex?: string
+    stock: number
 }
 
 /** Body of `POST /admin/products`; `PATCH` accepts any subset of it. */
@@ -64,7 +67,8 @@ export interface ProductInput {
     price: number
     /** `null` clears the "before" price on update. */
     compareAtPrice?: number | null
-    stock: number
+    /** Only for a product without variants; with variants the API uses their sum. */
+    stock?: number
     printText: string
     colorHex: string
     description: string

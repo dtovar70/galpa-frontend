@@ -5,13 +5,14 @@ import { Link, useParams } from 'react-router'
 import { AddToCartButton } from '@/components/shared/AddToCartButton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PriceTag } from '@/components/shared/PriceTag'
-import { Badge, Button, QuantityStepper, Rating } from '@/components/ui'
+import { Badge, Button, QuantityStepper } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
 import { categoryPath, ROUTES } from '@/constants/route.constant'
 import { NotFoundError } from '@/services/ProductService'
 import { MAX_LINE_QUANTITY } from '@/store/cartStore'
 import { cn } from '@/utils/cn'
 import { hasVariablePrice, variantPrice } from '@/utils/productPrice'
+import { defaultVariant, isVariantSoldOut, stockOf } from '@/utils/productStock'
 import { ProductDetailSkeleton } from '@/views/product/components/ProductDetailSkeleton'
 import { ProductGallery } from '@/views/product/components/ProductGallery'
 import { PersonalizationField } from '@/views/product/components/PersonalizationField'
@@ -66,11 +67,15 @@ export function ProductDetailView() {
         )
     }
 
+    // A sold-out version is never selected; with every version sold out the first one is
+    // shown and "Agregar al carrito" reads "Agotado".
+    const chosenVariant = product.variants.find((variant) => variant.id === chosenVariantId)
     const selectedVariant =
-        product.variants.find((variant) => variant.id === chosenVariantId) ?? product.variants.at(0)
+        chosenVariant && !isVariantSoldOut(chosenVariant) ? chosenVariant : defaultVariant(product)
     const unitPrice = variantPrice(product, selectedVariant)
     const isVariablePrice = hasVariablePrice(product)
-    const maxQuantity = Math.max(1, Math.min(product.stock, MAX_LINE_QUANTITY))
+    const stockLeft = stockOf(product, selectedVariant)
+    const maxQuantity = Math.max(1, Math.min(stockLeft, MAX_LINE_QUANTITY))
     const safeQuantity = Math.min(quantity, maxQuantity)
     const personalizable = product.tags.includes('personalizable')
 
@@ -124,8 +129,6 @@ export function ProductDetailView() {
                         {product.name}
                     </h1>
 
-                    <Rating value={product.rating} reviewCount={product.reviewCount} size="lg" />
-
                     <div>
                         <PriceTag
                             price={unitPrice}
@@ -162,6 +165,7 @@ export function ProductDetailView() {
                         <QuantityStepper
                             value={safeQuantity}
                             max={maxQuantity}
+                            disabled={stockLeft === 0}
                             onChange={setQuantity}
                         />
 

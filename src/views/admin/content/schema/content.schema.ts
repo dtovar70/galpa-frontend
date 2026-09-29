@@ -41,6 +41,9 @@ export const CONTENT_LIMITS = {
     bankName: 100,
     holderName: 80,
     instructions: 500,
+    testimonialQuote: 400,
+    testimonialName: 60,
+    testimonialProduct: 80,
 } as const
 
 export const CONTENT_LIST_SIZES = {
@@ -51,6 +54,7 @@ export const CONTENT_LIST_SIZES = {
     values: { min: 1, max: 8 },
     stats: { min: 1, max: 8 },
     faq: { min: 1, max: 12 },
+    testimonials: { min: 0, max: 12 },
 } as const
 
 export const CONTENT_MAX_MONEY = 100_000
@@ -228,13 +232,21 @@ export const homeSchema = z.object({
     ),
     testimonialsEyebrow: text(L.label),
     testimonialsTitle: title(),
+    testimonials: list(
+        z.object({
+            quote: text(L.testimonialQuote, { required: 'Escribe la opinión o elimínala' }),
+            name: text(L.testimonialName, { required: 'Escribe el nombre del cliente' }),
+            city: text(L.city, { optional: true }),
+            product: text(L.testimonialProduct, { optional: true }),
+        }),
+        CONTENT_LIST_SIZES.testimonials,
+        'una opinión',
+    ),
     ctaBadge: text(L.label),
     ctaTitle: title(),
     ctaDescription: text(L.text),
     ctaPrimary: text(L.label),
     ctaSecondary: text(L.label),
-    newsletterTitle: text(L.title),
-    newsletterDescription: text(L.shortText),
 })
 export type HomeFormValues = z.infer<typeof homeSchema>
 

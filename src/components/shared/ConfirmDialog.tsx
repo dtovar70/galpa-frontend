@@ -31,7 +31,8 @@ export interface ConfirmDialogProps {
 
 /**
  * Built on the native `<dialog>`: `showModal()` gives the focus trap, the inert page behind
- * it and Escape-to-close for free.
+ * it and Escape-to-close for free. The title and the buttons stay put; only the content in
+ * between scrolls, inside the rounded shell, so the scrollbar never pokes out of its corners.
  */
 export function ConfirmDialog({
     isOpen,
@@ -74,33 +75,39 @@ export function ConfirmDialog({
                 event.preventDefault()
                 requestClose()
             }}
+            onClose={(event) => {
+                // Browsers force-close on a repeated Escape; keep the state in sync. Only this
+                // dialog's own event: a nested one (e.g. the proof viewer) is not a reason.
+                if (event.target === event.currentTarget && isOpen) onClose()
+            }}
             onClick={(event) => {
                 // A click on the element itself (not its content) is a click on the backdrop.
                 if (event.target === event.currentTarget) requestClose()
             }}
             className={cn(
-                'fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto overscroll-contain rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm',
+                'fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-hidden rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm',
                 size === 'lg' ? 'max-w-2xl' : 'max-w-md',
             )}
         >
             {isOpen ? (
-                <div className="space-y-5 p-6">
-                    <div className="space-y-2">
-                        <h2 id={titleId} className="font-display text-xl">
-                            {title}
-                        </h2>
+                <div className="flex max-h-[calc(100dvh-2rem)] flex-col">
+                    <h2 id={titleId} className="shrink-0 px-6 pt-6 font-display text-xl">
+                        {title}
+                    </h2>
+
+                    <div className="scroll-soft min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-6 pt-2 pb-5">
                         {description ? (
                             <div id={descriptionId} className="text-sm text-ink-soft">
                                 {description}
                             </div>
                         ) : null}
+
+                        {children}
+
+                        {error ? <Alert>{error}</Alert> : null}
                     </div>
 
-                    {children}
-
-                    {error ? <Alert>{error}</Alert> : null}
-
-                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <div className="flex shrink-0 flex-col-reverse gap-3 px-6 pb-6 sm:flex-row sm:justify-end">
                         <Button variant="secondary" onClick={requestClose} disabled={isLoading}>
                             {cancelLabel}
                         </Button>

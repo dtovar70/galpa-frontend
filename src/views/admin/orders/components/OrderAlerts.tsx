@@ -3,7 +3,11 @@ import { AlarmClock, PackageX, Undo2 } from 'lucide-react'
 import type { AdminOrder } from '@/@types/order'
 import { Alert } from '@/components/ui'
 import { formatDateTime } from '@/utils/formatDate'
-import { describeStockLine, missingUnits } from '@/views/admin/orders/utils/stockConflict'
+import {
+    describeStockLine,
+    missingUnits,
+    stockLineName,
+} from '@/views/admin/orders/utils/stockConflict'
 
 /**
  * What the owner must not miss on this order: a payment that arrived late, products that ran
@@ -40,9 +44,11 @@ export function OrderAlerts({ order }: { order: AdminOrder }) {
                     </p>
                     <ul className="list-disc space-y-0.5 pl-5 font-normal">
                         {conflict.lines.map((line) => (
-                            <li key={`${line.productId ?? ''}-${line.productName}`}>
+                            <li
+                                key={`${line.productId ?? ''}-${line.variantId ?? ''}-${line.productName}`}
+                            >
                                 {conflict.resolvedAt
-                                    ? `${line.productName}: ${missingUnits(line) === 0 ? 'ya está completo' : `faltan ${missingUnits(line)} de ${line.requested}`}`
+                                    ? `${stockLineName(line)}: ${missingUnits(line) === 0 ? 'ya está completo' : `faltan ${missingUnits(line)} de ${line.requested}`}`
                                     : describeStockLine(line)}
                             </li>
                         ))}

@@ -1,6 +1,6 @@
 import type { CategorySlug, ProductTag } from '@/@types/product'
 
-export type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'newest' | 'rating'
+export type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'newest'
 
 export interface Paginated<T> {
     items: T[]
@@ -29,13 +29,4 @@ export interface ProductQueryParams {
     tags?: ProductTag[]
     page?: number
     pageSize?: number
-}
-
-export interface Testimonial {
-    id: string
-    author: string
-    city: string
-    rating: number
-    quote: string
-    productName: string
 }

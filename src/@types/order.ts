@@ -193,10 +193,13 @@ export interface AllowedTransition {
     reactivates: boolean
 }
 
-/** One product the order could not fully take back from stock. */
+/** One variant (or product without variants) the order could not fully take back from stock. */
 export interface StockConflictLine {
     productId: string | null
+    /** Absent on conflicts recorded before stock was kept per variant. */
+    variantId?: string | null
     productName: string
+    variantLabel?: string | null
     requested: number
     available: number
     reserved: number

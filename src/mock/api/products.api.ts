@@ -1,8 +1,7 @@
-import type { Paginated, ProductQueryParams, SortOption, Testimonial } from '@/@types/common'
+import type { Paginated, ProductQueryParams, SortOption } from '@/@types/common'
 import type { Category, Product } from '@/@types/product'
 import { categories } from '@/mock/data/categories.data'
 import { products } from '@/mock/data/products.data'
-import { testimonials } from '@/mock/data/testimonials.data'
 import { NotFoundError } from '@/services/errors'
 
 const MIN_LATENCY_MS = 250
@@ -46,19 +45,22 @@ function applyFilters(source: Product[], params: ProductQueryParams): Product[] 
     })
 }
 
-/** Relevance ranks bestsellers first, then rating, so the default order is not arbitrary. */
+/** Relevance ranks bestsellers first, then new products; ties show the newest first. */
 function relevanceScore(product: Product): number {
     const bestsellerBoost = product.tags.includes('bestseller') ? 10 : 0
     const newBoost = product.tags.includes('nuevo') ? 4 : 0
-    return bestsellerBoost + newBoost + product.rating
+    return bestsellerBoost + newBoost
+}
+
+function byNewest(a: Product, b: Product): number {
+    return Date.parse(b.createdAt) - Date.parse(a.createdAt)
 }
 
 const comparators: Record<SortOption, (a: Product, b: Product) => number> = {
-    relevance: (a, b) => relevanceScore(b) - relevanceScore(a),
+    relevance: (a, b) => relevanceScore(b) - relevanceScore(a) || byNewest(a, b),
     'price-asc': (a, b) => a.price - b.price,
     'price-desc': (a, b) => b.price - a.price,
-    newest: (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
-    rating: (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
+    newest: byNewest,
 }
 
 function applySort(source: Product[], sort: SortOption): Product[] {
@@ -126,10 +128,4 @@ export async function fetchCategories(): Promise<Category[]> {
     await delay()
 
     return categories
-}
-
-export async function fetchTestimonials(): Promise<Testimonial[]> {
-    await delay()
-
-    return testimonials
 }

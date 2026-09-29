@@ -14,6 +14,7 @@ import {
     type CheckoutValues,
     type DeliveryMethod,
 } from '@/views/checkout/schema/checkout.schema'
+import { withCapitalizedWords } from '@/utils/capitalizeWords'
 
 const DELIVERY_OPTIONS: SelectOption[] = DELIVERY_METHODS.map((method) => ({
     value: method,
@@ -81,8 +82,9 @@ export function CheckoutForm({
                 <Input
                     label="Nombre y apellido"
                     autoComplete="name"
+                    autoCapitalize="words"
                     error={errors.fullName?.message}
-                    {...register('fullName')}
+                    {...withCapitalizedWords(register('fullName'))}
                 />
                 <Input
                     label="Correo"

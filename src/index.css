@@ -199,6 +199,47 @@
         appearance: none;
     }
 
+    /*
+     * A native scrollbar runs into rounded corners and borders (textareas, dialog bodies). A
+     * slim thumb, inset by a transparent border and kept off the corners by the track margin,
+     * stays inside the box. Opt in with `scroll-soft` on any scroll area; textareas get it by
+     * default. Only WebKit pseudo-elements: in Chromium, setting `scrollbar-width` or
+     * `scrollbar-color` would disable them. Firefox gets the standard thin scrollbar.
+     */
+    textarea::-webkit-scrollbar,
+    .scroll-soft::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+    }
+
+    textarea::-webkit-scrollbar-track,
+    .scroll-soft::-webkit-scrollbar-track {
+        background: transparent;
+        margin-block: 14px;
+        margin-inline: 14px;
+    }
+
+    textarea::-webkit-scrollbar-thumb,
+    .scroll-soft::-webkit-scrollbar-thumb {
+        border: 4px solid transparent;
+        border-radius: 9999px;
+        background-clip: padding-box;
+        background-color: var(--color-blush-300);
+    }
+
+    textarea::-webkit-scrollbar-corner,
+    .scroll-soft::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    @supports not selector(::-webkit-scrollbar) {
+        textarea,
+        .scroll-soft {
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-blush-300) transparent;
+        }
+    }
+
     ::selection {
         @apply bg-blush-200 text-ink;
     }

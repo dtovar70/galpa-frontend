@@ -22,9 +22,9 @@ import { PasswordField } from '@/views/admin/users/components/PasswordField'
 
 /** Shown after every request, whether or not the email can receive a code. */
 const RECOVERY_SENT_MESSAGE =
-    'Si el correo pertenece a una cuenta activa con Telegram vinculado, te enviamos un código de 6 dígitos a Telegram. Vence en 10 minutos.'
-const NO_TELEGRAM_NOTE =
-    '¿No tienes Telegram vinculado? Pídele a un administrador que restablezca tu contraseña desde Usuarios.'
+    'Si el correo pertenece a una cuenta activa, te enviamos un código de 6 dígitos por Telegram (si lo tienes vinculado) o a tu correo. Vence en 10 minutos.'
+const NO_CODE_NOTE =
+    '¿No te llegó? Revisa también la carpeta de spam, o pídele a un administrador que restablezca tu contraseña desde Usuarios.'
 
 const linkClass =
     'font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
@@ -62,8 +62,9 @@ function EmailStep({
     return (
         <form onSubmit={(event) => void submit(event)} noValidate className="space-y-5">
             <p className="text-sm text-ink-soft">
-                Escribe el correo con el que entras al panel. Si tu cuenta tiene Telegram vinculado,
-                el bot te enviará un código de 6 dígitos para crear una contraseña nueva.
+                Escribe el correo con el que entras al panel. Te enviaremos un código de 6 dígitos
+                para crear una contraseña nueva: por Telegram si lo tienes vinculado, o a ese
+                correo.
             </p>
             {request.isError ? (
                 <Alert onDismiss={request.reset}>{getErrorMessage(request.error)}</Alert>
@@ -85,7 +86,7 @@ function EmailStep({
             >
                 Enviar código
             </Button>
-            <p className="text-sm text-ink-soft">{NO_TELEGRAM_NOTE}</p>
+            <p className="text-sm text-ink-soft">{NO_CODE_NOTE}</p>
         </form>
     )
 }
@@ -142,7 +143,7 @@ function ResetStep({
         <form onSubmit={(event) => void submit(event)} noValidate className="space-y-5">
             <Alert tone="info">
                 <p>{RECOVERY_SENT_MESSAGE}</p>
-                <p className="mt-2 font-normal">{NO_TELEGRAM_NOTE}</p>
+                <p className="mt-2 font-normal">{NO_CODE_NOTE}</p>
             </Alert>
             <p className="text-sm break-words text-ink-soft">
                 Código para <span className="font-semibold text-ink">{email}</span> ·{' '}
@@ -203,8 +204,8 @@ function ResetStep({
 }
 
 /**
- * "¿Olvidaste tu contraseña?" (`/admin/recuperar`): the email, then the code the Telegram bot
- * sent plus the new password. Both steps live in component state, so the address bar stays a
+ * "¿Olvidaste tu contraseña?" (`/admin/recuperar`): the email, then the code (sent by the
+ * Telegram bot or by email) plus the new password. Both steps live in component state, so the address bar stays a
  * plain `/admin/recuperar` (like the login page). Success goes back to the login page with a
  * notice: resetting never signs the user in.
  */

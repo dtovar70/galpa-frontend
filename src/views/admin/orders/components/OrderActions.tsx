@@ -111,7 +111,7 @@ function StockLines({ lines }: { lines: readonly StockConflictLine[] }) {
     return (
         <ul className="mt-1 list-disc space-y-0.5 pl-5">
             {lines.map((line) => (
-                <li key={`${line.productId ?? ''}-${line.productName}`}>
+                <li key={`${line.productId ?? ''}-${line.variantId ?? ''}-${line.productName}`}>
                     {describeStockLine(line)}
                 </li>
             ))}

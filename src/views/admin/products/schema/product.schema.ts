@@ -66,6 +66,7 @@ export const MAX_VARIANTS = 30
 export const PRODUCT_DESCRIPTION_MAX_LENGTH = 4000
 
 const MAX_PRICE = 99_999_999.99
+const MAX_STOCK = 1_000_000
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const HEX_COLOR_PATTERN = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
 const HEX_MESSAGE = 'Usa un color hexadecimal, por ejemplo #FFB3D1'
@@ -73,6 +74,22 @@ const HEX_MESSAGE = 'Usa un color hexadecimal, por ejemplo #FFB3D1'
 /** At most two decimals, checked on the text form to dodge floating-point noise. */
 function hasTwoDecimalsAtMost(value: number): boolean {
     return /^-?\d+(\.\d{1,2})?$/.test(String(value))
+}
+
+function stockCount(requiredMessage: string) {
+    return z
+        .number({ error: requiredMessage })
+        .int('El stock debe ser un número entero')
+        .min(0, 'No puede ser negativo')
+        .max(MAX_STOCK, 'El stock es demasiado alto')
+}
+
+/** The product's stock with variants: the sum of theirs (what the API stores and shows). */
+export function variantsStockTotal(variants: readonly { stock?: unknown }[] | undefined): number {
+    return (variants ?? []).reduce((total, variant) => {
+        const stock = Number(variant.stock)
+        return Number.isFinite(stock) && stock > 0 ? total + Math.trunc(stock) : total
+    }, 0)
 }
 
 function money(requiredMessage: string, min = 0) {
@@ -102,10 +119,8 @@ export const productFormSchema = z
         categorySlug: z.string({ error: 'Elige una categoría' }).min(1, 'Elige una categoría'),
         price: money('Escribe el precio'),
         compareAtPrice: money('Escribe el precio anterior').optional(),
-        stock: z
-            .number({ error: 'Escribe el stock disponible' })
-            .int('El stock debe ser un número entero')
-            .min(0, 'No puede ser negativo'),
+        /** Only used (and required) when the product has no variants. */
+        stock: stockCount('Escribe el stock disponible').optional(),
         printText: z.string().max(80, 'Máximo 80 caracteres'),
         colorHex: z
             .string()
@@ -133,6 +148,11 @@ export const productFormSchema = z
         variants: z
             .array(
                 z.object({
+                    /**
+                     * Id of an existing variant, kept so orders and carts still find it. Not named
+                     * `id`: useFieldArray uses that key for its own row ids.
+                     */
+                    variantId: z.string().optional(),
                     label: z
                         .string()
                         .trim()
@@ -147,12 +167,20 @@ export const productFormSchema = z
                             (value) => value === '' || HEX_COLOR_PATTERN.test(value),
                             HEX_MESSAGE,
                         ),
+                    stock: stockCount('Escribe el stock (0 si está agotada)'),
                 }),
             )
             .max(MAX_VARIANTS, `Máximo ${MAX_VARIANTS} variantes`),
         isActive: z.boolean(),
     })
     .superRefine((values, context) => {
+        if (values.variants.length === 0 && values.stock === undefined) {
+            context.addIssue({
+                code: 'custom',
+                path: ['stock'],
+                message: 'Escribe el stock disponible',
+            })
+        }
         if (values.compareAtPrice !== undefined && values.compareAtPrice <= values.price) {
             context.addIssue({
                 code: 'custom',
@@ -179,7 +207,7 @@ export const EMPTY_PRODUCT_FORM: Partial<ProductFormValues> = {
     description: '',
     highlights: [],
     tags: [],
-    variants: [{ label: 'Estándar', priceDelta: 0, colorHex: '' }],
+    variants: [{ label: 'Estándar', priceDelta: 0, colorHex: '', stock: 0 }],
     isActive: true,
 }
 
@@ -197,9 +225,11 @@ export function toProductFormValues(product: AdminProduct): ProductFormValues {
         highlights: product.highlights.map((value) => ({ value })),
         tags: product.tags,
         variants: product.variants.map((variant) => ({
+            variantId: variant.id,
             label: variant.label,
             priceDelta: variant.priceDelta,
             colorHex: variant.colorHex ?? '',
+            stock: variant.stock,
         })),
         isActive: product.isActive,
     }
@@ -222,16 +252,19 @@ export function toProductInput(values: ProductFormValues, mode: 'create' | 'edit
             : mode === 'edit'
               ? { compareAtPrice: null }
               : {}),
-        stock: values.stock,
+        // With variants the API stores the sum of theirs.
+        ...(values.variants.length === 0 ? { stock: values.stock ?? 0 } : {}),
         printText: values.printText,
         colorHex: values.colorHex.trim().toUpperCase(),
         description: values.description,
         highlights: values.highlights.map((highlight) => highlight.value.trim()),
         tags: values.tags,
         variants: values.variants.map((variant) => ({
+            ...(variant.variantId ? { id: variant.variantId } : {}),
             label: variant.label.trim(),
             priceDelta: variant.priceDelta,
             ...(variant.colorHex.trim() ? { colorHex: variant.colorHex.trim().toUpperCase() } : {}),
+            stock: variant.stock,
         })),
         isActive: values.isActive,
     }

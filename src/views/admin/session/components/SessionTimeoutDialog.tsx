@@ -54,10 +54,10 @@ export function SessionTimeoutDialog({
                     dialog.querySelector<HTMLButtonElement>('[data-autofocus]')?.focus()
                 }
             }}
-            className="fixed inset-0 m-auto h-fit w-[calc(100%-2rem)] max-w-md rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm"
+            className="fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm"
         >
             {isOpen ? (
-                <div className="space-y-5 p-6">
+                <div className="scroll-soft max-h-[calc(100dvh-2rem)] space-y-5 overflow-y-auto overscroll-contain p-6">
                     <div className="space-y-2">
                         <h2 id={titleId} className="flex items-center gap-2 font-display text-xl">
                             <Clock aria-hidden="true" className="size-5 text-blush-500" />

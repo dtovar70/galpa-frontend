@@ -30,6 +30,7 @@ import {
     HomeView,
     MyOrdersView,
     NotFoundView,
+    OrderLookupView,
     OrderView,
     ProductDetailView,
 } from '@/views'
@@ -61,6 +62,7 @@ export const routes: RouteObject[] = [
             { path: ROUTES.checkout, element: withSuspense(<CheckoutView />) },
             { path: ROUTES.order, element: withSuspense(<OrderView />) },
             { path: ROUTES.myOrders, element: withSuspense(<MyOrdersView />) },
+            { path: ROUTES.orderLookup, element: withSuspense(<OrderLookupView />) },
             { path: ROUTES.about, element: withSuspense(<AboutView />) },
             { path: ROUTES.contact, element: withSuspense(<ContactView />) },
             ...devRoutes,

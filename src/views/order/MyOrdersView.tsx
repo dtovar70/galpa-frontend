@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ClipboardList, Trash2 } from 'lucide-react'
+import { ClipboardList, Search, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -10,6 +10,9 @@ import { cn } from '@/utils/cn'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDateTime } from '@/utils/formatDate'
 import { forgetOrder, readRecentOrders, type RecentOrder } from '@/utils/recentOrders'
+
+const LOOKUP_LINK_CLASS =
+    'font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
 
 /** Orders placed from this browser (their private links are kept in local storage). */
 export function MyOrdersView() {
@@ -30,6 +33,13 @@ export function MyOrdersView() {
                     Los pedidos que hiciste desde este dispositivo. Si cambias de navegador o de
                     teléfono, usa el enlace de tu pedido para volver a verlo.
                 </p>
+                <p className="max-w-2xl text-ink-soft">
+                    ¿No ves tu pedido?{' '}
+                    <Link to={ROUTES.orderLookup} className={LOOKUP_LINK_CLASS}>
+                        Consúltalo con tu código y correo
+                    </Link>
+                    .
+                </p>
             </div>
 
             {orders.length === 0 ? (
@@ -37,7 +47,18 @@ export function MyOrdersView() {
                     title="Todavía no hay pedidos aquí"
                     description="Cuando hagas un pedido, lo verás en esta lista para seguirlo cuando quieras."
                     icon={<ClipboardList className="size-6" />}
-                    action={<ButtonLink to={ROUTES.catalog}>Explorar catálogo</ButtonLink>}
+                    action={
+                        <div className="flex flex-wrap justify-center gap-3">
+                            <ButtonLink to={ROUTES.catalog}>Explorar catálogo</ButtonLink>
+                            <ButtonLink
+                                to={ROUTES.orderLookup}
+                                variant="secondary"
+                                leadingIcon={<Search aria-hidden="true" className="size-4" />}
+                            >
+                                Consultar un pedido
+                            </ButtonLink>
+                        </div>
+                    }
                 />
             ) : (
                 <ul className="grid gap-3 sm:grid-cols-2">

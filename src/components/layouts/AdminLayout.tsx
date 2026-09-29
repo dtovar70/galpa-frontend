@@ -400,7 +400,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
                     </span>
                     <span>{user.email}</span>
                     <span className="font-semibold text-blush-600">
-                        Mi cuenta: nombre y contraseña
+                        Mi cuenta: datos, contraseña y permisos
                     </span>
                 </>
             }

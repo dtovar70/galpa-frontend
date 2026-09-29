@@ -149,7 +149,7 @@ export function Drawer({ isOpen, onClose, title, side = 'right', children, foote
                     </button>
                 </header>
 
-                <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+                <div className="scroll-soft flex-1 overflow-y-auto px-6 py-5">{children}</div>
 
                 {footer ? <div className="border-t border-line px-6 py-5">{footer}</div> : null}
             </div>

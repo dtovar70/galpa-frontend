@@ -9,6 +9,8 @@ export const ROUTES = {
     checkout: '/checkout',
     order: '/pedido/:code',
     myOrders: '/mis-pedidos',
+    /** "Consultar mi pedido": code + email, the API emails a fresh private link. */
+    orderLookup: '/consultar-pedido',
     about: '/nosotros',
     contact: '/contacto',
     notFound: '*',
@@ -22,7 +24,7 @@ export type RoutePath = (typeof ROUTES)[RouteKey]
  */
 export const ADMIN_ROUTES = {
     login: '/admin/login',
-    /** "¿Olvidaste tu contraseña?": code by Telegram, then a new password. */
+    /** "¿Olvidaste tu contraseña?": code by Telegram or email, then a new password. */
     recover: '/admin/recuperar',
     root: '/admin',
     orders: '/admin/pedidos',

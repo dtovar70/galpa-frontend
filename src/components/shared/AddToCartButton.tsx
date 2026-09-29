@@ -5,6 +5,7 @@ import type { Product } from '@/@types/product'
 import { Button, type ButtonProps } from '@/components/ui'
 import { useCartActions } from '@/store/cartStore'
 import { useCartDrawer } from '@/store/uiStore'
+import { stockOf } from '@/utils/productStock'
 
 const CONFIRMATION_MS = 1600
 
@@ -47,7 +48,8 @@ export function AddToCartButton({
         if (openDrawerOnAdd) open()
     }
 
-    const isSoldOut = product.stock <= 0
+    const variant = product.variants.find((candidate) => candidate.id === variantId)
+    const isSoldOut = stockOf(product, variant) <= 0
 
     return (
         <Button

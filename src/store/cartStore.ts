@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import type { CartItem } from '@/@types/cart'
 import { PERSONALIZATION_MAX_LENGTH } from '@/@types/order'
 import type { Product } from '@/@types/product'
+import { stockOf } from '@/utils/productStock'
 
 interface CartState {
     items: CartItem[]
@@ -67,7 +68,8 @@ function createLine(
     rawPersonalization: string | undefined,
 ): CartItem | null {
     const variant = product.variants.find((candidate) => candidate.id === variantId)
-    if (!variant) return null
+    // A sold-out version cannot be added (the server would refuse it at checkout anyway).
+    if (!variant || stockOf(product, variant) <= 0) return null
     const personalizable = product.tags.includes('personalizable')
     const personalization = personalizable ? normalizePersonalization(rawPersonalization) : ''
 
@@ -83,7 +85,7 @@ function createLine(
         printText: product.printText,
         imageUrl: product.images.at(0)?.url,
         unitPrice: product.price + variant.priceDelta,
-        quantity: clampQuantity(quantity, product.stock),
+        quantity: clampQuantity(quantity, stockOf(product, variant)),
         personalization,
         personalizable,
     }
@@ -124,7 +126,8 @@ export const useCartStore = create<CartState>()(
                 set((state) => {
                     const line = createLine(product, variantId, quantity, personalization)
                     if (!line) return state
-                    return { items: mergeLine(state.items, line, product.stock) }
+                    const variant = product.variants.find((item) => item.id === variantId)
+                    return { items: mergeLine(state.items, line, stockOf(product, variant)) }
                 }),
 
             updatePersonalization: (lineId, text) =>

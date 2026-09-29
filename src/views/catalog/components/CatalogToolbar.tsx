@@ -6,7 +6,6 @@ const SORT_SELECT_OPTIONS: SelectOption[] = [
     { value: 'newest', label: 'Más nuevos' },
     { value: 'price-asc', label: 'Precio: menor a mayor' },
     { value: 'price-desc', label: 'Precio: mayor a menor' },
-    { value: 'rating', label: 'Mejor valorados' },
 ]
 
 const SORT_VALUES = SORT_SELECT_OPTIONS.map((option) => option.value)

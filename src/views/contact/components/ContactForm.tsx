@@ -11,6 +11,7 @@ import {
     CONTACT_TOPICS,
     type ContactValues,
 } from '@/views/contact/schema/contact.schema'
+import { withCapitalizedWords } from '@/utils/capitalizeWords'
 
 const SUBMIT_DELAY_MS = 1200
 
@@ -66,8 +67,9 @@ export function ContactForm() {
                     <Input
                         label="Nombre y apellido"
                         autoComplete="name"
+                        autoCapitalize="words"
                         error={errors.fullName?.message}
-                        {...register('fullName')}
+                        {...withCapitalizedWords(register('fullName'))}
                     />
                     <Input
                         label="Correo"

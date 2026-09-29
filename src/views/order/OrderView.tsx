@@ -137,7 +137,12 @@ export function OrderView() {
             <PaymentForm
                 createdAt={order.createdAt}
                 totalBs={order.totals.totalBs}
-                onSubmit={(input) => submitPayment.mutateAsync(input)}
+                onSubmit={async (input) => {
+                    await submitPayment.mutateAsync(input)
+                    // The form is replaced by a shorter page: bring the customer back up to the
+                    // new status. `html` scrolls smoothly unless the user prefers reduced motion.
+                    window.scrollTo({ top: 0 })
+                }}
             />
         </Card>
     )

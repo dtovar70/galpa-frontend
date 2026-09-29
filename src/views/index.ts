@@ -34,6 +34,12 @@ export const MyOrdersView = lazy(() =>
     import('@/views/order/MyOrdersView').then((module) => ({ default: module.MyOrdersView })),
 )
 
+export const OrderLookupView = lazy(() =>
+    import('@/views/order/OrderLookupView').then((module) => ({
+        default: module.OrderLookupView,
+    })),
+)
+
 export const AboutView = lazy(() =>
     import('@/views/about/AboutView').then((module) => ({ default: module.AboutView })),
 )

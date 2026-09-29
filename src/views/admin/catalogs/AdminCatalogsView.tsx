@@ -1,4 +1,4 @@
-import { useEffect, type KeyboardEvent } from 'react'
+import type { KeyboardEvent } from 'react'
 import { Landmark, ListChecks, Lock, Smartphone } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 
@@ -11,9 +11,9 @@ import { OrderStatusesSection } from '@/views/admin/catalogs/components/OrderSta
 import { useSession } from '@/views/admin/hooks/useSession'
 
 const SECTIONS = [
-    { id: 'estados', label: 'Estados de pedido', icon: ListChecks },
-    { id: 'bancos', label: 'Bancos', icon: Landmark },
-    { id: 'celulares', label: 'Códigos de celular', icon: Smartphone },
+    { id: 'estados', label: 'Estados de pedido', shortLabel: 'Estados', icon: ListChecks },
+    { id: 'bancos', label: 'Bancos', shortLabel: 'Bancos', icon: Landmark },
+    { id: 'celulares', label: 'Códigos de celular', shortLabel: 'Celulares', icon: Smartphone },
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
@@ -33,13 +33,6 @@ export function AdminCatalogsView() {
     const [searchParams, setSearchParams] = useSearchParams()
     const raw = searchParams.get('seccion')
     const active: SectionId = isSectionId(raw) ? raw : 'estados'
-
-    // On narrow screens the tabs scroll sideways: keep the open one in view (e.g. after a reload).
-    useEffect(() => {
-        document
-            .getElementById(`${TAB_PREFIX}-${active}`)
-            ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-    }, [active])
 
     const select = (id: SectionId) =>
         setSearchParams(
@@ -88,9 +81,10 @@ export function AdminCatalogsView() {
                 role="tablist"
                 aria-label="Catálogos"
                 onKeyDown={onKeyDown}
-                className="mb-8 flex w-max max-w-full gap-1 overflow-x-auto rounded-full border-2 border-line bg-white p-1"
+                // Phones: three equal cells (icon over a short name), so no tab hides off-screen.
+                className="mb-8 grid grid-cols-3 gap-1 rounded-3xl border-2 border-line bg-white p-1 sm:flex sm:w-max sm:max-w-full sm:rounded-full"
             >
-                {SECTIONS.map(({ id, label, icon: Icon }) => {
+                {SECTIONS.map(({ id, label, shortLabel, icon: Icon }) => {
                     const isActive = id === active
                     return (
                         <button
@@ -103,14 +97,16 @@ export function AdminCatalogsView() {
                             tabIndex={isActive ? 0 : -1}
                             onClick={() => select(id)}
                             className={cn(
-                                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition',
+                                'flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-xs font-semibold whitespace-nowrap transition',
+                                'sm:flex-row sm:gap-2 sm:rounded-full sm:px-4 sm:text-sm',
                                 isActive
                                     ? 'bg-blush-100 text-blush-800'
                                     : 'text-ink-soft hover:bg-blush-50 hover:text-ink',
                             )}
                         >
                             <Icon aria-hidden="true" className="size-4" />
-                            {label}
+                            <span className="sm:hidden">{shortLabel}</span>
+                            <span className="hidden sm:inline">{label}</span>
                         </button>
                     )
                 })}

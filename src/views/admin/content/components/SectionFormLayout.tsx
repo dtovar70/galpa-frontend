@@ -12,7 +12,8 @@ import { SECTION_META } from '@/views/admin/content/sections/sectionMeta'
 const dateFormatter = new Intl.DateTimeFormat('es-VE', { dateStyle: 'medium', timeStyle: 'short' })
 
 function lastEdit(saved: SectionFormState<FieldValues>['saved']): string {
-    if (saved.isDefault || !saved.updatedAt) return 'Muestra los textos originales.'
+    if (saved.isDefault || !saved.updatedAt)
+        return 'Sin cambios guardados: la tienda usa los valores originales.'
     const when = dateFormatter.format(new Date(saved.updatedAt))
     return saved.updatedBy
         ? `Última edición: ${when}, por ${saved.updatedBy.name}.`

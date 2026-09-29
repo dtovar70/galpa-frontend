@@ -4,7 +4,10 @@ import { ExternalLink, ImageOff, X, ZoomIn, ZoomOut } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 export interface ProofViewerProps {
-    /** Absolute URL of the private screenshot (the session cookie authorizes it). */
+    /**
+     * The screenshot: the private proof URL in the admin (the session cookie authorizes it) or
+     * a local `blob:` preview in the customer's payment form.
+     */
     src: string
     /** e.g. "Captura del pago ref. 0012345678". */
     title: string
@@ -13,6 +16,11 @@ export interface ProofViewerProps {
 /**
  * Thumbnail that opens the payment screenshot in a modal. The image can be zoomed (tap it or
  * use the buttons) and scrolled; Escape or the backdrop closes it.
+ *
+ * It can live inside another modal (the admin's "Registrar pago manualmente"): `showModal()`
+ * stacks it on top in the top layer, and Escape only reaches the topmost dialog. React still
+ * propagates the synthetic `cancel`/`close` events up the component tree, so they stop here
+ * and never close the dialog underneath.
  */
 export function ProofViewer({ src, title }: ProofViewerProps) {
     const dialogRef = useRef<HTMLDialogElement>(null)
@@ -66,9 +74,19 @@ export function ProofViewer({ src, title }: ProofViewerProps) {
                 aria-label={title}
                 onCancel={(event) => {
                     event.preventDefault()
+                    event.stopPropagation()
                     close()
                 }}
+                onClose={(event) => {
+                    // Also after a browser force-close (repeated Escape): keep the state in sync.
+                    event.stopPropagation()
+                    if (isOpen) close()
+                }}
+                onKeyDown={(event) => {
+                    if (event.key === 'Escape') event.stopPropagation()
+                }}
                 onClick={(event) => {
+                    event.stopPropagation()
                     if (event.target === event.currentTarget) close()
                 }}
                 className="fixed inset-0 m-auto h-[min(90vh,56rem)] w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/60 backdrop:backdrop-blur-sm"
@@ -109,7 +127,7 @@ export function ProofViewer({ src, title }: ProofViewerProps) {
                                 </button>
                             </div>
                         </div>
-                        <div className="min-h-0 flex-1 overflow-auto bg-ink/5">
+                        <div className="scroll-soft min-h-0 flex-1 overflow-auto bg-ink/5">
                             <img
                                 src={src}
                                 alt={title}

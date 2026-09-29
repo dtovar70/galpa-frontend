@@ -215,7 +215,7 @@ export function UserFormDialog({
                     <Select
                         label="Rol"
                         options={ROLE_OPTIONS}
-                        hint={`${ROLE_LABEL[role]}: ${ROLE_DESCRIPTION[role].toLowerCase()}.`}
+                        hint={ROLE_DESCRIPTION[role]}
                         error={errors.role?.message}
                         {...register('role')}
                     />

@@ -7,6 +7,7 @@ import { ProductMedia } from '@/components/shared/ProductMedia'
 import { categorySurface } from '@/components/shared/illustration/artwork'
 import { Sticker } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import { isVariantSoldOut } from '@/utils/productStock'
 import { useCategory } from '@/views/catalog/hooks/useCategories'
 
 const thumbVariants = cva(
@@ -104,11 +105,19 @@ export function ProductGallery({ product, selectedVariant, onSelectVariant }: Pr
                             <button
                                 type="button"
                                 onClick={() => onSelectVariant(variant.id)}
+                                disabled={isVariantSoldOut(variant)}
                                 aria-pressed={variant.id === selectedVariant?.id}
-                                aria-label={`Ver ${variant.label}`}
-                                className={thumbVariants({
-                                    isSelected: variant.id === selectedVariant?.id,
-                                })}
+                                aria-label={
+                                    isVariantSoldOut(variant)
+                                        ? `${variant.label} (agotada)`
+                                        : `Ver ${variant.label}`
+                                }
+                                className={cn(
+                                    thumbVariants({
+                                        isSelected: variant.id === selectedVariant?.id,
+                                    }),
+                                    'disabled:cursor-not-allowed disabled:opacity-40',
+                                )}
                             >
                                 <ProductIllustration
                                     category={product.category}

@@ -31,6 +31,7 @@ import {
     productFormSchema,
     toOptionalNumber,
     toProductInput,
+    variantsStockTotal,
     type ProductFormValues,
 } from '@/views/admin/products/schema/product.schema'
 import { applyServerErrors } from '@/views/admin/products/utils/applyServerErrors'
@@ -188,15 +189,27 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             error={errors.compareAtPrice?.message}
                             {...register('compareAtPrice', { setValueAs: toOptionalNumber })}
                         />
-                        <Input
-                            label="Stock"
-                            type="number"
-                            inputMode="numeric"
-                            step="1"
-                            min={0}
-                            error={errors.stock?.message}
-                            {...register('stock', { setValueAs: toOptionalNumber })}
-                        />
+                        {variants.fields.length > 0 ? (
+                            // With variants the stock is theirs; this is only their sum.
+                            <Input
+                                label="Stock"
+                                value={`Total: ${variantsStockTotal(variantValues)}`}
+                                readOnly
+                                tabIndex={-1}
+                                hint="Suma de las variantes. Cámbialo en cada una."
+                                className="bg-cream tabular-nums"
+                            />
+                        ) : (
+                            <Input
+                                label="Stock"
+                                type="number"
+                                inputMode="numeric"
+                                step="1"
+                                min={0}
+                                error={errors.stock?.message}
+                                {...register('stock', { setValueAs: toOptionalNumber })}
+                            />
+                        )}
                     </div>
                 </Card>
 
@@ -303,8 +316,9 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                         <div>
                             <h2 className={sectionTitleClass}>Variantes</h2>
                             <p className="text-sm text-ink-soft">
-                                La primera es la predeterminada. Sin variantes el producto no se
-                                puede agregar al carrito.
+                                La primera con stock es la predeterminada; las que están en 0 se ven
+                                como «Agotada». Sin variantes el producto no se puede agregar al
+                                carrito.
                             </p>
                         </div>
                         <Button
@@ -312,7 +326,12 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             size="sm"
                             disabled={variants.fields.length >= MAX_VARIANTS}
                             onClick={() =>
-                                variants.append({ label: '', priceDelta: 0, colorHex: '' })
+                                variants.append({
+                                    label: '',
+                                    priceDelta: 0,
+                                    colorHex: '',
+                                    stock: 0,
+                                })
                             }
                             leadingIcon={<Plus aria-hidden="true" className="size-4" />}
                         >
@@ -350,7 +369,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                                         >
                                             <Trash2 aria-hidden="true" className="size-4" />
                                         </button>
-                                        <div className="col-span-2 sm:col-span-1">
+                                        <div className="col-span-2 grid grid-cols-1 items-start gap-3 sm:grid-cols-3">
                                             <Input
                                                 label="Ajuste de precio"
                                                 hint={finalPriceHint(index)}
@@ -362,8 +381,17 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                                                     setValueAs: toOptionalNumber,
                                                 })}
                                             />
-                                        </div>
-                                        <div className="col-span-2 sm:col-span-1">
+                                            <Input
+                                                label="Stock"
+                                                type="number"
+                                                inputMode="numeric"
+                                                step="1"
+                                                min={0}
+                                                error={rowErrors?.stock?.message}
+                                                {...register(`variants.${index}.stock`, {
+                                                    setValueAs: toOptionalNumber,
+                                                })}
+                                            />
                                             <Input
                                                 label="Color"
                                                 optional

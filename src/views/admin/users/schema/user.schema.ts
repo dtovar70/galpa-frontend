@@ -19,9 +19,10 @@ export const ROLE_LABEL: Record<UserRole, string> = {
     EDITOR: 'Editor',
 }
 
+/** Short, for the role picker; the full list lives in `views/admin/constants/rolePermissions`. */
 export const ROLE_DESCRIPTION: Record<UserRole, string> = {
-    ADMIN: 'Todo, incluido usuarios, catálogos y Telegram',
-    EDITOR: 'Productos, pedidos y contenido; no puede eliminar ni cancelar',
+    ADMIN: 'Todo: usuarios, catálogos, Telegram, tasa manual y eliminar.',
+    EDITOR: 'Pedidos, productos, categorías, contenido y tasa. No elimina, no cancela pedidos ni toca usuarios, catálogos o Telegram.',
 }
 
 /** Mirrors the API's password policy (10–200 characters, a letter and a number). */

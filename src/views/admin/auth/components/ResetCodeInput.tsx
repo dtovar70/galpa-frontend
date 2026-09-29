@@ -27,9 +27,10 @@ export interface ResetCodeInputProps {
 }
 
 /**
- * The 6-digit code from the Telegram bot. A controlled string (never a number, so leading zeros
- * survive): only digits can go in, a 7th is refused, and it has to be typed by hand: paste,
- * drop, copy and cut are blocked, and a paste or drop attempt shows a short hint that fades.
+ * The 6-digit reset code (from Telegram or email). A controlled string (never a number, so
+ * leading zeros survive): only digits can go in, a 7th is refused, and it has to be typed by
+ * hand: paste, drop, copy and cut are blocked, and a paste or drop attempt shows a short hint
+ * that fades.
  */
 export function ResetCodeInput({
     value,

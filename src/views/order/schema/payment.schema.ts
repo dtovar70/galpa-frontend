@@ -16,13 +16,21 @@ export function parseBsAmount(value: string): number {
     return /^\d+(?:\.\d{1,2})?$/.test(normalized) ? Number(normalized) : Number.NaN
 }
 
+/** Only the last digits of the bank reference are asked for: the whole number is long. */
+export const REFERENCE_DIGITS = 6
+
 /** Same rules as the API's SubmitPaymentDto (dates are checked against the order there). */
 export const paymentSchema = z.object({
     reference: z
         .string()
         .max(MAX_TEXT, MAX_TEXT_MESSAGE)
         .transform((value) => value.replace(/[\s.-]/g, ''))
-        .pipe(z.string().regex(/^\d{4,20}$/, 'La referencia debe tener entre 4 y 20 dígitos')),
+        .pipe(
+            z
+                .string()
+                .min(1, 'Escribe los últimos 6 dígitos de la referencia.')
+                .regex(/^\d{6}$/, 'Deben ser exactamente 6 dígitos.'),
+        ),
     payerBankCode: z.string().min(1, 'Elige el banco desde el que pagaste'),
     payerPhone: mobilePhoneSchema({ required: 'Escribe el teléfono desde el que pagaste' }),
     payerIdNumber: idNumberSchema({ optional: true }),

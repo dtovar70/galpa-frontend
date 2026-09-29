@@ -11,6 +11,8 @@ export interface ProductVariant {
     label: string
     priceDelta: number
     colorHex?: string
+    /** Units of this version in stock; 0 means it is sold out ("Agotada"). */
+    stock: number
 }
 
 export interface ProductImage {
@@ -31,9 +33,8 @@ export interface Product {
     description: string
     highlights: string[]
     variants: ProductVariant[]
-    rating: number
-    reviewCount: number
     tags: ProductTag[]
+    /** Units in stock: the sum of the variants' stock when the product has variants. */
     stock: number
     createdAt: string
     /** Uploaded photos in display order; empty means the generated illustration is shown. */

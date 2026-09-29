@@ -18,7 +18,6 @@ export const SORT_OPTIONS = [
     'price-asc',
     'price-desc',
     'newest',
-    'rating',
 ] as const satisfies readonly SortOption[]
 
 export const PRODUCT_TAGS = [

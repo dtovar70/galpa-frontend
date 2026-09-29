@@ -1,6 +1,9 @@
-import type { Product } from '@/@types/product'
+import type { Product, ProductVariant } from '@/@types/product'
 
-export const products: Product[] = [
+/** The mock keeps one stock per product; variants get theirs in `withVariantStock` below. */
+type MockProduct = Omit<Product, 'variants'> & { variants: Omit<ProductVariant, 'stock'>[] }
+
+const mockProducts: MockProduct[] = [
     {
         id: 'mug-001',
         slug: 'taza-cafe-primero',
@@ -28,8 +31,6 @@ export const products: Product[] = [
                 colorHex: '#FFB3D1',
             },
         ],
-        rating: 4.8,
-        reviewCount: 214,
         tags: ['bestseller', 'oferta', 'personalizable'],
         stock: 42,
         createdAt: '2025-11-04T10:00:00.000Z',
@@ -55,8 +56,6 @@ export const products: Product[] = [
             { id: 'mug-002-11oz', label: 'Mágica negra 11oz', priceDelta: 0, colorHex: '#2E2438' },
             { id: 'mug-002-15oz', label: 'Mágica negra 15oz', priceDelta: 4, colorHex: '#2E2438' },
         ],
-        rating: 4.9,
-        reviewCount: 168,
         tags: ['nuevo', 'bestseller', 'personalizable'],
         stock: 23,
         createdAt: '2026-02-18T09:30:00.000Z',
@@ -93,8 +92,6 @@ export const products: Product[] = [
                 colorHex: '#FFD1E4',
             },
         ],
-        rating: 4.7,
-        reviewCount: 131,
         tags: ['bestseller', 'personalizable'],
         stock: 58,
         createdAt: '2025-09-12T14:15:00.000Z',
@@ -132,8 +129,6 @@ export const products: Product[] = [
             },
             { id: 'mug-004-duo', label: 'Dúo completo 11oz', priceDelta: 11, colorHex: '#FFD1E4' },
         ],
-        rating: 4.6,
-        reviewCount: 96,
         tags: ['oferta', 'personalizable'],
         stock: 34,
         createdAt: '2025-12-20T11:45:00.000Z',
@@ -160,8 +155,6 @@ export const products: Product[] = [
             { id: 'mug-005-blush', label: 'Línea rosada 11oz', priceDelta: 0, colorHex: '#FFB3D1' },
             { id: 'mug-005-mint', label: 'Línea menta 11oz', priceDelta: 0, colorHex: '#7FD9B4' },
         ],
-        rating: 4.4,
-        reviewCount: 74,
         tags: ['personalizable'],
         stock: 91,
         createdAt: '2025-07-30T08:20:00.000Z',
@@ -188,8 +181,6 @@ export const products: Product[] = [
             { id: 'mug-006-two', label: 'Dos mascotas 11oz', priceDelta: 2, colorHex: '#FFFFFF' },
             { id: 'mug-006-15oz', label: 'Una mascota 15oz', priceDelta: 3, colorHex: '#FFFFFF' },
         ],
-        rating: 5,
-        reviewCount: 189,
         tags: ['nuevo', 'bestseller', 'personalizable'],
         stock: 17,
         createdAt: '2026-03-05T16:00:00.000Z',
@@ -219,8 +210,6 @@ export const products: Product[] = [
             { id: 'tee-001-xl', label: 'Talla XL', priceDelta: 2 },
             { id: 'tee-001-xxl', label: 'Talla XXL', priceDelta: 3 },
         ],
-        rating: 4.7,
-        reviewCount: 142,
         tags: ['bestseller', 'personalizable'],
         stock: 65,
         createdAt: '2025-10-08T13:10:00.000Z',
@@ -248,8 +237,6 @@ export const products: Product[] = [
             { id: 'tee-002-l', label: 'Talla L', priceDelta: 0 },
             { id: 'tee-002-xl', label: 'Talla XL', priceDelta: 2 },
         ],
-        rating: 4.8,
-        reviewCount: 87,
         tags: ['nuevo', 'oferta'],
         stock: 19,
         createdAt: '2026-04-11T10:40:00.000Z',
@@ -277,8 +264,6 @@ export const products: Product[] = [
             { id: 'tee-003-l', label: 'Talla L', priceDelta: 0 },
             { id: 'tee-003-xl', label: 'Talla XL', priceDelta: 2 },
         ],
-        rating: 4.5,
-        reviewCount: 63,
         tags: ['personalizable'],
         stock: 120,
         createdAt: '2025-08-22T09:05:00.000Z',
@@ -305,8 +290,6 @@ export const products: Product[] = [
             { id: 'tee-004-m', label: 'Talla M', priceDelta: 0 },
             { id: 'tee-004-l', label: 'Talla L', priceDelta: 1 },
         ],
-        rating: 4.3,
-        reviewCount: 51,
         tags: ['nuevo', 'personalizable'],
         stock: 38,
         createdAt: '2026-01-27T15:25:00.000Z',
@@ -334,8 +317,6 @@ export const products: Product[] = [
             { id: 'tee-005-s', label: 'Talla S adulto', priceDelta: 0 },
             { id: 'tee-005-m', label: 'Talla M adulto', priceDelta: 0 },
         ],
-        rating: 4.6,
-        reviewCount: 78,
         tags: ['bestseller', 'personalizable'],
         stock: 44,
         createdAt: '2025-11-30T12:00:00.000Z',
@@ -362,8 +343,6 @@ export const products: Product[] = [
             { id: 'tee-006-m', label: 'Talla M', priceDelta: 0 },
             { id: 'tee-006-l', label: 'Talla L', priceDelta: 0 },
         ],
-        rating: 4.2,
-        reviewCount: 39,
         tags: ['oferta'],
         stock: 8,
         createdAt: '2025-06-14T17:30:00.000Z',
@@ -396,8 +375,6 @@ export const products: Product[] = [
             },
             { id: 'key-001-heart', label: 'Acrílico corazón', priceDelta: 1, colorHex: '#FF8FB8' },
         ],
-        rating: 4.5,
-        reviewCount: 203,
         tags: ['bestseller', 'personalizable'],
         stock: 240,
         createdAt: '2025-09-01T08:00:00.000Z',
@@ -433,8 +410,6 @@ export const products: Product[] = [
                 colorHex: '#A8D8FF',
             },
         ],
-        rating: 4.7,
-        reviewCount: 156,
         tags: ['bestseller', 'personalizable'],
         stock: 132,
         createdAt: '2025-10-19T11:20:00.000Z',
@@ -461,8 +436,6 @@ export const products: Product[] = [
             { id: 'key-003-cat', label: 'Silueta gato', priceDelta: 0, colorHex: '#FFEFC2' },
             { id: 'key-003-bone', label: 'Forma hueso', priceDelta: 1, colorHex: '#FFD979' },
         ],
-        rating: 4.8,
-        reviewCount: 118,
         tags: ['nuevo', 'personalizable'],
         stock: 76,
         createdAt: '2026-02-02T09:50:00.000Z',
@@ -489,8 +462,6 @@ export const products: Product[] = [
             { id: 'key-004-acrylic', label: 'Par acrílico', priceDelta: 0, colorHex: '#FF8FB8' },
             { id: 'key-004-wood', label: 'Par madera', priceDelta: 1, colorHex: '#FFEFC2' },
         ],
-        rating: 4.6,
-        reviewCount: 94,
         tags: ['oferta', 'personalizable'],
         stock: 47,
         createdAt: '2025-12-06T14:35:00.000Z',
@@ -516,8 +487,6 @@ export const products: Product[] = [
             { id: 'key-005-steel', label: 'Acero plateado', priceDelta: 0, colorHex: '#C4E4FF' },
             { id: 'key-005-black', label: 'Acero negro mate', priceDelta: 1, colorHex: '#2E2438' },
         ],
-        rating: 4.4,
-        reviewCount: 61,
         tags: ['personalizable'],
         stock: 88,
         createdAt: '2025-07-15T10:10:00.000Z',
@@ -549,11 +518,23 @@ export const products: Product[] = [
             },
             { id: 'key-006-blush', label: 'Acrílico blush', priceDelta: 0, colorHex: '#FFB3D1' },
         ],
-        rating: 4.1,
-        reviewCount: 45,
         tags: ['nuevo'],
         stock: 310,
         createdAt: '2026-03-21T08:45:00.000Z',
         images: [],
     },
 ]
+
+/** Shares the product's stock out evenly across its variants (the first take the remainder). */
+function withVariantStock(product: MockProduct): Product {
+    const count = product.variants.length
+    return {
+        ...product,
+        variants: product.variants.map((variant, index) => ({
+            ...variant,
+            stock: Math.floor(product.stock / count) + (index < product.stock % count ? 1 : 0),
+        })),
+    }
+}
+
+export const products: Product[] = mockProducts.map(withVariantStock)

@@ -6,9 +6,16 @@ import {
     FIELD_LABEL_CLASS,
     FIELD_MESSAGE_ERROR_CLASS,
 } from '@/components/ui/field.styles'
+import { ProofViewer } from '@/components/shared/ProofViewer'
 import { OptionalMark } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { proofProblem } from '@/views/order/schema/payment.schema'
+
+/** "850 KB" / "1,4 MB"; small screenshots no longer read "0 MB". */
+function formatFileSize(bytes: number): string {
+    if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
+    return `${(bytes / 1024 / 1024).toLocaleString('es-VE', { maximumFractionDigits: 1 })} MB`
+}
 
 export interface ProofDropzoneProps {
     file: File | null
@@ -57,19 +64,11 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
 
             {file && preview ? (
                 <div className="flex items-center gap-3 rounded-2xl border-2 border-line bg-white p-3">
-                    <img
-                        src={preview}
-                        alt="Vista previa de la captura"
-                        className="size-20 shrink-0 rounded-xl object-cover"
-                    />
+                    <ProofViewer src={preview} title="Tu captura del pago" />
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-ink">{file.name}</p>
-                        <p className="text-xs text-ink-soft">
-                            {(file.size / 1024 / 1024).toLocaleString('es-VE', {
-                                maximumFractionDigits: 1,
-                            })}{' '}
-                            MB
-                        </p>
+                        <p className="text-xs text-ink-soft">{formatFileSize(file.size)}</p>
+                        <p className="mt-1 text-xs text-ink-soft">Toca la imagen para verla.</p>
                     </div>
                     <button
                         type="button"

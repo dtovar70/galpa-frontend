@@ -23,6 +23,7 @@ export function HomeSection(props: SectionFormProps<'home'>) {
     } = state.form
     const features = useFieldArray({ control, name: 'heroFeatures' })
     const steps = useFieldArray({ control, name: 'steps' })
+    const testimonials = useFieldArray({ control, name: 'testimonials' })
     const [heroTitle, categoriesTitle, featuredTitle, stepsTitle, testimonialsTitle, ctaTitle] =
         useWatch({
             control,
@@ -202,7 +203,7 @@ export function HomeSection(props: SectionFormProps<'home'>) {
 
             <FieldGroup
                 title="Reseñas"
-                description="Las reseñas se cargan solas; aquí va su título."
+                description="Opiniones de clientes. Si no agregas ninguna, el bloque no se muestra en la tienda."
             >
                 <Input
                     label="Antetítulo"
@@ -214,6 +215,55 @@ export function HomeSection(props: SectionFormProps<'home'>) {
                     value={testimonialsTitle}
                     error={errors.testimonialsTitle?.message}
                     registration={register('testimonialsTitle')}
+                />
+                <p className="text-sm text-ink-soft">
+                    Usa opiniones reales de tus clientes y pídeles permiso antes de publicarlas.
+                </p>
+                <SortableList
+                    label="Reseñas de clientes"
+                    itemIds={testimonials.fields.map((field) => field.id)}
+                    itemName={(position) => `Reseña ${position}`}
+                    onMove={testimonials.move}
+                    onRemove={testimonials.remove}
+                    onAdd={() =>
+                        testimonials.append({ quote: '', name: '', city: '', product: '' })
+                    }
+                    addLabel="Agregar reseña"
+                    minItems={CONTENT_LIST_SIZES.testimonials.min}
+                    maxItems={CONTENT_LIST_SIZES.testimonials.max}
+                    emptyText="Sin reseñas: el bloque no se muestra en la página de inicio."
+                    error={errors.testimonials?.message ?? errors.testimonials?.root?.message}
+                    renderItem={(index) => (
+                        <>
+                            <Textarea
+                                label="Opinión"
+                                rows={3}
+                                error={errors.testimonials?.[index]?.quote?.message}
+                                maxLength={CONTENT_LIMITS.testimonialQuote}
+                                {...register(`testimonials.${index}.quote`)}
+                            />
+                            <Input
+                                label="Nombre del cliente"
+                                error={errors.testimonials?.[index]?.name?.message}
+                                {...register(`testimonials.${index}.name`)}
+                            />
+                            <FieldRow>
+                                <Input
+                                    label="Ciudad"
+                                    optional
+                                    error={errors.testimonials?.[index]?.city?.message}
+                                    {...register(`testimonials.${index}.city`)}
+                                />
+                                <Input
+                                    label="Producto"
+                                    optional
+                                    hint="Por ejemplo: Taza personalizada."
+                                    error={errors.testimonials?.[index]?.product?.message}
+                                    {...register(`testimonials.${index}.product`)}
+                                />
+                            </FieldRow>
+                        </>
+                    )}
                 />
             </FieldGroup>
 
@@ -251,18 +301,6 @@ export function HomeSection(props: SectionFormProps<'home'>) {
                         hint="Lleva a Nosotros."
                         error={errors.ctaSecondary?.message}
                         {...register('ctaSecondary')}
-                    />
-                </FieldRow>
-                <FieldRow>
-                    <Input
-                        label="Título del boletín"
-                        error={errors.newsletterTitle?.message}
-                        {...register('newsletterTitle')}
-                    />
-                    <Input
-                        label="Texto del boletín"
-                        error={errors.newsletterDescription?.message}
-                        {...register('newsletterDescription')}
                     />
                 </FieldRow>
             </FieldGroup>

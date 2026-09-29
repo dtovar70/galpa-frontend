@@ -6,10 +6,11 @@ import { AddToCartButton } from '@/components/shared/AddToCartButton'
 import { PriceTag } from '@/components/shared/PriceTag'
 import { ProductMedia } from '@/components/shared/ProductMedia'
 import { categorySurface } from '@/components/shared/illustration/artwork'
-import { Badge, Card, Rating, type BadgeProps } from '@/components/ui'
+import { Badge, Card, type BadgeProps } from '@/components/ui'
 import { productPath } from '@/constants/route.constant'
 import { cn } from '@/utils/cn'
 import { priceRange } from '@/utils/productPrice'
+import { defaultVariant as pickDefaultVariant } from '@/utils/productStock'
 import { useCategory } from '@/views/catalog/hooks/useCategories'
 import { productDetailQueryOptions } from '@/views/product/hooks/useProduct'
 
@@ -28,9 +29,11 @@ export interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     const queryClient = useQueryClient()
-    const defaultVariant = product.variants.at(0)
+    // First version in stock; when all are sold out the button shows "Agotado".
+    const defaultVariant = pickDefaultVariant(product)
     const { min: fromPrice, max: toPrice } = priceRange(product)
-    const accentColor = useCategory(product.category)?.colorHex
+    const category = useCategory(product.category)
+    const accentColor = category?.colorHex
     const surface = categorySurface(product.category, accentColor ?? product.colorHex)
     const coverImage = product.images.at(0)
 
@@ -85,6 +88,12 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
 
             <div className="flex flex-1 flex-col gap-2 p-5">
+                {category ? (
+                    <p className="text-xs font-semibold tracking-[0.15em] text-blush-500 uppercase">
+                        {category.name}
+                    </p>
+                ) : null}
+
                 <h3 className="font-display text-lg leading-snug text-ink">
                     <Link
                         to={productPath(product.slug)}
@@ -94,7 +103,9 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Link>
                 </h3>
 
-                <Rating value={product.rating} reviewCount={product.reviewCount} size="sm" />
+                {product.description ? (
+                    <p className="line-clamp-2 text-sm text-ink-soft">{product.description}</p>
+                ) : null}
 
                 <div className="mt-auto flex items-end justify-between gap-3 pt-3">
                     <PriceTag

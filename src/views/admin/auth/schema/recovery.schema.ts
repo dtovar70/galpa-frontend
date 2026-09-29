@@ -25,7 +25,7 @@ export function toResetCode(raw: string): string {
     return raw.replace(/\D/g, '').slice(0, RESET_CODE_LENGTH)
 }
 
-/** Step 2: the code from Telegram and the new password (same policy as the API). */
+/** Step 2: the code (Telegram or email) and the new password (same policy as the API). */
 export const recoveryResetSchema = z
     .object({
         code: z

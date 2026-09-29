@@ -17,6 +17,7 @@ const HELP_LINKS = [
     { label: 'Carrito', to: ROUTES.cart },
     { label: 'Checkout', to: ROUTES.checkout },
     { label: 'Mis pedidos', to: ROUTES.myOrders },
+    { label: 'Consultar pedido', to: ROUTES.orderLookup },
 ]
 
 const linkClass = 'text-sm text-ink-soft transition hover:text-blush-600'

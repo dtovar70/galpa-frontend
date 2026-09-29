@@ -7,7 +7,7 @@ import { formatBolivares } from '@/utils/formatBolivares'
 import { formatDateTime, formatDay } from '@/utils/formatDate'
 import { PaymentFlagBadges } from '@/views/admin/orders/components/PaymentFlagBadges'
 import { formatDifference } from '@/views/admin/orders/utils/formatDifference'
-import { ProofViewer } from '@/views/admin/orders/components/ProofViewer'
+import { ProofViewer } from '@/components/shared/ProofViewer'
 
 const STATUS: Record<PaymentStatus, { label: string; tone: BadgeProps['tone'] }> = {
     PENDIENTE: { label: 'Por verificar', tone: 'sky' },

@@ -1,20 +1,26 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Check, ShieldCheck, X } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 
 import type { AdminSession } from '@/@types/admin'
 import { Alert, Button, Card, Input } from '@/components/ui'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
+import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/formatDate'
 import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
+import {
+    capabilityGroupsFor,
+    type RoleCapabilityGroup,
+} from '@/views/admin/constants/rolePermissions'
 import { useChangePassword, useSession, useUpdateMe } from '@/views/admin/hooks/useSession'
 import { PasswordField } from '@/views/admin/users/components/PasswordField'
 import { RoleBadge } from '@/views/admin/users/components/UserBadges'
 import {
     accountNameSchema,
     changePasswordSchema,
-    ROLE_DESCRIPTION,
+    ROLE_LABEL,
     type AccountNameValues,
     type ChangePasswordValues,
 } from '@/views/admin/users/schema/user.schema'
@@ -90,7 +96,6 @@ function ProfileCard({ user }: { user: AdminSession }) {
                         <dt className="font-semibold text-ink">Rol</dt>
                         <dd className="flex flex-wrap items-center gap-2 text-ink-soft">
                             <RoleBadge role={user.role} />
-                            <span className="text-xs">{ROLE_DESCRIPTION[user.role]}</span>
                         </dd>
                     </div>
                 </dl>
@@ -106,6 +111,84 @@ function ProfileCard({ user }: { user: AdminSession }) {
                     </Button>
                 </div>
             </form>
+        </Card>
+    )
+}
+
+function CapabilityList({
+    title,
+    groups,
+    allowed,
+}: {
+    title: string
+    groups: readonly RoleCapabilityGroup[]
+    allowed: boolean
+}) {
+    const Icon = allowed ? Check : X
+
+    return (
+        <section className="space-y-3">
+            <h3 className="font-display text-base text-ink">{title}</h3>
+            <div className="space-y-3">
+                {groups.map(({ area, capabilities }) => (
+                    <div key={area} className="space-y-1.5">
+                        <p className="text-xs font-bold tracking-wide text-ink-soft uppercase">
+                            {area}
+                        </p>
+                        <ul className="space-y-1.5 text-sm text-ink">
+                            {capabilities.map(({ action }) => (
+                                <li key={action} className="flex items-start gap-2">
+                                    <span
+                                        aria-hidden="true"
+                                        className={cn(
+                                            'mt-px flex size-5 shrink-0 items-center justify-center rounded-full',
+                                            allowed
+                                                ? 'bg-mint-200 text-ink'
+                                                : 'bg-line text-ink-soft',
+                                        )}
+                                    >
+                                        <Icon className="size-3.5" strokeWidth={2.5} />
+                                    </span>
+                                    {action}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
+        </section>
+    )
+}
+
+/** What your role lets you do, from the same list as Usuarios → "¿Qué puede hacer cada rol?". */
+function RoleAccessCard({ user }: { user: AdminSession }) {
+    const roleLabel = ROLE_LABEL[user.role]
+
+    return (
+        <Card className="space-y-5 xl:col-span-2">
+            <SectionTitle
+                title="Qué puedes hacer"
+                description={`Tu rol es ${roleLabel}. Solo un administrador puede cambiarlo.`}
+            />
+            {user.role === 'ADMIN' ? (
+                <p className="flex items-center gap-3 rounded-2xl bg-mint-200/50 px-4 py-3 text-sm text-ink">
+                    <ShieldCheck aria-hidden="true" className="size-5 shrink-0" />
+                    Tienes acceso a todo el panel.
+                </p>
+            ) : (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <CapabilityList
+                        title="Puedes"
+                        groups={capabilityGroupsFor(user.role, true)}
+                        allowed
+                    />
+                    <CapabilityList
+                        title="No puedes"
+                        groups={capabilityGroupsFor(user.role, false)}
+                        allowed={false}
+                    />
+                </div>
+            )}
         </Card>
     )
 }
@@ -226,7 +309,7 @@ function PasswordCard() {
     )
 }
 
-/** "Mi cuenta" (any role): your name and your password. */
+/** "Mi cuenta" (any role): your name, your password and what your role lets you do. */
 export function AdminAccountView() {
     const { data: user } = useSession()
     // `RequireAdmin` only renders the admin routes with a session.
@@ -241,6 +324,7 @@ export function AdminAccountView() {
             <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
                 <ProfileCard user={user} />
                 <PasswordCard />
+                <RoleAccessCard user={user} />
             </div>
         </>
     )

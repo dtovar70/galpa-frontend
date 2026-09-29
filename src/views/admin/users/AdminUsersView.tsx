@@ -15,12 +15,13 @@ import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
 import { useAdminUsers } from '@/views/admin/hooks/useAdminUsers'
 import { useSession } from '@/views/admin/hooks/useSession'
 import { ResetPasswordDialog } from '@/views/admin/users/components/ResetPasswordDialog'
+import { RolePermissionsTable } from '@/views/admin/users/components/RolePermissionsTable'
 import { RoleBadge, StatusBadge } from '@/views/admin/users/components/UserBadges'
 import { UserFormDialog } from '@/views/admin/users/components/UserFormDialog'
 import { UserRowActions } from '@/views/admin/users/components/UserRowActions'
 import { UserStatusDialog } from '@/views/admin/users/components/UserStatusDialog'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 350
 const SKELETON_ROWS = 4
 
@@ -164,6 +165,8 @@ export function AdminUsersView() {
                 cosa.
             </Alert>
 
+            <RolePermissionsTable className="mb-6" />
+
             <div className="mb-6 flex items-center gap-3">
                 <div className="w-full max-w-md">
                     <Input
@@ -242,9 +245,9 @@ export function AdminUsersView() {
             ) : (
                 /* Table or cards by the width the list actually gets (see the products list). */
                 <div className="@container">
-                    <Card padding="none" className="hidden overflow-hidden @3xl:block">
+                    <Card padding="none" className="hidden overflow-hidden @5xl:block">
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[46rem] table-fixed text-sm">
+                            <table className="w-full min-w-[60rem] table-fixed text-sm">
                                 <colgroup>
                                     <col />
                                     <col className="w-34" />
@@ -327,7 +330,7 @@ export function AdminUsersView() {
                     </Card>
 
                     {/* Narrow containers: one card per user, two across when there is room. */}
-                    <ul className="grid grid-cols-1 gap-3 @xl:grid-cols-2 @3xl:hidden">
+                    <ul className="grid grid-cols-1 gap-3 @xl:grid-cols-2 @5xl:hidden">
                         {items.map((user) => {
                             const isSelf = user.id === currentUserId
                             return (

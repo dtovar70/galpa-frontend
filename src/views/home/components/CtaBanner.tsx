@@ -1,5 +1,4 @@
 import { HighlightedText } from '@/components/shared/HighlightedText'
-import { Newsletter } from '@/components/shared/Newsletter'
 import { ButtonLink, Sticker } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
 import { ROUTES } from '@/constants/route.constant'
@@ -23,8 +22,8 @@ export function CtaBanner() {
                         className="absolute -top-20 -right-16 -z-10 size-72 rounded-full bg-blush-200 opacity-70 blur-3xl"
                     />
 
-                    <div className="grid items-center gap-10 lg:grid-cols-2">
-                        <div className="space-y-6">
+                    <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-2xl space-y-6">
                             <Sticker tone="mint" rotation="right">
                                 {home.ctaBadge}
                             </Sticker>
@@ -37,22 +36,15 @@ export function CtaBanner() {
                             </h2>
 
                             <p className="max-w-md text-ink-soft">{home.ctaDescription}</p>
-
-                            <div className="flex flex-wrap gap-3">
-                                <ButtonLink to={ROUTES.contact} size="lg">
-                                    {home.ctaPrimary}
-                                </ButtonLink>
-                                <ButtonLink to={ROUTES.about} size="lg" variant="secondary">
-                                    {home.ctaSecondary}
-                                </ButtonLink>
-                            </div>
                         </div>
 
-                        <div className="rounded-3xl border border-line bg-white/80 p-6 shadow-soft backdrop-blur-sm">
-                            <Newsletter
-                                title={home.newsletterTitle}
-                                description={home.newsletterDescription}
-                            />
+                        <div className="flex shrink-0 flex-wrap gap-3">
+                            <ButtonLink to={ROUTES.contact} size="lg">
+                                {home.ctaPrimary}
+                            </ButtonLink>
+                            <ButtonLink to={ROUTES.about} size="lg" variant="secondary">
+                                {home.ctaSecondary}
+                            </ButtonLink>
                         </div>
                     </div>
                 </div>

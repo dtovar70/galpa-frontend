@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ClipboardEvent } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -10,14 +10,31 @@ import { DatePicker } from '@/components/ui/DatePicker'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { formatVeNumber } from '@/utils/formatBolivares'
 import { todayInCaracas } from '@/utils/formatDate'
+import { insertDigits, rejectNonDigits } from '@/utils/digitInput'
 import { useBanks } from '@/utils/hooks/useBanks'
 import { ProofDropzone } from '@/views/order/components/ProofDropzone'
 import {
     PAYMENT_FIELDS,
+    REFERENCE_DIGITS,
     paymentSchema,
     type PaymentFormInput,
     type PaymentFormValues,
 } from '@/views/order/schema/payment.schema'
+
+/** Digits typed, dropped (autofill, keyboards that skip `beforeinput`) or pasted: capped. */
+function referenceDigits(value: string): string {
+    return value.replace(/\D/g, '').slice(0, REFERENCE_DIGITS)
+}
+
+/**
+ * A pasted whole reference ("Ref. 0012 3456 7890") keeps its last 6 digits, the ones asked for;
+ * a shorter paste goes where the cursor is.
+ */
+function pastedReference(input: HTMLInputElement, text: string): string {
+    const digits = text.replace(/\D/g, '')
+    if (digits.length >= REFERENCE_DIGITS) return digits.slice(-REFERENCE_DIGITS)
+    return insertDigits(input, digits, REFERENCE_DIGITS)
+}
 
 /** Day before `iso` in Caracas: the earliest payment date the API accepts. */
 function dayBefore(iso: string): string {
@@ -38,6 +55,8 @@ export interface PaymentFormProps {
      * form's button is then hidden.
      */
     formId?: string
+    /** Where to find the reference's last digits; the admin reads the customer's proof. */
+    referenceHint?: string
 }
 
 /**
@@ -50,6 +69,7 @@ export function PaymentForm({
     onSubmit,
     submitLabel = 'Enviar comprobante',
     formId,
+    referenceHint = 'Los encuentras al final del número de referencia de tu comprobante.',
 }: PaymentFormProps) {
     const [proof, setProof] = useState<File | null>(null)
     const [proofError, setProofError] = useState<string | undefined>()
@@ -99,14 +119,30 @@ export function PaymentForm({
         <form id={formId} onSubmit={handleSubmit(submit)} noValidate className="space-y-5">
             <fieldset className="grid gap-5 sm:grid-cols-2" disabled={isSubmitting}>
                 <legend className="sr-only">Datos del pago</legend>
-                <Input
-                    label="Número de referencia"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    placeholder="Ej. 001234567890"
-                    hint="Lo encuentras en el comprobante de tu banco."
-                    error={errors.reference?.message}
-                    {...register('reference')}
+                <Controller
+                    control={control}
+                    name="reference"
+                    render={({ field }) => (
+                        <Input
+                            label="Últimos 6 dígitos de la referencia"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            maxLength={REFERENCE_DIGITS}
+                            placeholder="Ej. 567890"
+                            hint={referenceHint}
+                            error={errors.reference?.message}
+                            {...field}
+                            onBeforeInput={rejectNonDigits}
+                            onChange={(event) =>
+                                field.onChange(referenceDigits(event.target.value))
+                            }
+                            onPaste={(event: ClipboardEvent<HTMLInputElement>) => {
+                                event.preventDefault()
+                                const text = event.clipboardData.getData('text')
+                                field.onChange(pastedReference(event.currentTarget, text))
+                            }}
+                        />
+                    )}
                 />
                 <Select
                     label="Banco desde el que pagaste"

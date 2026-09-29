@@ -20,7 +20,7 @@ const TOP_LEVEL_FIELDS = new Set<string>([
 /** API field path to form field path, or `null` when the form has no matching input. */
 function toFormPath(field: string): FieldPath<ProductFormValues> | null {
     if (TOP_LEVEL_FIELDS.has(field)) return field as FieldPath<ProductFormValues>
-    if (/^variants\.\d+\.(label|priceDelta|colorHex)$/.test(field)) {
+    if (/^variants\.\d+\.(label|priceDelta|colorHex|stock)$/.test(field)) {
         return field as FieldPath<ProductFormValues>
     }
     const highlight = /^highlights\.(\d+)$/.exec(field)
