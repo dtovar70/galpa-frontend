@@ -183,7 +183,7 @@ export function CatalogView() {
                             products={products}
                             isPending={isPending}
                             skeletonCount={CATALOG_PAGE_SIZE}
-                            className="xl:grid-cols-3"
+                            className="xl:grid-cols-3 2xl:grid-cols-4"
                         />
                     )}
 
