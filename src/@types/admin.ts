@@ -2,10 +2,10 @@ import type { ContentSection, SiteContent } from '@/@types/content'
 import type {
     Category,
     CategorySlug,
-    DesignPrintArea,
-    DesignTemplateColor,
-    Product,
+    ProductSpec,
     ProductTag,
+    Product,
+    StockMode,
 } from '@/@types/product'
 
 export type UserRole = 'ADMIN' | 'EDITOR'
@@ -62,7 +62,6 @@ export interface ProductVariantInput {
     id?: string
     label: string
     priceDelta: number
-    colorHex?: string
     stock: number
 }
 
@@ -74,10 +73,18 @@ export interface ProductInput {
     price: number
     /** `null` clears the "before" price on update. */
     compareAtPrice?: number | null
-    /** Only for a product without variants; with variants the API uses their sum. */
+    /** Only for a `STOCK` product without variants; with variants the API uses their sum. */
     stock?: number
-    printText: string
-    colorHex: string
+    brand: string
+    model: string | null
+    sku: string | null
+    stockMode: StockMode
+    leadTimeDays: number | null
+    btu: number | null
+    voltage: string | null
+    isInverter: boolean | null
+    refrigerant: string | null
+    specs: ProductSpec[]
     description: string
     highlights: string[]
     tags: ProductTag[]
@@ -90,44 +97,6 @@ export interface AdminCategory extends Category {
     sortOrder: number
     /** Products of any visibility; a category can only be deleted when this is 0. */
     totalProductCount: number
-    /** Products tagged "personalizable" (hidden ones included): they use the design template. */
-    personalizableProductCount: number
-    designTemplateSettings: AdminDesignTemplateSettings
-}
-
-/** What is set so far of the category's design template (any field may still be missing). */
-export interface AdminDesignTemplateSettings {
-    /** Every garment color, in order. */
-    colors: DesignTemplateColor[]
-    /** How many colors a category may have. */
-    maxColors: number
-    printWidthCm: number | null
-    printHeightCm: number | null
-    /** The category has a generated illustration, used while there is no photo. */
-    hasIllustration: boolean
-    /** The editor is turned off for this category (keychains): photos are kept but unused. */
-    designDisabled: boolean
-}
-
-/** Body of `PATCH /admin/categories/:slug/design-template`: the print size of every color. */
-export interface DesignTemplateInput {
-    printWidthCm: number
-    printHeightCm: number
-}
-
-/** `POST /admin/categories/:slug/design-template/colors` (multipart, with the photo). */
-export interface TemplateColorCreateInput {
-    colorName: string
-    /** `#RRGGBB`. */
-    colorHex: string
-    file: File
-}
-
-/** Body of `PATCH /admin/categories/:slug/design-template/colors/:colorId`. */
-export interface TemplateColorInput {
-    colorName?: string
-    colorHex?: string
-    printArea?: DesignPrintArea
 }
 
 /** Body of `POST /admin/categories`. Without `slug` the API derives it from the name. */
@@ -137,6 +106,7 @@ export interface CategoryCreateInput {
     tagline: string
     description: string
     colorHex: string
+    icon: string | null
     sortOrder?: number
 }
 

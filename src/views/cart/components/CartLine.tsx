@@ -3,9 +3,8 @@ import { Link } from 'react-router'
 
 import type { CartItem } from '@/@types/cart'
 import { CartLineStockNotice } from '@/components/shared/CartLineStockNotice'
-import { CartPersonalization } from '@/components/shared/CartPersonalization'
-import { CartLineMedia } from '@/components/shared/CartLineMedia'
-import { DesignBadge, GarmentColorNote } from '@/components/shared/DesignBadge'
+import { OnOrderNote } from '@/components/shared/OnOrderNote'
+import { ProductMedia } from '@/components/shared/ProductMedia'
 import { Button, QuantityStepper } from '@/components/ui'
 import { productPath } from '@/constants/route.constant'
 import { MAX_LINE_QUANTITY, useCartActions } from '@/store/cartStore'
@@ -24,21 +23,37 @@ export function CartLine({ item, stock }: CartLineProps) {
 
     return (
         <li className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center">
-            <div className="flex size-24 shrink-0 items-center justify-center rounded-3xl bg-blush-50 p-2">
-                <CartLineMedia item={item} size="lg" />
+            <div className="flex size-24 shrink-0 items-center justify-center rounded-xl border border-line bg-white p-1.5">
+                <ProductMedia
+                    category={item.category}
+                    image={item.imageUrl ? { url: item.imageUrl } : undefined}
+                    fallbackAlt={item.name}
+                    size="lg"
+                />
             </div>
 
             <div className="min-w-0 flex-1 space-y-1">
-                <h2 className="font-display text-lg text-ink">
-                    <Link to={productPath(item.slug)} className="rounded-sm hover:text-blush-700">
+                <p className="text-xs font-bold tracking-[0.12em] text-brand-700 uppercase">
+                    {item.brand}
+                    {item.model ? (
+                        <span className="font-tech font-medium tracking-normal text-ink-muted normal-case">
+                            {' '}
+                            · {item.model}
+                        </span>
+                    ) : null}
+                </p>
+                <h2 className="text-lg font-semibold text-ink">
+                    <Link to={productPath(item.slug)} className="rounded-sm hover:text-brand-700">
                         {item.name}
                     </Link>
                 </h2>
                 <p className="text-sm text-ink-soft">{item.variantLabel}</p>
-                {item.design ? <DesignBadge /> : null}
-                {item.design?.color ? <GarmentColorNote color={item.design.color} /> : null}
-                <p className="text-sm text-ink-soft">{formatCurrency(item.unitPrice)} c/u</p>
-                <CartPersonalization item={item} />
+                <p className="font-tech text-sm text-ink-soft">
+                    {formatCurrency(item.unitPrice)} c/u
+                </p>
+                {item.stockMode === 'ON_ORDER' ? (
+                    <OnOrderNote leadTimeDays={item.leadTimeDays} />
+                ) : null}
                 {stock?.issue ? (
                     <CartLineStockNotice
                         issue={stock.issue}
@@ -56,14 +71,14 @@ export function CartLine({ item, stock }: CartLineProps) {
                     onChange={(quantity) => updateQuantity(item.lineId, quantity, max)}
                 />
 
-                <p className="w-24 text-right font-display text-lg text-ink">
+                <p className="w-28 text-right font-tech text-lg font-bold text-ink">
                     {formatCurrency(item.unitPrice * item.quantity)}
                 </p>
 
                 <Button
                     variant="ghost"
                     size="sm"
-                    aria-label={`Quitar ${item.name}${item.personalization ? ` (${item.personalization})` : ''} del carrito`}
+                    aria-label={`Quitar ${item.name} (${item.variantLabel}) del carrito`}
                     onClick={() => removeItem(item.lineId)}
                     className="size-11 px-0 text-ink-soft"
                 >

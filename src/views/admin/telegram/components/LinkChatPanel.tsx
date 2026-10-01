@@ -119,11 +119,11 @@ export function LinkChatPanel({ connected, botUsername }: LinkChatPanelProps) {
                 <Alert tone="info" onDismiss={() => setLink(null)}>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-xs font-bold tracking-wide text-sky-800 uppercase">
+                            <p className="text-xs font-bold tracking-wide text-frost-800 uppercase">
                                 Tu código
                             </p>
                             <div className="mt-1 flex items-center gap-2">
-                                <span className="font-display text-4xl tracking-[0.2em] text-ink tabular-nums sm:text-5xl">
+                                <span className="text-4xl font-bold tracking-[0.2em] text-ink tabular-nums sm:text-5xl">
                                     {link.code.code}
                                 </span>
                                 <CopyButton value={link.code.code} label="Copiar código" />
@@ -156,7 +156,7 @@ export function LinkChatPanel({ connected, botUsername }: LinkChatPanelProps) {
                                 Abrir en Telegram
                                 <span className="sr-only"> (se abre en una pestaña nueva)</span>
                             </a>
-                            <p className="text-sm font-normal text-sky-900">
+                            <p className="text-sm font-normal text-frost-900">
                                 <span aria-hidden="true">
                                     El código vence en{' '}
                                     <span className="font-semibold tabular-nums">

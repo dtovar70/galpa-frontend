@@ -173,14 +173,14 @@ export function DatePicker({
                 }}
                 className={cn(
                     FIELD_BASE_CLASS,
-                    'flex h-11 items-center gap-2.5 rounded-full px-4 text-left outline-none enabled:hover:border-blush-200',
-                    isOpen && 'border-blush-400 ring-4 ring-blush-200/70',
+                    'flex h-11 items-center gap-2.5 rounded-xl px-4 text-left outline-none enabled:hover:border-brand-200',
+                    isOpen && 'border-brand-400 ring-4 ring-brand-100',
                     error && FIELD_ERROR_CLASS,
                 )}
             >
                 <CalendarDays
                     aria-hidden="true"
-                    className={cn('size-4 shrink-0', selected ? 'text-blush-600' : 'text-ink-soft')}
+                    className={cn('size-4 shrink-0', selected ? 'text-brand-600' : 'text-ink-soft')}
                 />
                 <span
                     id={valueId}
@@ -214,7 +214,7 @@ export function DatePicker({
                 aria-label={label}
                 className="sm:w-max"
             >
-                <p className="px-5 pt-3 font-display text-lg text-ink sm:hidden">{label}</p>
+                <p className="px-5 pt-3 text-lg font-bold text-ink sm:hidden">{label}</p>
                 <div className="flex justify-center px-4 pt-3 sm:px-4 sm:pt-4">
                     <DayPicker
                         mode="single"
@@ -245,10 +245,10 @@ export function DatePicker({
                                     aria-pressed={isActive}
                                     onClick={() => pick(preset.date)}
                                     className={cn(
-                                        'rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:outline-none',
+                                        'rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none',
                                         isActive
-                                            ? 'border-blush-400 bg-blush-100 text-blush-700'
-                                            : 'border-line text-ink-soft hover:bg-blush-50 hover:text-ink',
+                                            ? 'border-brand-400 bg-brand-100 text-brand-700'
+                                            : 'border-line text-ink-soft hover:bg-brand-50 hover:text-ink',
                                     )}
                                 >
                                     {preset.label}
@@ -259,7 +259,7 @@ export function DatePicker({
                             <button
                                 type="button"
                                 onClick={clear}
-                                className="ml-auto rounded-full px-3 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-blush-50 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:outline-none"
+                                className="ml-auto rounded-full px-3 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-50 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
                             >
                                 Quitar fecha
                             </button>

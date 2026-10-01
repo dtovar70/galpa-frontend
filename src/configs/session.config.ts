@@ -26,8 +26,8 @@ export const sessionTimeoutConfig = {
     /** Seconds left at which screen readers hear the countdown. */
     announceAtSeconds: [30, 10, 5] as const,
     /** Cross-tab sync: BroadcastChannel name and localStorage fallback key. */
-    channelName: 'mr-admin-session',
-    storageKey: 'mr-admin-session-sync',
+    channelName: 'galpa-admin-session',
+    storageKey: 'galpa-admin-session-sync',
 } as const
 
 /** Why the admin was sent back to the login page (`reason` in the login page's navigation state). */

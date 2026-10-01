@@ -22,7 +22,7 @@ export function HeaderIconButton({
             type="button"
             aria-label={label}
             className={cn(
-                'group relative flex size-11 items-center justify-center rounded-full border-2 border-ink/10 bg-white text-ink transition-colors duration-200 hover:text-sky-700',
+                'group relative flex size-11 items-center justify-center rounded-full border-2 border-white/15 bg-white/5 text-white transition-colors duration-200 hover:text-brand-300',
                 className,
             )}
             {...rest}
@@ -36,7 +36,7 @@ export function HeaderIconButton({
             <svg
                 viewBox="0 0 44 44"
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 size-full -rotate-90 text-sky-400"
+                className="pointer-events-none absolute inset-0 size-full -rotate-90 text-brand-400"
             >
                 <circle
                     cx="22"

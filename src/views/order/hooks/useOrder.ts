@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { SubmitPaymentInput } from '@/@types/order'
+import type { PaymentMethod, SubmitPaymentInput } from '@/@types/order'
 import { ORDER_POLL_MS } from '@/constants/order.constant'
 import { queryKeys } from '@/constants/query-keys.constant'
 import { OrderService } from '@/services/OrderService'
@@ -26,6 +26,18 @@ export function useSubmitPayment(code: string, token: string) {
 
     return useMutation({
         mutationFn: (input: SubmitPaymentInput) => OrderService.submitPayment(code, token, input),
+        onSuccess: (order) => {
+            queryClient.setQueryData(queryKeys.orders.detail(code), order)
+        },
+    })
+}
+
+export function useChangePaymentMethod(code: string, token: string) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (method: PaymentMethod) =>
+            OrderService.changePaymentMethod(code, token, method),
         onSuccess: (order) => {
             queryClient.setQueryData(queryKeys.orders.detail(code), order)
         },

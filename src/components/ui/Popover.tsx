@@ -237,7 +237,7 @@ export function Popover({
                 opacity: position ? undefined : 0,
             }}
             className={cn(
-                'fixed z-60 max-w-[calc(100vw-1rem)] rounded-2xl border-2 border-line bg-white shadow-lift',
+                'fixed z-60 max-w-[calc(100vw-1rem)] rounded-2xl border border-line bg-white shadow-lift',
                 position?.maxHeight !== undefined &&
                     'scroll-soft overflow-y-auto overscroll-contain',
                 position?.side === 'top' ? 'origin-bottom' : 'origin-top',

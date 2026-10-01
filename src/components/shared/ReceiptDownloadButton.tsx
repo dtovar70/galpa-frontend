@@ -3,6 +3,7 @@ import { Download } from 'lucide-react'
 
 import { Alert, Button, type ButtonProps } from '@/components/ui'
 import { getErrorMessage } from '@/services/errors'
+import { saveBlob } from '@/utils/saveBlob'
 
 export interface ReceiptDownloadButtonProps {
     /** Order code: the file is saved as `comprobante-<code>.pdf`. */
@@ -12,18 +13,6 @@ export interface ReceiptDownloadButtonProps {
     size?: ButtonProps['size']
     variant?: ButtonProps['variant']
     className?: string
-}
-
-/** Saves a blob through a temporary link (works across origins, unlike `download` on a URL). */
-function saveBlob(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
 /** "Descargar comprobante": the purchase receipt PDF, with the API's message when it fails. */

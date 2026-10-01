@@ -14,7 +14,7 @@ export interface WhatsAppNoticeProps {
 }
 
 /**
- * Friendly dead end with a way out: when the checkout cannot run (no BCV rate, no Pago Móvil
+ * Friendly dead end with a way out: when the checkout cannot run (no BCV rate, no payment method
  * details), or an order cannot move on by itself, the customer can still reach us on WhatsApp.
  */
 export function WhatsAppNotice({ title, children, className, message }: WhatsAppNoticeProps) {
@@ -24,18 +24,18 @@ export function WhatsAppNotice({ title, children, className, message }: WhatsApp
         <div
             role="status"
             className={cn(
-                'space-y-3 rounded-3xl border-2 border-butter-400/70 bg-butter-200/50 p-5 text-ink',
+                'space-y-3 rounded-2xl border border-warning-200 bg-warning-50 p-5 text-ink',
                 className,
             )}
         >
-            <p className="font-display text-lg">{title}</p>
+            <p className="text-lg font-bold">{title}</p>
             <div className="text-sm text-ink-soft">{children}</div>
             {contact.whatsapp ? (
                 <a
                     href={whatsappUrl(contact.whatsapp, message)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-sm font-semibold text-white transition hover:bg-ink/90 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                    className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-sm font-semibold text-white transition hover:bg-ink/90 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
                 >
                     <MessageCircle aria-hidden="true" className="size-4" />
                     Escríbenos por WhatsApp

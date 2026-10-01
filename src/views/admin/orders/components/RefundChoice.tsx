@@ -37,8 +37,8 @@ export function RefundChoice({ value, onChange, reference, onReferenceChange }: 
                     className={cn(
                         'flex cursor-pointer items-start gap-3 rounded-2xl border-2 bg-white px-4 py-3 transition',
                         value === option.value
-                            ? 'border-blush-400'
-                            : 'border-line hover:border-blush-200',
+                            ? 'border-brand-400'
+                            : 'border-line hover:border-brand-200',
                     )}
                 >
                     <input
@@ -47,7 +47,7 @@ export function RefundChoice({ value, onChange, reference, onReferenceChange }: 
                         value={option.value}
                         checked={value === option.value}
                         onChange={() => onChange(option.value)}
-                        className="mt-0.5 size-4 shrink-0 accent-blush-500"
+                        className="mt-0.5 size-4 shrink-0 accent-brand-500"
                     />
                     <span className="min-w-0">
                         <span className="block text-sm font-semibold text-ink">{option.label}</span>

@@ -10,7 +10,7 @@ import type {
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Alert, Button, Textarea, type ButtonProps } from '@/components/ui'
 import { getErrorMessage, isApiError } from '@/services/errors'
-import { formatBolivares } from '@/utils/formatBolivares'
+import { formatPaidAmount, formatPaymentDifference, paymentDifference } from '@/utils/payment'
 import { useTransitionOrder } from '@/views/admin/hooks/useAdminOrders'
 import { CheckboxField } from '@/components/shared/CheckboxField'
 import { ManualPaymentAction } from '@/views/admin/orders/components/ManualPaymentAction'
@@ -42,9 +42,9 @@ const ACTIONS: Partial<Record<OrderStatus, ActionCopy>> = {
         noteHint: 'Opcional. Queda en el historial, por ejemplo: el cliente pidió más tiempo.',
     },
     PAGO_VERIFICADO: {
-        button: 'Confirmar pago recibido',
+        button: 'Aprobar pago',
         variant: 'primary',
-        title: '¿Confirmar el pago?',
+        title: '¿Aprobar el pago?',
         confirm: 'Sí, lo recibí',
     },
     PAGO_RECHAZADO: {
@@ -55,22 +55,30 @@ const ACTIONS: Partial<Record<OrderStatus, ActionCopy>> = {
         noteLabel: 'Motivo del rechazo',
         noteHint: 'El cliente lo verá y podrá enviar el comprobante otra vez.',
     },
-    EN_PRODUCCION: {
-        button: 'Marcar en producción',
-        variant: 'primary',
-        title: '¿Pasar a producción?',
-        confirm: 'Marcar en producción',
+    ESPERANDO_MERCANCIA: {
+        button: 'Esperando mercancía',
+        variant: 'secondary',
+        title: '¿Marcar como esperando mercancía?',
+        confirm: 'Esperando mercancía',
+        noteLabel: 'Nota para el cliente',
+        noteHint: 'Opcional. Por ejemplo: fecha estimada de llegada al almacén.',
     },
-    LISTO_PARA_ENTREGA: {
+    EN_PREPARACION: {
+        button: 'Preparar despacho',
         variant: 'primary',
-        title: '¿El pedido está listo?',
-        confirm: 'Marcar como listo',
+        title: '¿Pasar a preparación?',
+        confirm: 'Preparar despacho',
     },
-    ENVIADO: {
+    LISTO_PARA_RETIRO: {
         variant: 'primary',
-        title: '¿Marcar como enviado?',
-        confirm: 'Marcar como enviado',
-        noteLabel: 'Agencia y número de guía',
+        title: '¿El pedido está listo para retirar?',
+        confirm: 'Listo para retiro',
+    },
+    DESPACHADO: {
+        variant: 'primary',
+        title: '¿Marcar como despachado?',
+        confirm: 'Marcar como despachado',
+        noteLabel: 'Transporte y número de guía',
         noteHint: 'Opcional. El cliente lo verá en su pedido, por ejemplo: MRW, guía 123456.',
     },
     ENTREGADO: {
@@ -92,17 +100,22 @@ function description(order: AdminOrder, action: AllowedTransition) {
     const payment = order.payments.find((candidate) => candidate.status === 'PENDIENTE')
     switch (action.to) {
         case 'PENDIENTE_PAGO':
-            return 'Las unidades se toman otra vez del inventario y el cliente tendrá un plazo nuevo para pagar. El monto en Bs sigue siendo el del pedido.'
-        case 'PAGO_VERIFICADO':
-            return payment
-                ? `Confirma que en el banco entró ${formatBolivares(payment.amountBs)} con la referencia ${payment.reference}${payment.amountMismatch ? ` (se esperaban ${formatBolivares(payment.expectedBs)})` : ''}. El cliente verá su pago como confirmado.`
-                : 'El cliente verá su pago como confirmado.'
+            return 'Las unidades en stock se toman otra vez del inventario y el cliente tendrá un plazo nuevo para pagar. Los montos siguen siendo los del pedido.'
+        case 'PAGO_VERIFICADO': {
+            if (!payment) return 'El cliente verá su pago como aprobado.'
+            const difference = paymentDifference(payment)
+            const off =
+                difference !== null && difference !== 0
+                    ? ` (diferencia ${formatPaymentDifference(payment.method, difference)})`
+                    : ''
+            return `Confirma que recibiste ${formatPaidAmount(payment)} con la referencia ${payment.reference}${off}. El cliente verá su pago como aprobado.`
+        }
         case 'PAGO_RECHAZADO':
             return 'El pedido vuelve a esperar un comprobante válido.'
         case 'CANCELADO':
             return action.restoresStock
                 ? 'Las unidades vuelven al inventario. No se puede deshacer.'
-                : 'El pedido ya salió del taller, así que el inventario no cambia. No se puede deshacer.'
+                : 'El pedido ya salió del almacén, así que el inventario no cambia. No se puede deshacer.'
         default:
             return `El pedido pasará a «${action.label}» y el cliente lo verá en su página.`
     }

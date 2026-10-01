@@ -1,37 +1,36 @@
 import { Link } from 'react-router'
 
 import type { AdminOrder } from '@/@types/order'
-import { CopyButton } from '@/components/shared/CopyButton'
+import { OnOrderNote } from '@/components/shared/OnOrderNote'
 import { Card } from '@/components/ui'
 import { adminProductPath } from '@/constants/route.constant'
 import { formatBolivares, formatRate } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDay } from '@/utils/formatDate'
-import { OrderItemDesign } from '@/views/admin/orders/components/OrderItemDesign'
 
 /** The ordered lines as frozen at checkout, the totals and the BCV rate used. */
 export function OrderItemsTable({ order }: { order: AdminOrder }) {
     const { totals } = order
     return (
         <Card padding="md" className="space-y-4">
-            <h2 className="font-display text-xl text-ink">Productos</h2>
+            <h2 className="text-xl text-ink">Productos</h2>
             <ul className="divide-y divide-line">
-                {order.items.map((item, index) => (
+                {order.items.map((item) => (
                     <li key={item.id} className="flex items-center gap-3 py-3">
-                        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-blush-50">
+                        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white">
                             {item.imageUrl ? (
                                 <img
                                     src={item.imageUrl}
                                     alt=""
-                                    className="size-full object-cover"
+                                    className="size-full object-contain"
                                     loading="lazy"
                                 />
                             ) : (
                                 <span
                                     aria-hidden="true"
-                                    className="font-display text-lg text-blush-400"
+                                    className="text-lg font-bold text-brand-600"
                                 >
-                                    {item.productName.charAt(0)}
+                                    {(item.brand ?? item.productName).charAt(0)}
                                 </span>
                             )}
                         </div>
@@ -39,7 +38,7 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                             {item.productId ? (
                                 <Link
                                     to={adminProductPath(item.productId)}
-                                    className="font-semibold break-words text-ink hover:text-blush-700"
+                                    className="font-semibold break-words text-ink hover:text-brand-700"
                                 >
                                     {item.productName}
                                 </Link>
@@ -50,36 +49,19 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                             )}
                             <p className="text-xs text-ink-soft">
                                 {[
+                                    item.brand,
+                                    item.model,
                                     item.variantLabel,
                                     `${item.quantity} × ${formatCurrency(item.unitPriceUsd)}`,
                                 ]
                                     .filter(Boolean)
                                     .join(' · ')}
                             </p>
-                            {item.personalization ? (
-                                <div className="mt-1.5 flex items-start gap-1 rounded-xl border border-butter-400/70 bg-butter-200/40 py-1.5 pr-1 pl-3">
-                                    <p className="min-w-0 flex-1 py-1 text-sm break-words text-ink">
-                                        <span className="block text-[11px] font-bold tracking-wide text-ink-soft uppercase">
-                                            Personalización
-                                        </span>
-                                        {item.personalization}
-                                    </p>
-                                    <CopyButton
-                                        value={item.personalization}
-                                        label={`Copiar personalización de ${item.productName}`}
-                                        className="size-8"
-                                    />
-                                </div>
-                            ) : null}
-                            {item.design ? (
-                                <OrderItemDesign
-                                    design={item.design}
-                                    productName={item.productName}
-                                    line={index + 1}
-                                />
+                            {item.stockMode === 'ON_ORDER' ? (
+                                <OnOrderNote leadTimeDays={null} className="mt-1" />
                             ) : null}
                         </div>
-                        <span className="shrink-0 text-sm font-semibold text-ink">
+                        <span className="shrink-0 font-tech text-sm font-semibold text-ink">
                             {formatCurrency(item.lineTotalUsd)}
                         </span>
                     </li>
@@ -97,12 +79,12 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                     </dd>
                 </div>
                 <div className="flex justify-between gap-3 border-t border-line pt-2">
-                    <dt className="font-display text-base text-ink">Total</dt>
+                    <dt className="text-base font-bold text-ink">Total</dt>
                     <dd className="text-right">
-                        <span className="block font-display text-xl text-ink">
+                        <span className="block font-tech text-xl font-bold text-ink">
                             {formatCurrency(totals.totalUsd)}
                         </span>
-                        <span className="font-semibold text-ink">
+                        <span className="font-tech font-semibold text-ink">
                             {formatBolivares(totals.totalBs)}
                         </span>
                     </dd>

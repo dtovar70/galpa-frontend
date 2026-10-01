@@ -12,7 +12,7 @@ export function BackToProducts({ to = ADMIN_ROUTES.products }: BackToProductsPro
     return (
         <Link
             to={to}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-soft transition hover:text-blush-700"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-soft transition hover:text-brand-700"
         >
             <ArrowLeft aria-hidden="true" className="size-4" />
             Volver a productos

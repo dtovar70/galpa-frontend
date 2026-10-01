@@ -1,23 +1,17 @@
 import type { Paginated } from '@/@types/common'
-import type { PaymentContent } from '@/@types/content'
-import type {
-    DesignPlacement,
-    DpiLevel,
-    GarmentColor,
-    TextAlign,
-    TextOutline,
-} from '@/@types/design'
 import type { RateSource } from '@/@types/exchange-rate'
+import type { StockMode } from '@/@types/product'
 
-/** Mirrors backend-cups/src/orders/order-status.ts and order.mapper.ts. */
+/** Mirrors the API's order statuses (see the shared contract). */
 export const ORDER_STATUSES = [
     'PENDIENTE_PAGO',
     'PENDIENTE_VERIFICACION',
     'PAGO_VERIFICADO',
     'PAGO_RECHAZADO',
-    'EN_PRODUCCION',
-    'LISTO_PARA_ENTREGA',
-    'ENVIADO',
+    'ESPERANDO_MERCANCIA',
+    'EN_PREPARACION',
+    'LISTO_PARA_RETIRO',
+    'DESPACHADO',
     'ENTREGADO',
     'CANCELADO',
     'EXPIRADO',
@@ -27,6 +21,12 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
 export type DeliveryMethod = 'delivery' | 'pickup'
 
+/** How the customer pays. Pago Móvil and transfers are paid in Bs; Zelle and Binance in USD. */
+export const PAYMENT_METHODS = ['PAGO_MOVIL', 'TRANSFERENCIA', 'ZELLE', 'BINANCE'] as const
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
+
+export type PaymentCurrency = 'BS' | 'USD'
+
 export type PaymentStatus = 'PENDIENTE' | 'VERIFICADO' | 'RECHAZADO'
 
 export type PaymentSource = 'customer' | 'admin'
@@ -34,9 +34,6 @@ export type PaymentSource = 'customer' | 'admin'
 /** Asked when an order with a payment is cancelled (mirrors the API's REFUND_STATUSES). */
 export const REFUND_STATUSES = ['NO_APLICA', 'PENDIENTE', 'REEMBOLSADO'] as const
 export type RefundStatus = (typeof REFUND_STATUSES)[number]
-
-/** Longest personalization text per item (same limit as the API). */
-export const PERSONALIZATION_MAX_LENGTH = 140
 
 export interface OrderCustomer {
     fullName: string
@@ -55,80 +52,16 @@ export interface OrderItem {
     variantId: string | null
     variantLabel: string | null
     imageUrl: string | null
+    brand: string | null
+    model: string | null
+    stockMode: StockMode
     unitPriceUsd: number
     quantity: number
     lineTotalUsd: number
-    personalization: string | null
-    /** The customer's own image ("Diseño propio"); null for a regular line. */
-    design: OrderItemDesign | null
-}
-
-export interface OrderItemDesign {
-    id: string
-    /** API path of the preview. Customer: add the order's `?t=` token; admin: the session. */
-    previewPath: string
-    /** The garment color it was made on; null without template colors. */
-    color: GarmentColor | null
-}
-
-export interface AdminDesignImageLayer {
-    type: 'image'
-    /** Position in the design, bottom (0) to top. */
-    index: number
-    /** 1-based among the design's images ("Imagen 2"). */
-    number: number
-    placement: DesignPlacement
-    format: string
-    width: number
-    height: number
-    bytes: number
-    dpi: number
-    dpiLevel: DpiLevel
-    /** API path that downloads the original, named like `downloadName`. */
-    downloadPath: string
-    /** API path that shows the original inline (thumbnail). */
-    viewPath: string
-    /** `MR-000123-linea1-imagen1.jpg`. */
-    downloadName: string
-}
-
-export interface AdminDesignTextLayer {
-    type: 'text'
-    index: number
-    placement: DesignPlacement
-    content: string
-    font: string
-    fontLabel: string
-    color: string
-    outline: TextOutline
-    align: TextAlign
-}
-
-export type AdminDesignLayer = AdminDesignImageLayer | AdminDesignTextLayer
-
-export interface AdminOrderItemDesign extends OrderItemDesign {
-    printSize: { widthCm: number; heightCm: number } | null
-    /** The lowest DPI among the images; null with only text. */
-    dpiEstimate: number | null
-    dpiLevel: DpiLevel | null
-    /** Bottom to top. */
-    layers: AdminDesignLayer[]
-    /** The print-ready PNG; null for designs made before it existed. */
-    artwork: {
-        path: string
-        /** `MR-000123-linea1-arte-final.png`. */
-        downloadName: string
-        width: number
-        height: number
-        bytes: number
-        /** Its print resolution (100–200); null if unknown. */
-        dpi: number | null
-    } | null
 }
 
 export interface AdminOrderItem extends OrderItem {
     id: string
-    design: AdminOrderItemDesign | null
 }
 
 export interface OrderTotals {
@@ -142,17 +75,36 @@ export interface OrderTotals {
     exchangeRateSourceLabel: string
 }
 
+/** A payment the customer (or an admin) reported. Fields of other methods are null. */
 export interface OrderPayment {
     id: string
+    method: PaymentMethod
     status: PaymentStatus
     reference: string
-    payerBankCode: string
-    payerBankName: string
-    amountBs: number
+    payerBankCode: string | null
+    payerBankName: string | null
+    payerPhone: string | null
+    payerIdNumber: string | null
+    payerName: string | null
+    /** Zelle email/phone or Binance Pay ID/email. */
+    payerAccount: string | null
     paidOn: string
+    /** Bs methods. */
+    amountBs: number | null
+    /** USD methods. */
+    amountUsd: number | null
+    expectedBs: number | null
+    expectedUsd: number | null
     hasProof: boolean
+    /** Recorded after the deadline or while the order was expired. */
+    late: boolean
+    /** The same reference appears on another order. */
+    duplicateReference: boolean
+    /** `admin`: recorded by an admin from a proof the customer sent by WhatsApp. */
+    source: PaymentSource
     rejectionReason: string | null
     createdAt: string
+    reviewedAt: string | null
 }
 
 export interface OrderHistoryEntry {
@@ -172,10 +124,16 @@ export interface PublicOrder {
     canSubmitPayment: boolean
     /** The purchase receipt PDF can be downloaded (verified payment, not cancelled). */
     receiptAvailable: boolean
+    paymentMethod: PaymentMethod
+    /** Some line is sold "bajo pedido": the order may wait for the goods. */
+    hasOnOrderItems: boolean
+    /** The customer asked for installation advice. */
+    wantsInstallation: boolean
+    /** Cédula or RIF, when given at checkout. */
+    customerIdNumber: string | null
     customer: OrderCustomer
     items: OrderItem[]
     totals: OrderTotals
-    pagoMovil: PaymentContent | null
     payments: OrderPayment[]
     history: OrderHistoryEntry[]
 }
@@ -189,12 +147,13 @@ export interface CreateOrderInput {
     address: string
     notes: string
     deliveryMethod: DeliveryMethod
+    paymentMethod: PaymentMethod
+    customerIdNumber?: string
+    wantsInstallation: boolean
     items: {
         productId: string
         variantId?: string
         quantity: number
-        personalization?: string
-        designId?: string
     }[]
 }
 
@@ -205,48 +164,37 @@ export interface CreatedOrder {
     order: PublicOrder
 }
 
-/**
- * One problem with one cart line: 400 `ORDER_ITEMS_INVALID` (stock, product gone), or a design
- * the API refused (`kind: 'design'`, 400 `ORDER_DESIGN_INVALID` / 409 `ORDER_DESIGN_USED`).
- */
+/** One problem with one cart line: 400 `ORDER_ITEMS_INVALID` (stock, product gone). */
 export interface OrderLineProblem {
     index: number
     productId: string
     variantId: string | null
     available: number
     message: string
-    kind?: 'design'
 }
 
-/** Text fields of `POST /orders/:code/payment` (sent as multipart with the `proof` image). */
+/**
+ * Fields of `POST /orders/:code/payment` (multipart, with the `proof` image). Only the fields of
+ * the chosen method are sent; amounts are kept as typed and parsed by the API.
+ */
 export interface SubmitPaymentInput {
+    method: PaymentMethod
     reference: string
+    paidOn: string
     payerBankCode: string
     payerPhone: string
     payerIdNumber: string
-    paidOn: string
+    payerName: string
+    payerAccount: string
     amountBs: string
+    amountUsd: string
     proof: File | null
 }
 
-export interface PaymentFlags {
-    duplicateReference: boolean
-    amountMismatch: boolean
-    amountDifferenceBs: number
-}
-
-export interface AdminOrderPayment extends OrderPayment, PaymentFlags {
-    /** Recorded after the deadline or while the order was expired. */
-    late: boolean
-    /** `admin`: recorded by an admin from a proof the customer sent by WhatsApp. */
-    source: PaymentSource
+export interface AdminOrderPayment extends OrderPayment {
     recordedBy: { id: string; name: string } | null
-    payerPhone: string
-    payerIdNumber: string | null
-    expectedBs: number
     /** API path of the private screenshot; null when none was sent. */
     proofPath: string | null
-    reviewedAt: string | null
     reviewedBy: { id: string; name: string } | null
 }
 
@@ -342,6 +290,10 @@ export interface AdminOrder {
     /** The purchase receipt PDF can be downloaded (verified payment, not cancelled). */
     receiptAvailable: boolean
     refund: OrderRefund | null
+    paymentMethod: PaymentMethod
+    hasOnOrderItems: boolean
+    wantsInstallation: boolean
+    customerIdNumber: string | null
     customer: OrderCustomer
     items: AdminOrderItem[]
     totals: OrderTotals
@@ -360,6 +312,9 @@ export interface AdminOrderListItem {
     customerName: string
     customerPhone: string
     deliveryMethod: DeliveryMethod
+    paymentMethod: PaymentMethod
+    hasOnOrderItems: boolean
+    wantsInstallation: boolean
     totalUsd: number
     totalBs: number
     itemCount: number
@@ -367,8 +322,14 @@ export interface AdminOrderListItem {
     /** Unresolved: the payment cannot be confirmed without acknowledging it. */
     stockConflict: boolean
     refundStatus: RefundStatus | null
-    latestPayment:
-        (PaymentFlags & { reference: string; amountBs: number; status: PaymentStatus }) | null
+    latestPayment: {
+        method: PaymentMethod
+        reference: string
+        amountBs: number | null
+        amountUsd: number | null
+        status: PaymentStatus
+        duplicateReference: boolean
+    } | null
 }
 
 export interface AdminOrderList extends Paginated<AdminOrderListItem> {

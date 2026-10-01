@@ -12,7 +12,7 @@ export function Testimonials() {
     if (testimonials.length === 0) return null
 
     return (
-        <section aria-labelledby="testimonials-heading" className="py-16 lg:py-24">
+        <section aria-labelledby="testimonials-heading" className="bg-white py-16 lg:py-24">
             <div className={cn(CONTAINER, 'space-y-10')}>
                 <SectionHeading
                     headingId="testimonials-heading"
@@ -28,12 +28,12 @@ export function Testimonials() {
                             .join(' · ')
                         return (
                             <li key={index} className="h-full">
-                                <Card tone="cream" className="flex h-full flex-col gap-4">
+                                <Card tone="muted" className="flex h-full flex-col gap-4">
                                     <blockquote className="flex-1 text-sm leading-relaxed text-ink">
                                         “{testimonial.quote}”
                                     </blockquote>
                                     <footer className="text-sm">
-                                        <p className="font-display text-base text-ink">
+                                        <p className="text-base font-bold text-ink">
                                             {testimonial.name}
                                         </p>
                                         {details ? (

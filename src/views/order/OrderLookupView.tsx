@@ -21,7 +21,7 @@ import {
 const LOOKUP_SENT_MESSAGE = 'Si los datos coinciden, te enviamos un enlace a tu correo.'
 
 const linkClass =
-    'font-semibold text-blush-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
+    'font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-brand-400'
 
 /**
  * "Consultar mi pedido" (`/consultar-pedido`): the order code and the checkout email. When they
@@ -71,11 +71,11 @@ export function OrderLookupView() {
             )}
         >
             <div className="space-y-3 lg:col-start-1">
-                <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
+                <p className="text-sm font-semibold tracking-[0.2em] text-brand-700 uppercase">
                     Tus pedidos
                 </p>
-                <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
-                    Consulta tu <span className="text-blush-500">pedido</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                    Consulta tu <span className="text-brand-600">pedido</span>
                 </h1>
                 <p className="max-w-2xl text-ink-soft">
                     ¿Perdiste el enlace de tu pedido o lo hiciste desde otro dispositivo? Escribe el
@@ -89,11 +89,11 @@ export function OrderLookupView() {
                     <Card padding="lg" className="space-y-4 text-center">
                         <span
                             aria-hidden="true"
-                            className="mx-auto flex size-14 items-center justify-center rounded-full bg-mint-200 text-ink"
+                            className="mx-auto flex size-14 items-center justify-center rounded-full bg-brand-100 text-ink"
                         >
                             <MailCheck className="size-6" />
                         </span>
-                        <h2 className="font-display text-2xl text-ink">Revisa tu correo</h2>
+                        <h2 className="text-2xl font-bold text-ink">Revisa tu correo</h2>
                         <p className="text-sm text-ink-soft" role="status">
                             {LOOKUP_SENT_MESSAGE}
                         </p>
@@ -130,7 +130,7 @@ export function OrderLookupView() {
                                     autoComplete="off"
                                     autoCapitalize="characters"
                                     spellCheck={false}
-                                    hint="Ejemplo: MR-000123"
+                                    hint="Ejemplo: GP-000123"
                                     error={errors.code?.message}
                                     {...register('code')}
                                 />
@@ -158,13 +158,13 @@ export function OrderLookupView() {
             </div>
 
             <section aria-labelledby="lookup-help-title" className="space-y-4 lg:col-start-1">
-                <h2 id="lookup-help-title" className="font-display text-xl text-ink">
+                <h2 id="lookup-help-title" className="text-xl font-bold text-ink">
                     ¿Dónde encuentro mi código?
                 </h2>
                 <ul className="space-y-3">
                     <HelpItem icon={<Mail className="size-5" />}>
                         En el correo{' '}
-                        <span className="font-semibold text-ink">«Recibimos tu pedido MR-…»</span>{' '}
+                        <span className="font-semibold text-ink">«Recibimos tu pedido GP-…»</span>{' '}
                         que te enviamos al comprar. Ese correo también trae el botón «Ver mi
                         pedido».
                     </HelpItem>
@@ -190,10 +190,10 @@ export function OrderLookupView() {
 
 function HelpItem({ icon, children }: { icon: ReactNode; children: ReactNode }) {
     return (
-        <li className="flex items-start gap-4 rounded-3xl border border-line bg-white/70 p-4">
+        <li className="flex items-start gap-4 rounded-2xl border border-line bg-white/70 p-4">
             <span
                 aria-hidden="true"
-                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blush-100 text-blush-600"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600"
             >
                 {icon}
             </span>

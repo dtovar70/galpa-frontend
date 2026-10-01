@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import type { AdminProduct } from '@/@types/admin'
 import type { CategorySlug } from '@/@types/product'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { AvailabilityBadge } from '@/components/shared/AvailabilityBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ProductMedia } from '@/components/shared/ProductMedia'
 import { Alert, Button, ButtonLink, Card, Input, Skeleton, Spinner, Switch } from '@/components/ui'
@@ -40,21 +41,35 @@ const cellClass = 'px-4 py-3 align-middle'
  * Pinned to the right edge of the scroll area, so edit/delete stay on screen even if the
  * table ever has to scroll sideways. It needs its own background to cover what slides under.
  */
-const actionsCellClass = 'sticky right-0 bg-white px-3 transition group-hover:bg-cream'
+const actionsCellClass = 'sticky right-0 bg-white px-3 transition group-hover:bg-page'
 
-/** "S: 3 · M: 0" on hover; the stock shown is their sum. */
+/** "12.000 BTU: 3 · 18.000 BTU: 0" on hover; the stock shown is their sum. */
 function stockBreakdown(product: AdminProduct): string | undefined {
-    if (product.variants.length === 0) return undefined
+    if (product.variants.length === 0 || product.stockMode === 'ON_ORDER') return undefined
     return product.variants.map((variant) => `${variant.label}: ${variant.stock}`).join(' · ')
+}
+
+/** "En stock · 12" / "Bajo pedido" / "Agotado". */
+function AvailabilityCell({ product }: { product: AdminProduct }) {
+    return (
+        <span className="inline-flex flex-col items-center gap-1" title={stockBreakdown(product)}>
+            <AvailabilityBadge product={product} />
+            {product.stockMode === 'STOCK' ? (
+                <span className="font-tech text-xs text-ink-soft tabular-nums">
+                    {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
+                </span>
+            ) : product.leadTimeDays ? (
+                <span className="text-xs text-ink-soft">~{product.leadTimeDays} días</span>
+            ) : null}
+        </span>
+    )
 }
 
 function Thumbnail({ product }: { product: AdminProduct }) {
     return (
-        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-blush-50 p-1">
+        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white p-1">
             <ProductMedia
                 category={product.category}
-                color={product.colorHex}
-                printText={product.printText}
                 image={product.images.at(0)}
                 fallbackAlt=""
                 size="sm"
@@ -171,7 +186,7 @@ export function AdminProductsView() {
                         label="Buscar productos"
                         hideLabel
                         type="search"
-                        placeholder="Buscar por nombre, texto o etiqueta"
+                        placeholder="Buscar por nombre, marca, modelo o SKU"
                         value={searchInput}
                         onChange={(event) => setSearchInput(event.target.value)}
                         leadingIcon={<Search className="size-4" />}
@@ -181,7 +196,7 @@ export function AdminProductsView() {
                                     type="button"
                                     onClick={() => setSearchInput('')}
                                     aria-label="Limpiar búsqueda"
-                                    className="flex size-8 items-center justify-center rounded-full text-ink-soft hover:bg-blush-100"
+                                    className="flex size-8 items-center justify-center rounded-full text-ink-soft hover:bg-mist"
                                 >
                                     <X aria-hidden="true" className="size-4" />
                                 </button>
@@ -190,7 +205,7 @@ export function AdminProductsView() {
                     />
                 </div>
                 {products.isFetching && !products.isPending ? (
-                    <Spinner size="sm" className="text-blush-500" label="Actualizando la lista" />
+                    <Spinner size="sm" className="text-brand-600" label="Actualizando la lista" />
                 ) : null}
             </div>
 
@@ -216,7 +231,7 @@ export function AdminProductsView() {
                 <Card padding="none" className="divide-y divide-line overflow-hidden">
                     {Array.from({ length: SKELETON_ROWS }, (_, index) => (
                         <div key={index} className="flex items-center gap-4 p-4">
-                            <Skeleton shape="block" className="size-14 rounded-2xl" />
+                            <Skeleton shape="block" className="size-14 rounded-xl" />
                             <div className="flex-1 space-y-2">
                                 <Skeleton className="w-1/2" />
                                 <Skeleton className="h-3 w-1/4" />
@@ -267,19 +282,19 @@ export function AdminProductsView() {
                             <table className="w-full min-w-[44rem] table-fixed text-sm">
                                 <colgroup>
                                     <col />
-                                    <col className="w-28" />
                                     <col className="w-36" />
-                                    <col className="w-20" />
+                                    <col className="w-36" />
+                                    <col className="w-32" />
                                     <col className="w-24" />
                                     <col className="w-26" />
                                 </colgroup>
-                                <thead className="border-b border-line bg-blush-50/60">
+                                <thead className="border-b border-line bg-page">
                                     <tr>
                                         <th scope="col" className={headerCellClass}>
                                             Producto
                                         </th>
                                         <th scope="col" className={headerCellClass}>
-                                            Categoría
+                                            Marca
                                         </th>
                                         <th
                                             scope="col"
@@ -291,7 +306,7 @@ export function AdminProductsView() {
                                             scope="col"
                                             className={cn(headerCellClass, 'text-center')}
                                         >
-                                            Stock
+                                            Disponibilidad
                                         </th>
                                         <th
                                             scope="col"
@@ -304,8 +319,7 @@ export function AdminProductsView() {
                                             className={cn(
                                                 headerCellClass,
                                                 actionsCellClass,
-                                                // Same tint as the translucent header row, but opaque.
-                                                'bg-linear-to-r from-blush-50/60 to-blush-50/60 text-center',
+                                                'bg-page text-center',
                                             )}
                                         >
                                             Acciones
@@ -316,7 +330,7 @@ export function AdminProductsView() {
                                     {items.map((product) => (
                                         <tr
                                             key={product.id}
-                                            className="group transition hover:bg-cream"
+                                            className="group transition hover:bg-page"
                                         >
                                             <td className={cellClass}>
                                                 <div className="flex items-center gap-3">
@@ -325,30 +339,33 @@ export function AdminProductsView() {
                                                         <Link
                                                             to={adminProductPath(product.id)}
                                                             state={editState}
-                                                            className="line-clamp-2 font-display text-base leading-snug break-words text-ink hover:text-blush-700"
+                                                            className="line-clamp-2 text-base leading-snug font-semibold break-words text-ink hover:text-brand-700"
                                                         >
                                                             {product.name}
                                                         </Link>
                                                         <p
-                                                            className="truncate text-xs text-ink-soft"
+                                                            className="truncate font-tech text-xs text-ink-soft"
                                                             title={`/${product.slug}`}
                                                         >
-                                                            /{product.slug}
+                                                            {product.sku ?? `/${product.slug}`}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className={`${cellClass} truncate text-ink-soft`}>
-                                                {categoryName(product.category)}
+                                            <td className={cellClass}>
+                                                <p className="truncate font-semibold text-ink">
+                                                    {product.brand}
+                                                </p>
+                                                <p className="truncate text-xs text-ink-soft">
+                                                    {product.model ??
+                                                        categoryName(product.category)}
+                                                </p>
                                             </td>
                                             <td className={cellClass}>
                                                 <AdminPriceCell product={product} align="center" />
                                             </td>
-                                            <td
-                                                className={`${cellClass} text-center tabular-nums ${product.stock === 0 ? 'font-semibold text-blush-700' : ''}`}
-                                                title={stockBreakdown(product)}
-                                            >
-                                                {product.stock}
+                                            <td className={`${cellClass} text-center`}>
+                                                <AvailabilityCell product={product} />
                                             </td>
                                             <td className={cellClass}>
                                                 <div className="flex justify-center">
@@ -388,17 +405,16 @@ export function AdminProductsView() {
                                             <Link
                                                 to={adminProductPath(product.id)}
                                                 state={editState}
-                                                className="font-display text-base leading-snug break-words text-ink"
+                                                className="text-base leading-snug font-semibold break-words text-ink"
                                             >
                                                 {product.name}
                                             </Link>
-                                            <p
-                                                className="text-xs text-ink-soft"
-                                                title={stockBreakdown(product)}
-                                            >
-                                                {categoryName(product.category)} · Stock{' '}
-                                                {product.stock}
+                                            <p className="text-xs text-ink-soft">
+                                                {product.brand} · {categoryName(product.category)}
                                             </p>
+                                            <div className="mt-1">
+                                                <AvailabilityBadge product={product} />
+                                            </div>
                                             <div className="mt-1 text-sm">
                                                 <AdminPriceCell product={product} />
                                             </div>

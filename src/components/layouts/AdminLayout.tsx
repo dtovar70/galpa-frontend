@@ -11,6 +11,7 @@ import {
     Package,
     PanelLeftClose,
     PanelLeftOpen,
+    ReceiptText,
     Send,
     Tags,
     Users,
@@ -20,11 +21,11 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import type { AuthUser, UserRole } from '@/@types/admin'
 import { RailTooltip } from '@/components/layouts/AdminRailTooltip'
 import { ScrollToTop } from '@/components/route/ScrollToTop'
+import { BrandMark } from '@/components/shared/BrandMark'
 import { Drawer, Spinner } from '@/components/ui'
 import { appConfig } from '@/configs/app.config'
 import { ADMIN_ROUTES, ROUTES } from '@/constants/route.constant'
 import { cn } from '@/utils/cn'
-import { brandLines } from '@/utils/content'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 import { useAdminOrdersSummary } from '@/views/admin/hooks/useAdminOrders'
 import { useLogout, useSession } from '@/views/admin/hooks/useSession'
@@ -42,6 +43,7 @@ const NAV_LINKS: readonly {
     roles?: readonly UserRole[]
 }[] = [
     { label: 'Pedidos', to: ADMIN_ROUTES.orders, icon: ClipboardList },
+    { label: 'Cotizaciones', to: ADMIN_ROUTES.quotes, icon: ReceiptText },
     { label: 'Tasa BCV', to: ADMIN_ROUTES.exchangeRate, icon: Landmark },
     { label: 'Productos', to: ADMIN_ROUTES.products, icon: Package },
     { label: 'Categorías', to: ADMIN_ROUTES.categories, icon: Tags },
@@ -55,7 +57,7 @@ const NAV_LINKS: readonly {
 const SIDEBAR_ID = 'admin-sidebar'
 /** Rail tooltips start past the sidebar's edge, so a card never covers the other column. */
 const RAIL_EDGE = `#${SIDEBAR_ID}`
-const SIDEBAR_STORAGE_KEY = 'mr-admin-sidebar-collapsed'
+const SIDEBAR_STORAGE_KEY = 'galpa-admin-sidebar-collapsed'
 /** Tailwind's `lg`: the sidebar (and so the collapse) only exists from here up. */
 const DESKTOP_QUERY = '(min-width: 64rem)'
 
@@ -64,7 +66,7 @@ const RAIL_SQUARE_CLASS =
     'flex size-11 shrink-0 items-center justify-center rounded-2xl transition duration-200'
 
 const navLinkVariants = cva(
-    'flex items-center rounded-2xl font-display text-base whitespace-nowrap transition duration-200',
+    'flex items-center rounded-xl text-[0.95rem] font-semibold whitespace-nowrap transition duration-200',
     {
         variants: {
             isActive: { true: '', false: 'text-ink' },
@@ -75,29 +77,29 @@ const navLinkVariants = cva(
             },
         },
         compoundVariants: [
-            { isCollapsed: false, isActive: true, class: 'bg-blush-100 text-blush-700' },
-            { isCollapsed: false, isActive: false, class: 'hover:bg-blush-50' },
-            { isCollapsed: true, isActive: true, class: 'bg-blush-200 text-blush-800' },
-            { isCollapsed: true, isActive: false, class: 'hover:bg-blush-100/80' },
+            { isCollapsed: false, isActive: true, class: 'bg-ink text-white' },
+            { isCollapsed: false, isActive: false, class: 'hover:bg-mist' },
+            { isCollapsed: true, isActive: true, class: 'bg-ink text-brand-400' },
+            { isCollapsed: true, isActive: false, class: 'hover:bg-mist' },
         ],
         defaultVariants: { isActive: false, isCollapsed: false },
     },
 )
 
 /**
- * Hover and keyboard focus of the controls in the tinted top and bottom zones: a deeper pink
+ * Hover and keyboard focus of the controls in the tinted top and bottom zones: a deeper grey
  * of the zone itself, never a white tile.
  */
-const ZONE_HOVER_CLASS = 'hover:bg-blush-200/60 focus-visible:bg-blush-200/60'
+const ZONE_HOVER_CLASS = 'hover:bg-line focus-visible:bg-line'
 
 /** Icon-only buttons in the rail's tinted top and bottom zones. */
 const RAIL_BUTTON_CLASS = cn(RAIL_SQUARE_CLASS, 'text-ink', ZONE_HOVER_CLASS)
 
 /**
- * The sidebar's header and user zones: a touch pinker than the menu between them, so the
+ * The sidebar's header and user zones: a touch greyer than the menu between them, so the
  * brand and the session never read as menu items.
  */
-const SIDEBAR_ZONE_CLASS = 'shrink-0 border-line bg-blush-100/70'
+const SIDEBAR_ZONE_CLASS = 'shrink-0 border-line bg-mist/70'
 
 /** The account link is a `group` for its avatar, and hands its focus ring to the circle. */
 const ACCOUNT_LINK_CLASS = 'group outline-none focus-visible:ring-0 focus-visible:ring-offset-0'
@@ -159,12 +161,10 @@ function RailTip({ title, accent, shortcut, detail }: RailTipProps) {
     return (
         <span className="flex flex-col gap-1 whitespace-nowrap">
             <span className="flex items-center gap-1.5">
-                <span className="font-display font-semibold">{title}</span>
-                {accent ? (
-                    <span className="font-display font-semibold text-blush-700">· {accent}</span>
-                ) : null}
+                <span className="font-semibold">{title}</span>
+                {accent ? <span className="font-semibold text-brand-700">· {accent}</span> : null}
                 {shortcut ? (
-                    <kbd className="rounded-md border border-line bg-cream px-1.5 py-0.5 font-sans text-[11px] font-semibold text-ink-soft">
+                    <kbd className="rounded-md border border-line bg-page px-1.5 py-0.5 font-sans text-[11px] font-semibold text-ink-soft">
                         {shortcut}
                     </kbd>
                 ) : null}
@@ -187,23 +187,15 @@ function AdminBrand({ compact = false }: { compact?: boolean }) {
         <Link
             to={ADMIN_ROUTES.orders}
             aria-label={`${general.brandName} — panel de administración`}
-            className="group inline-flex min-w-0 items-center gap-2.5 rounded-2xl"
+            className="group inline-flex min-w-0 items-center gap-2.5 rounded-xl"
         >
-            <img
-                src={appConfig.logo.src}
-                srcSet={appConfig.logo.srcSet}
-                sizes="48px"
-                alt=""
-                width={48}
-                height={48}
-                className="size-11 shrink-0 rounded-2xl ring-1 ring-ink/5 transition-transform duration-300 group-hover:-rotate-6 motion-reduce:transform-none"
-            />
+            <BrandMark className="size-11 transition-transform duration-500 group-hover:rotate-60 motion-reduce:transform-none" />
             {compact ? null : (
                 <span className="flex flex-col leading-none whitespace-nowrap">
-                    <span className="font-display text-lg font-semibold tracking-tight text-ink">
-                        {brandLines(general.brandName)[0]}
+                    <span className="text-lg font-extrabold tracking-tight text-ink">
+                        {appConfig.brandShortName}
                     </span>
-                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-blush-700 uppercase">
+                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-brand-700 uppercase">
                         Panel
                     </span>
                 </span>
@@ -309,7 +301,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                                         {isCollapsed && count > 0 ? (
                                             <span
                                                 aria-hidden="true"
-                                                className="absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blush-700 px-1 text-[10px] leading-none font-bold text-white tabular-nums ring-2 ring-cream"
+                                                className="absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-700 px-1 text-[10px] leading-none font-bold text-white tabular-nums ring-2 ring-page"
                                             >
                                                 {count > 99 ? '99+' : count}
                                             </span>
@@ -322,7 +314,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                                                 <>
                                                     <span
                                                         aria-hidden="true"
-                                                        className="flex min-w-6 items-center justify-center rounded-full bg-blush-700 px-1.5 text-xs font-bold text-white tabular-nums"
+                                                        className="flex min-w-6 items-center justify-center rounded-full bg-brand-700 px-1.5 text-xs font-bold text-white tabular-nums"
                                                     >
                                                         {count}
                                                     </span>
@@ -395,11 +387,11 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
             title={user.name}
             detail={
                 <>
-                    <span className="text-[0.65rem] font-bold tracking-[0.18em] text-blush-700 uppercase">
+                    <span className="text-[0.65rem] font-bold tracking-[0.18em] text-brand-700 uppercase">
                         {roleLabel}
                     </span>
                     <span>{user.email}</span>
-                    <span className="font-semibold text-blush-700">
+                    <span className="font-semibold text-brand-700">
                         Mi cuenta: datos, contraseña y permisos
                     </span>
                 </>
@@ -409,7 +401,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
     const accountLabel = `Mi cuenta: ${user.name}, ${roleLabel}, ${user.email}`
 
     /*
-     * The circle itself reacts, never a tile behind it: a blush ring and a slight lift on hover,
+     * The circle itself reacts, never a tile behind it: a green ring and a slight lift on hover,
      * and the keyboard focus ring drawn around the circle. The link that holds it is a group
      * and drops its own ring.
      */
@@ -417,10 +409,10 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
         <span
             aria-hidden="true"
             className={cn(
-                'flex size-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-semibold ring-1 transition duration-200 group-hover:scale-105 group-hover:ring-2 group-hover:ring-blush-300 group-focus-visible:ring-2 group-focus-visible:ring-blush-400 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-blush-50 motion-reduce:transform-none',
+                'flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-1 transition duration-200 group-hover:scale-105 group-hover:ring-2 group-hover:ring-brand-300 group-focus-visible:ring-2 group-focus-visible:ring-brand-400 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-brand-50 motion-reduce:transform-none',
                 isActive
-                    ? 'bg-blush-200 text-blush-800 ring-blush-300'
-                    : 'bg-blush-100 text-blush-700 ring-blush-200',
+                    ? 'bg-ink text-brand-400 ring-ink'
+                    : 'bg-brand-100 text-brand-800 ring-brand-200',
             )}
         >
             {initialOf(user.name)}
@@ -441,7 +433,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
                 aria-busy={logout.isPending || undefined}
                 aria-label="Cerrar sesión"
                 className={cn(
-                    'text-ink-soft hover:text-blush-700 disabled:pointer-events-none disabled:opacity-60',
+                    'text-ink-soft hover:text-brand-700 disabled:pointer-events-none disabled:opacity-60',
                     className,
                 )}
             >
@@ -473,9 +465,9 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
         )
     }
 
-    // Same pink family as its zone (no white card), a shade deeper so the row still reads as one block.
+    // A white card on the grey zone, so the row reads as one block.
     return (
-        <div className="flex items-center gap-1 rounded-2xl border border-blush-200/80 bg-blush-200/30 p-1.5 pl-2">
+        <div className="flex items-center gap-1 rounded-xl border border-line bg-white p-1.5 pl-2">
             {/* The row is narrow: the role, and the email when it truncates, live in a tooltip. */}
             <RailTooltip enabled placement="top" content={userTip} className="flex min-w-0 flex-1">
                 {/* The name/avatar area opens "Mi cuenta"; logout stays a separate button. Like
@@ -488,7 +480,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
                         cn(
                             ACCOUNT_LINK_CLASS,
                             'flex min-w-0 flex-1 items-center gap-2.5 rounded-xl py-0.5 pr-1.5 transition duration-200',
-                            isActive && 'bg-blush-200/40',
+                            isActive && 'bg-mist',
                         )
                     }
                 >
@@ -496,7 +488,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
                         <>
                             {avatar(isActive)}
                             <span className="flex min-w-0 flex-col">
-                                <span className="truncate font-display text-sm leading-5 font-semibold text-ink transition-colors duration-200 group-hover:text-blush-700">
+                                <span className="truncate text-sm leading-5 font-semibold text-ink transition-colors duration-200 group-hover:text-brand-700">
                                     {user.name}
                                 </span>
                                 <span className="truncate text-xs leading-4 text-ink-soft">
@@ -534,13 +526,13 @@ export function AdminLayout() {
     const closeMenu = () => setIsMenuOpen(false)
 
     return (
-        <div className="min-h-screen overflow-x-clip bg-cream">
+        <div className="min-h-screen overflow-x-clip bg-page">
             <ScrollToTop />
 
             <aside
                 id={SIDEBAR_ID}
                 className={cn(
-                    'fixed inset-y-0 left-0 hidden flex-col overflow-hidden border-r border-line bg-blush-50/60 transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex',
+                    'fixed inset-y-0 left-0 hidden flex-col overflow-hidden border-r border-line bg-white transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex',
                     // Collapsed, the rail holds two 44px columns of icons.
                     isCollapsed ? 'w-32' : 'w-72',
                 )}
@@ -582,7 +574,7 @@ export function AdminLayout() {
                 </div>
             </aside>
 
-            <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-line bg-cream/90 px-4 py-3 backdrop-blur lg:hidden">
+            <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-line bg-page/90 px-4 py-3 backdrop-blur lg:hidden">
                 <AdminBrand />
                 <button
                     type="button"
@@ -593,13 +585,13 @@ export function AdminLayout() {
                             : 'Abrir menú de administración'
                     }
                     aria-expanded={isMenuOpen}
-                    className="relative flex size-11 items-center justify-center rounded-full text-ink transition hover:bg-blush-100 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                    className="relative flex size-11 items-center justify-center rounded-full text-ink transition hover:bg-mist focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
                 >
                     <Menu aria-hidden="true" className="size-6" />
                     {pending > 0 ? (
                         <span
                             aria-hidden="true"
-                            className="absolute top-0.5 right-0.5 flex min-w-5 items-center justify-center rounded-full bg-blush-700 px-1 text-[11px] font-bold text-white tabular-nums"
+                            className="absolute top-0.5 right-0.5 flex min-w-5 items-center justify-center rounded-full bg-brand-700 px-1 text-[11px] font-bold text-white tabular-nums"
                         >
                             {pending}
                         </span>

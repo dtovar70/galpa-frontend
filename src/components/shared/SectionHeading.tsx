@@ -4,21 +4,26 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { HighlightedText } from '@/components/shared/HighlightedText'
 import { cn } from '@/utils/cn'
 
-const headingVariants = cva('font-display tracking-tight text-balance text-ink', {
+const headingVariants = cva('font-extrabold tracking-tight text-balance', {
     variants: {
         level: {
-            h1: 'text-4xl uppercase sm:text-5xl lg:text-6xl',
-            h2: 'text-3xl uppercase sm:text-4xl lg:text-5xl',
+            h1: 'text-4xl sm:text-5xl lg:text-6xl',
+            h2: 'text-3xl sm:text-4xl lg:text-[2.75rem] lg:leading-tight',
             h3: 'text-2xl sm:text-3xl',
+        },
+        tone: {
+            light: 'text-ink',
+            dark: 'text-white',
         },
     },
     defaultVariants: {
         level: 'h2',
+        tone: 'light',
     },
 })
 
 export interface SectionHeadingProps extends VariantProps<typeof headingVariants> {
-    /** Words between asterisks are painted in blush: "Tus *favoritos*". */
+    /** Words between asterisks are painted green: "Tu *confort*". */
     title: string
     /** Applied to the heading element so a section can reference it with aria-labelledby. */
     headingId?: string
@@ -36,6 +41,7 @@ export function SectionHeading({
     description,
     align = 'left',
     level = 'h2',
+    tone = 'light',
     action,
     className,
 }: SectionHeadingProps) {
@@ -51,17 +57,33 @@ export function SectionHeading({
         >
             <div className={cn('max-w-2xl space-y-3', align === 'center' && 'mx-auto')}>
                 {eyebrow ? (
-                    <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
+                    <p
+                        className={cn(
+                            'inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase',
+                            tone === 'dark' ? 'text-brand-400' : 'text-brand-700',
+                        )}
+                    >
+                        <span aria-hidden="true" className="h-px w-6 bg-current" />
                         {eyebrow}
                     </p>
                 ) : null}
 
-                <Heading id={headingId} className={headingVariants({ level })}>
-                    <HighlightedText text={title} />
+                <Heading id={headingId} className={headingVariants({ level, tone })}>
+                    <HighlightedText
+                        text={title}
+                        className={tone === 'dark' ? 'text-brand-400' : undefined}
+                    />
                 </Heading>
 
                 {description ? (
-                    <p className="text-base text-ink-soft sm:text-lg">{description}</p>
+                    <p
+                        className={cn(
+                            'text-base sm:text-lg',
+                            tone === 'dark' ? 'text-white/70' : 'text-ink-soft',
+                        )}
+                    >
+                        {description}
+                    </p>
                 ) : null}
             </div>
 

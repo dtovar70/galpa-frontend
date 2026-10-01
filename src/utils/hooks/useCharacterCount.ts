@@ -10,7 +10,7 @@ export interface CharacterCountOptions<E extends TextField> {
     value?: unknown
     onChange?: (event: ChangeEvent<E>) => void
     maxLength?: number
-    /** Show the counter at any length (e.g. the personalization field). */
+    /** Show the counter at any length (e.g. a short code field). */
     alwaysShow?: boolean
 }
 

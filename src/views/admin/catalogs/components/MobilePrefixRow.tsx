@@ -9,10 +9,10 @@ import { useSetMobilePrefixActive } from '@/views/admin/hooks/useAdminCatalogs'
 
 /** `aria-disabled` instead of `disabled` keeps keyboard focus on the button while saving. */
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
 const CONTENT_FIELD_LABELS: Record<ContentPhoneField, string> = {
-    'payment.phone': 'Pago Móvil de la tienda',
+    'payment.pagoMovil.phone': 'Pago Móvil de la tienda',
     'contact.whatsapp': 'WhatsApp de contacto',
 }
 
@@ -59,13 +59,13 @@ export function MobilePrefixRow({
         <li
             data-prefix-code={prefix.code}
             className={cn(
-                'rounded-3xl border-2 border-line bg-white shadow-soft',
-                !prefix.isActive && 'bg-cream/60',
+                'rounded-2xl border border-line bg-white shadow-soft',
+                !prefix.isActive && 'bg-page/60',
             )}
         >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 sm:p-4">
                 <div className="flex min-w-0 flex-1 basis-48 items-center gap-3">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-cream text-sm font-bold text-ink">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-page text-sm font-bold text-ink">
                         <span className="sr-only">Posición </span>
                         {index + 1}
                     </span>
@@ -73,7 +73,7 @@ export function MobilePrefixRow({
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                             <h3
                                 className={cn(
-                                    'font-display text-lg tabular-nums',
+                                    'text-lg font-bold tabular-nums',
                                     prefix.isActive ? 'text-ink' : 'text-ink-soft',
                                 )}
                             >

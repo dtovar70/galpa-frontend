@@ -8,8 +8,7 @@ export const CART_STOCK_BLOCKED_MESSAGE =
 export const AVAILABILITY_MAX_LINES = 50
 
 /**
- * Where a line's stock is counted: its variant, or the product without variants. Lines that only
- * differ by personalization share it.
+ * Where a line's stock is counted: its variant, or the product without variants.
  */
 export function stockKey(productId: string, variantId: string | null | undefined): string {
     return `${productId}:${variantId ?? ''}`
@@ -38,9 +37,10 @@ export interface LineStock {
 
 /**
  * The stepper cap and the stock problem of the line at `index`, with the checkout's rule:
- * lines of the same variant share its stock, and earlier lines keep their units first. Without
- * live data for the line (loading, failed) it falls back to `fallbackMax` and no issue: the
- * server still checks the stock at checkout.
+ * lines of the same variant share its stock, and earlier lines keep their units first. On-order
+ * lines only need the product to still be sold: they have no stock limit. Without live data for
+ * the line (loading, failed) it falls back to `fallbackMax` and no issue: the server still
+ * checks the stock at checkout.
  */
 export function lineStock(
     items: readonly CartItem[],
@@ -54,6 +54,7 @@ export function lineStock(
     const live = availability?.get(key)
     if (!live) return { max: fallbackMax, issue: null }
     if (!live.exists || !live.isActive) return { max: 0, issue: { kind: 'unavailable' } }
+    if (item.stockMode === 'ON_ORDER') return { max: fallbackMax, issue: null }
 
     const stock = Math.max(0, live.stock)
     if (stock === 0) return { max: 0, issue: { kind: 'soldOut' } }

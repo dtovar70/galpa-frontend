@@ -10,15 +10,8 @@ export interface Paginated<T> {
     totalPages: number
 }
 
-export interface FilterState {
-    category?: CategorySlug
-    search?: string
-    sort: SortOption
-    minPrice?: number
-    maxPrice?: number
-    tags: ProductTag[]
-    page: number
-}
+/** Availability filter of the catalog (out-of-stock products are never filtered for). */
+export type AvailabilityFilter = 'IN_STOCK' | 'ON_ORDER'
 
 export interface ProductQueryParams {
     category?: CategorySlug
@@ -27,6 +20,12 @@ export interface ProductQueryParams {
     minPrice?: number
     maxPrice?: number
     tags?: ProductTag[]
+    brands?: string[]
+    availability?: AvailabilityFilter
+    btuMin?: number
+    btuMax?: number
+    voltage?: string
+    inverter?: boolean
     page?: number
     pageSize?: number
 }

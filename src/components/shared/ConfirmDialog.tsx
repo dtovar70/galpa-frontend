@@ -95,13 +95,13 @@ export function ConfirmDialog({
                 if (event.target === event.currentTarget) requestClose()
             }}
             className={cn(
-                'fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-hidden rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm',
+                'fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-hidden rounded-3xl bg-page p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm',
                 size === 'lg' ? 'max-w-2xl' : 'max-w-md',
             )}
         >
             {isOpen ? (
                 <div className="flex max-h-[calc(100dvh-2rem)] flex-col">
-                    <h2 id={titleId} className="shrink-0 px-6 pt-6 font-display text-xl">
+                    <h2 id={titleId} className="shrink-0 px-6 pt-6 text-xl font-bold">
                         {title}
                     </h2>
 

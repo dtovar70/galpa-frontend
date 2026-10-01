@@ -30,7 +30,7 @@ export async function orderQrPngDataUrl(url: string, width = 1024): Promise<stri
     return QRCode.toDataURL(url, { ...QR_OPTIONS, type: 'image/png', width })
 }
 
-/** `pedido-MR-000012.png`. */
+/** `pedido-GP-000012.png`. */
 export function orderQrFilename(code: string): string {
     return `pedido-${code}.png`
 }

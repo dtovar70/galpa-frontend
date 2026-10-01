@@ -53,13 +53,13 @@ export function TelegramChatCard({ chat, botConnected, onUnlink }: TelegramChatC
     }
 
     return (
-        <Card padding="none" className={cn('p-4 sm:p-5', !chat.isActive && 'bg-cream')}>
+        <Card padding="none" className={cn('p-4 sm:p-5', !chat.isActive && 'bg-page')}>
             <div className="flex items-start gap-3">
                 <span
                     aria-hidden="true"
                     className={cn(
-                        'flex size-11 shrink-0 items-center justify-center rounded-full font-display text-lg',
-                        chat.isActive ? 'bg-sky-100 text-sky-700' : 'bg-line text-ink-soft',
+                        'flex size-11 shrink-0 items-center justify-center rounded-full text-lg font-bold',
+                        chat.isActive ? 'bg-frost-100 text-frost-700' : 'bg-line text-ink-soft',
                     )}
                 >
                     {initial}
@@ -73,7 +73,7 @@ export function TelegramChatCard({ chat, botConnected, onUnlink }: TelegramChatC
                                 href={telegramUserUrl(chat.username)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="min-w-0 text-sm break-all text-sky-700 hover:underline"
+                                className="min-w-0 text-sm break-all text-frost-700 hover:underline"
                             >
                                 @{chat.username}
                             </a>
@@ -102,7 +102,7 @@ export function TelegramChatCard({ chat, botConnected, onUnlink }: TelegramChatC
                     </p>
 
                     {chat.isActive ? null : (
-                        <p className="text-xs text-blush-800">
+                        <p className="text-xs text-brand-800">
                             Inactivo: el chat bloqueó al bot, así que no le llegan los avisos.
                             Desbloquéalo en Telegram y escríbele /ayuda para reactivarlo.
                         </p>
@@ -138,7 +138,7 @@ export function TelegramChatCard({ chat, botConnected, onUnlink }: TelegramChatC
                         variant="ghost"
                         size="sm"
                         onClick={() => onUnlink(chat)}
-                        className="text-blush-800 hover:bg-blush-50"
+                        className="text-brand-800 hover:bg-brand-50"
                         leadingIcon={<Unlink aria-hidden="true" className="size-4" />}
                     >
                         Desvincular

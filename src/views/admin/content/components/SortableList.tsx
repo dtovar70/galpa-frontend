@@ -7,7 +7,7 @@ import { cn } from '@/utils/cn'
 
 /** Same look as the category rows' actions. */
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
 export interface SortableListProps {
     /** Accessible name of the list: "Mensajes de la cinta". */
@@ -115,11 +115,11 @@ export function SortableList({
                                 move(from, index)
                             }}
                             className={cn(
-                                'rounded-3xl border-2 bg-white p-3 transition sm:p-4',
+                                'rounded-2xl border bg-white p-3 transition sm:p-4',
                                 draggedIndex !== null &&
                                     overIndex === index &&
                                     draggedIndex !== index
-                                    ? 'border-blush-400 bg-blush-50'
+                                    ? 'border-brand-400 bg-brand-50'
                                     : 'border-line',
                                 draggedIndex === index && 'opacity-50',
                             )}
@@ -135,7 +135,7 @@ export function SortableList({
                                 >
                                     <GripVertical className="size-5" />
                                 </span>
-                                <span className="min-w-0 flex-1 truncate font-display text-sm text-ink">
+                                <span className="min-w-0 flex-1 truncate text-sm font-bold text-ink">
                                     {name}
                                 </span>
                                 <div className="flex shrink-0 items-center gap-1">

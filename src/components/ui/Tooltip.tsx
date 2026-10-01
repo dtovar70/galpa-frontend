@@ -39,7 +39,7 @@ export function Tooltip({
             <span
                 aria-hidden="true"
                 className={cn(
-                    'pointer-events-none absolute z-20 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-cream opacity-0 shadow-soft transition-opacity duration-150 group-focus-within/tooltip:opacity-100 group-hover/tooltip:opacity-100 motion-reduce:transition-none',
+                    'pointer-events-none absolute z-20 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-page opacity-0 shadow-soft transition-opacity duration-150 group-focus-within/tooltip:opacity-100 group-hover/tooltip:opacity-100 motion-reduce:transition-none',
                     ALIGNMENT_CLASS[align],
                     placement === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2',
                 )}

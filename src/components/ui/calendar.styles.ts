@@ -6,11 +6,11 @@ import type { ClassNames } from 'react-day-picker'
  */
 
 const NAV_BUTTON_CLASS =
-    'flex size-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-30 aria-disabled:pointer-events-none aria-disabled:opacity-30'
+    'flex size-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-30 aria-disabled:pointer-events-none aria-disabled:opacity-30'
 
 /**
  * Month grid, navigation, today dot and disabled days; modes add their own selection look.
- * Today is tinted only while unselected, so a picked today stays white on blush. Days are
+ * Today is tinted only while unselected, so a picked today stays white on green. Days are
  * 36px, so two months plus the range presets fit a 600px-tall window.
  */
 export const CALENDAR_CLASSES: Partial<ClassNames> = {
@@ -19,7 +19,7 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
     months: 'relative flex gap-6',
     month: 'space-y-1',
     month_caption: 'flex h-8 items-center justify-center',
-    caption_label: 'font-display text-[0.95rem] font-semibold text-ink capitalize',
+    caption_label: 'text-[0.95rem] font-semibold text-ink capitalize',
     nav: 'absolute inset-x-0 top-0 z-10 flex h-8 items-center justify-between',
     button_previous: NAV_BUTTON_CLASS,
     button_next: NAV_BUTTON_CLASS,
@@ -29,8 +29,8 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
     week: '',
     day: 'p-0 text-center text-sm',
     day_button:
-        'relative mx-auto flex size-9 items-center justify-center rounded-full font-semibold text-ink transition-colors hover:bg-blush-100 hover:text-blush-800 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-1 focus-visible:outline-none',
-    today: '[&:not([data-selected])>button]:text-blush-700 [&>button]:after:absolute [&>button]:after:bottom-0.5 [&>button]:after:left-1/2 [&>button]:after:size-1 [&>button]:after:-translate-x-1/2 [&>button]:after:rounded-full [&>button]:after:bg-current',
+        'relative mx-auto flex size-9 items-center justify-center rounded-full font-semibold text-ink transition-colors hover:bg-brand-100 hover:text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1 focus-visible:outline-none',
+    today: '[&:not([data-selected])>button]:text-brand-700 [&>button]:after:absolute [&>button]:after:bottom-0.5 [&>button]:after:left-1/2 [&>button]:after:size-1 [&>button]:after:-translate-x-1/2 [&>button]:after:rounded-full [&>button]:after:bg-current',
     selected: '',
     disabled:
         '[&>button]:cursor-not-allowed [&>button]:text-ink-soft/35 [&>button]:hover:bg-transparent [&>button]:hover:text-ink-soft/35',
@@ -39,6 +39,6 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
     focused: '',
 }
 
-/** A picked day on its own: the solid blush dot (also the ends of a range). */
+/** A picked day on its own: the solid green dot (also the ends of a range). */
 export const CALENDAR_SELECTED_DAY_CLASS =
-    '[&>button]:bg-blush-700 [&>button]:text-white [&>button]:hover:bg-blush-800 [&>button]:hover:text-white'
+    '[&>button]:bg-brand-700 [&>button]:text-white [&>button]:hover:bg-brand-800 [&>button]:hover:text-white'

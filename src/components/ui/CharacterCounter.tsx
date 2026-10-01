@@ -15,7 +15,7 @@ export function CharacterCounter({ id, count }: CharacterCounterProps) {
             className={cn(
                 FIELD_HINT_CLASS,
                 'ml-auto shrink-0 tabular-nums',
-                count.length >= count.maxLength && 'font-semibold text-blush-700',
+                count.length >= count.maxLength && 'font-semibold text-danger-700',
             )}
         >
             <span className="sr-only">Caracteres: </span>

@@ -12,7 +12,10 @@ export const ROUTES = {
     /** "Consultar mi pedido": code + email, the API emails a fresh private link. */
     orderLookup: '/consultar-pedido',
     about: '/nosotros',
-    contact: '/contacto',
+    /** "Asesoría y contacto"; `?producto=<slug>` names the product the customer asks about. */
+    contact: '/asesoria',
+    /** Old address of the contact page, redirected to `contact`. */
+    legacyContact: '/contacto',
     notFound: '*',
 } as const
 
@@ -39,6 +42,9 @@ export const ADMIN_ROUTES = {
     telegram: '/admin/telegram',
     users: '/admin/usuarios',
     account: '/admin/cuenta',
+    quotes: '/admin/cotizaciones',
+    quoteNew: '/admin/cotizaciones/nueva',
+    quoteDetail: '/admin/cotizaciones/:code',
 } as const
 
 export function adminOrderPath(code: string): string {
@@ -47,6 +53,10 @@ export function adminOrderPath(code: string): string {
 
 export function adminProductPath(id: string): string {
     return `/admin/productos/${encodeURIComponent(id)}`
+}
+
+export function adminQuotePath(code: string): string {
+    return `/admin/cotizaciones/${encodeURIComponent(code)}`
 }
 
 /**
@@ -82,7 +92,7 @@ export const DEV_ROUTES = {
     loaderPreview: '/dev/loader',
 } as const
 
-/** The customer's private order page: `/pedido/MR-000123?t=<token>`. */
+/** The customer's private order page: `/pedido/GP-000123?t=<token>`. */
 export function orderPath(code: string, token: string): string {
     return `/pedido/${encodeURIComponent(code)}?t=${encodeURIComponent(token)}`
 }
@@ -93,4 +103,11 @@ export function productPath(slug: string): string {
 
 export function categoryPath(slug: CategorySlug): string {
     return `/catalogo/${encodeURIComponent(slug)}`
+}
+
+/** "Solicitar asesoría", optionally about one product. */
+export function advisoryPath(productSlug?: string): string {
+    return productSlug
+        ? `${ROUTES.contact}?producto=${encodeURIComponent(productSlug)}`
+        : ROUTES.contact
 }

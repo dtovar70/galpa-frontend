@@ -42,10 +42,10 @@ export function OrderQrCard({ code, url }: OrderQrCardProps) {
 
     const heading = (
         <span className="flex items-center gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-700">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-frost-100 text-frost-700">
                 <QrCode aria-hidden="true" className="size-5" />
             </span>
-            <span className="font-display text-lg text-ink">Abre tu pedido desde tu teléfono</span>
+            <span className="text-lg font-bold text-ink">Abre tu pedido desde tu teléfono</span>
         </span>
     )
 
@@ -60,10 +60,10 @@ export function OrderQrCard({ code, url }: OrderQrCardProps) {
                         aria-expanded={isOpen}
                         aria-controls={panelId}
                         onClick={() => setIsOpen((open) => !open)}
-                        className="-m-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-2xl p-2 text-left transition hover:bg-blush-50 focus-visible:outline-2 focus-visible:outline-blush-400"
+                        className="-m-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-2xl p-2 text-left transition hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-400"
                     >
                         {heading}
-                        <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blush-700">
+                        <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-700">
                             {isOpen ? 'Ocultar' : 'Ver QR'}
                             <ChevronDown
                                 aria-hidden="true"

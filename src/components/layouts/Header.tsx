@@ -1,11 +1,11 @@
 import { cva } from 'class-variance-authority'
-import { Menu, Package, ShoppingBag } from 'lucide-react'
+import { Headset, Menu, Package, ShoppingBag } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router'
 
 import { BrandLogo } from '@/components/layouts/BrandLogo'
 import { HeaderIconButton } from '@/components/layouts/HeaderIconButton'
 import { SearchField } from '@/components/layouts/SearchField'
-import { Tooltip } from '@/components/ui'
+import { ButtonLink, Tooltip } from '@/components/ui'
 import { appConfig } from '@/configs/app.config'
 import { CONTAINER } from '@/constants/layout.constant'
 import { ROUTES } from '@/constants/route.constant'
@@ -15,12 +15,12 @@ import { cn } from '@/utils/cn'
 import { useNavLinks } from '@/utils/hooks/useNavLinks'
 
 const navLinkVariants = cva(
-    'rounded-full px-3 py-2 text-sm font-semibold whitespace-nowrap transition duration-200',
+    'rounded-lg px-3 py-2 text-sm font-semibold whitespace-nowrap transition duration-200',
     {
         variants: {
             isActive: {
-                true: 'bg-blush-100 text-blush-700',
-                false: 'text-ink-soft hover:bg-white hover:text-ink',
+                true: 'bg-white/10 text-brand-300',
+                false: 'text-white/75 hover:bg-white/5 hover:text-white',
             },
         },
         defaultVariants: { isActive: false },
@@ -35,7 +35,7 @@ export function Header() {
     const navLinks = useNavLinks(appConfig.categoryLinkLimits.header)
 
     return (
-        <header className="sticky top-0 z-40 border-b border-line bg-cream/80 backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-ink/95 text-white backdrop-blur">
             <div className={cn(CONTAINER, 'flex h-16 items-center gap-3 lg:h-20 lg:gap-6')}>
                 <BrandLogo />
 
@@ -56,7 +56,16 @@ export function Header() {
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2">
-                    <SearchField className="hidden w-64 xl:block" />
+                    <SearchField className="hidden w-60 xl:block" />
+
+                    <ButtonLink
+                        to={ROUTES.contact}
+                        size="sm"
+                        leadingIcon={<Headset aria-hidden="true" className="size-4" />}
+                        className="hidden 2xl:inline-flex"
+                    >
+                        Solicitar asesoría
+                    </ButtonLink>
 
                     {/* Phones reach it from the menu drawer, keeping the bar to two buttons. */}
                     <Tooltip label="Mis pedidos" className="hidden sm:inline-flex">
@@ -73,7 +82,7 @@ export function Header() {
                         icon={<ShoppingBag aria-hidden="true" className="size-5" />}
                         badge={
                             cartCount > 0 ? (
-                                <span className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full bg-blush-700 px-1.5 text-[11px] font-bold text-white tabular-nums">
+                                <span className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 font-tech text-[11px] font-bold text-ink tabular-nums">
                                     {cartCount}
                                 </span>
                             ) : null

@@ -22,7 +22,7 @@ export function OrderNotes({ order }: { order: AdminOrder }) {
     return (
         <Card padding="md" className="space-y-4">
             <div>
-                <h2 className="font-display text-xl text-ink">Notas internas</h2>
+                <h2 className="text-xl font-bold text-ink">Notas internas</h2>
                 <p className="text-xs text-ink-soft">Solo las ve el equipo, nunca el cliente.</p>
             </div>
             <form onSubmit={submit} className="space-y-3">
@@ -31,7 +31,7 @@ export function OrderNotes({ order }: { order: AdminOrder }) {
                     hideLabel
                     rows={3}
                     maxLength={MAX_NOTE}
-                    placeholder="Ej. Pidió cambiar el color de la taza"
+                    placeholder="Ej. Coordinar la entrega en horario de la tarde"
                     value={body}
                     onChange={(event) => setBody(event.target.value)}
                 />
@@ -49,7 +49,7 @@ export function OrderNotes({ order }: { order: AdminOrder }) {
             {order.notes.length ? (
                 <ul className="space-y-2">
                     {order.notes.map((note) => (
-                        <li key={note.id} className="rounded-2xl bg-cream px-4 py-3 text-sm">
+                        <li key={note.id} className="rounded-2xl bg-page px-4 py-3 text-sm">
                             <p className="break-words whitespace-pre-line text-ink">{note.body}</p>
                             <p className="mt-1 text-xs text-ink-soft">
                                 {note.author?.name ?? 'Usuario eliminado'} ·{' '}

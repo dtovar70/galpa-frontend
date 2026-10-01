@@ -8,18 +8,19 @@ export interface ValuesGridProps {
 
 export function ValuesGrid({ values }: ValuesGridProps) {
     return (
-        <ul className="grid gap-6 sm:grid-cols-2">
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((value, index) => {
                 // Unknown icons (an older payload) fall back to the first one.
                 const Icon =
-                    ABOUT_VALUE_ICON_COMPONENTS[value.icon] ?? ABOUT_VALUE_ICON_COMPONENTS.palette
+                    ABOUT_VALUE_ICON_COMPONENTS[value.icon] ??
+                    ABOUT_VALUE_ICON_COMPONENTS['shield-check']
                 return (
                     <li key={index} className="h-full">
                         <Card className="flex h-full flex-col gap-3">
-                            <span className="flex size-11 items-center justify-center rounded-full bg-blush-100 text-blush-600">
+                            <span className="flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
                                 <Icon aria-hidden="true" className="size-5" />
                             </span>
-                            <h3 className="font-display text-lg text-ink">{value.title}</h3>
+                            <h3 className="text-lg text-ink">{value.title}</h3>
                             <p className="text-sm text-ink-soft">{value.description}</p>
                         </Card>
                     </li>

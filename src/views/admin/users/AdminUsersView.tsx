@@ -29,7 +29,7 @@ const headerCellClass =
     'px-4 py-3 text-left text-xs font-bold tracking-wide text-ink-soft uppercase'
 const cellClass = 'px-4 py-3 align-middle'
 /** Pinned right, like the products table, with its own background for what slides under. */
-const actionsCellClass = 'sticky right-0 bg-white px-3 transition group-hover:bg-cream'
+const actionsCellClass = 'sticky right-0 bg-white px-3 transition group-hover:bg-page'
 
 function initialOf(name: string): string {
     return name.trim().charAt(0).toUpperCase() || '?'
@@ -53,19 +53,19 @@ function UserIdentity({ user, isSelf }: { user: AdminUser; isSelf: boolean }) {
             <span
                 aria-hidden="true"
                 className={cn(
-                    'flex size-10 shrink-0 items-center justify-center rounded-full font-display font-semibold ring-1',
+                    'flex size-10 shrink-0 items-center justify-center rounded-full font-semibold ring-1',
                     user.isActive
-                        ? 'bg-blush-100 text-blush-700 ring-blush-200'
+                        ? 'bg-brand-100 text-brand-700 ring-brand-200'
                         : 'bg-line/60 text-ink-soft ring-line',
                 )}
             >
                 {initialOf(user.name)}
             </span>
             <div className="min-w-0">
-                <p className="font-display text-base leading-snug break-words text-ink">
+                <p className="text-base leading-snug font-bold break-words text-ink">
                     {user.name}
                     {isSelf ? (
-                        <span className="ml-1.5 font-sans text-xs font-semibold text-blush-700">
+                        <span className="ml-1.5 font-sans text-xs font-semibold text-brand-700">
                             (tú)
                         </span>
                     ) : null}
@@ -183,7 +183,7 @@ export function AdminUsersView() {
                                     type="button"
                                     onClick={() => setSearchInput('')}
                                     aria-label="Limpiar búsqueda"
-                                    className="flex size-8 items-center justify-center rounded-full text-ink-soft hover:bg-blush-100"
+                                    className="flex size-8 items-center justify-center rounded-full text-ink-soft hover:bg-brand-100"
                                 >
                                     <X aria-hidden="true" className="size-4" />
                                 </button>
@@ -192,7 +192,7 @@ export function AdminUsersView() {
                     />
                 </div>
                 {users.isFetching && !users.isPending ? (
-                    <Spinner size="sm" className="text-blush-500" label="Actualizando la lista" />
+                    <Spinner size="sm" className="text-brand-600" label="Actualizando la lista" />
                 ) : null}
             </div>
 
@@ -256,7 +256,7 @@ export function AdminUsersView() {
                                     <col className="w-28" />
                                     <col className="w-36" />
                                 </colgroup>
-                                <thead className="border-b border-line bg-blush-50/60">
+                                <thead className="border-b border-line bg-page">
                                     <tr>
                                         <th scope="col" className={headerCellClass}>
                                             Usuario
@@ -278,7 +278,7 @@ export function AdminUsersView() {
                                             className={cn(
                                                 headerCellClass,
                                                 actionsCellClass,
-                                                'bg-linear-to-r from-blush-50/60 to-blush-50/60 text-center',
+                                                'bg-page text-center',
                                             )}
                                         >
                                             Acciones
@@ -291,7 +291,7 @@ export function AdminUsersView() {
                                         return (
                                             <tr
                                                 key={user.id}
-                                                className="group transition hover:bg-cream"
+                                                className="group transition hover:bg-page"
                                             >
                                                 <td className={cellClass}>
                                                     <UserIdentity user={user} isSelf={isSelf} />

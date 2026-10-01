@@ -111,7 +111,7 @@ export function ResetCodeInput({
                             <span
                                 className={cn(
                                     FIELD_HINT_CLASS,
-                                    'flex items-center gap-1.5 pt-1.5 font-medium text-blush-700',
+                                    'flex items-center gap-1.5 pt-1.5 font-medium text-brand-700',
                                 )}
                             >
                                 <ClipboardX aria-hidden="true" className="size-3.5 shrink-0" />

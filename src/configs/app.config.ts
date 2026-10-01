@@ -6,11 +6,10 @@ export interface NavLink {
 }
 
 /**
- * Measured at 1024px (the narrowest width with the desktop nav): the three original
- * categories leave room for one short extra name only, so a longer fourth would wrap or
- * collide with the cart button.
+ * Measured at 1024px (the narrowest width with the desktop nav): the category names are long
+ * ("Aires Residenciales"), so the header lists two and "Catálogo" reaches the rest.
  */
-const HEADER_CATEGORY_LIMIT = 3
+const HEADER_CATEGORY_LIMIT = 2
 
 /**
  * App configuration that is not editable content. The brand name, texts, contact data,
@@ -18,10 +17,8 @@ const HEADER_CATEGORY_LIMIT = 3
  * /admin/contenido.
  */
 export const appConfig = {
-    logo: {
-        src: '/img/logo-mark.webp',
-        srcSet: '/img/logo-mark.webp 256w, /img/logo-mark@2x.webp 512w',
-    },
+    /** Short brand name for tight spots (logo wordmark, loader); the full name is content. */
+    brandShortName: 'Galpa',
     /**
      * Main navigation. The categories come from the API and are slotted in between these two
      * groups (see `useNavLinks`), so a category created in the admin shows up on its own.
@@ -33,7 +30,7 @@ export const appConfig = {
         ] satisfies NavLink[],
         after: [
             { label: 'Nosotros', to: ROUTES.about },
-            { label: 'Contacto', to: ROUTES.contact },
+            { label: 'Asesoría', to: ROUTES.contact },
         ] satisfies NavLink[],
     },
     /**

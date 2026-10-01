@@ -1,15 +1,15 @@
 import { useId, useRef, useState, type DragEvent } from 'react'
 import { ArrowDown, ArrowUp, GripVertical, Pencil, Trash2 } from 'lucide-react'
 
+import { CategoryIconGlyph } from '@/components/shared/CategoryIconGlyph'
 import type { AdminCategory } from '@/@types/admin'
 import { Badge, Tooltip } from '@/components/ui'
 import { cn } from '@/utils/cn'
-import { toColorInputValue } from '@/utils/color'
 import { CategoryForm } from '@/views/admin/categories/components/CategoryForm'
 
 /** `aria-disabled` instead of `disabled` keeps keyboard focus on the button while saving. */
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
 function plural(count: number, singular: string, pluralForm: string): string {
     return `${count} ${count === 1 ? singular : pluralForm}`
@@ -109,8 +109,8 @@ export function CategoryRow({
                 onDropOnRow(category.slug)
             }}
             className={cn(
-                'rounded-3xl border-2 bg-white shadow-soft transition',
-                isDropTarget ? 'border-blush-400 bg-blush-50' : 'border-line',
+                'rounded-2xl border bg-white shadow-soft transition',
+                isDropTarget ? 'border-brand-400 bg-brand-50' : 'border-line',
                 isDragged && 'opacity-50',
             )}
         >
@@ -131,22 +131,23 @@ export function CategoryRow({
                     >
                         <GripVertical className="size-5" />
                     </span>
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-cream text-sm font-bold text-ink">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-page text-sm font-bold text-ink">
                         <span className="sr-only">Posición </span>
                         {position}
                     </span>
                     <span
                         aria-hidden="true"
-                        className="size-4 shrink-0 rounded-full border border-ink/10"
-                        style={{ backgroundColor: toColorInputValue(category.colorHex) }}
-                    />
+                        className="grid size-8 shrink-0 place-items-center rounded-lg bg-ink text-brand-400"
+                    >
+                        <CategoryIconGlyph name={category.icon} className="size-4" />
+                    </span>
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <h2 className="min-w-0 font-display text-lg break-words text-ink">
+                            <h2 className="min-w-0 text-lg break-words text-ink">
                                 {category.name}
                             </h2>
                             {isInMenu ? (
-                                <Badge tone="mint" size="sm">
+                                <Badge tone="brand" size="sm">
                                     En el menú
                                 </Badge>
                             ) : null}
@@ -196,7 +197,7 @@ export function CategoryRow({
                             aria-expanded={isExpanded}
                             aria-controls={panelId}
                             aria-label={`Editar ${category.name}`}
-                            className={cn(actionClass, isExpanded && 'bg-blush-100 text-blush-700')}
+                            className={cn(actionClass, isExpanded && 'bg-brand-100 text-brand-700')}
                         >
                             <Pencil aria-hidden="true" className="size-4" />
                         </button>

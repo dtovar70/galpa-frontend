@@ -10,7 +10,7 @@ import { categoryCountPhrase, fillPlaceholdersInSentence } from '@/utils/content
 import { useFillPlaceholders, useSiteContent } from '@/utils/hooks/useSiteContent'
 import { useCategories } from '@/views/catalog/hooks/useCategories'
 
-const SKELETON_COUNT = 3
+const SKELETON_COUNT = 4
 
 export function CategoryStrip() {
     const { data: categories, isPending, isError, refetch } = useCategories()
@@ -22,7 +22,7 @@ export function CategoryStrip() {
     })
 
     return (
-        <section aria-labelledby="categories-heading" className="bg-sky-50 py-16 lg:py-24">
+        <section aria-labelledby="categories-heading" className="py-16 lg:py-24">
             <div className={cn(CONTAINER, 'space-y-10')}>
                 <SectionHeading
                     headingId="categories-heading"
@@ -47,15 +47,15 @@ export function CategoryStrip() {
                         className={cn(
                             'grid gap-6',
                             // Four cards read better as 2x2 / 1x4 than as a row of three plus one.
-                            categories?.length === 4
-                                ? 'md:grid-cols-2 xl:grid-cols-4'
-                                : 'md:grid-cols-3',
+                            categories?.length === 4 || isPending
+                                ? 'sm:grid-cols-2 xl:grid-cols-4'
+                                : 'sm:grid-cols-2 lg:grid-cols-3',
                         )}
                     >
                         {isPending
                             ? Array.from({ length: SKELETON_COUNT }, (_, index) => (
                                   <li key={index}>
-                                      <Skeleton shape="block" className="h-96 w-full" />
+                                      <Skeleton shape="block" className="h-64 w-full" />
                                   </li>
                               ))
                             : (categories ?? []).map((category) => (

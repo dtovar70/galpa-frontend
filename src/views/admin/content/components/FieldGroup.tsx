@@ -5,16 +5,21 @@ import { Card } from '@/components/ui'
 export interface FieldGroupProps {
     title: string
     description?: ReactNode
+    /** Control next to the title, e.g. a switch that turns the group on. */
+    action?: ReactNode
     children: ReactNode
 }
 
 /** A titled card of related fields. `@container` lets the fields sit in columns when wide. */
-export function FieldGroup({ title, description, children }: FieldGroupProps) {
+export function FieldGroup({ title, description, action, children }: FieldGroupProps) {
     return (
         <Card className="@container space-y-5">
-            <div className="space-y-1">
-                <h3 className="font-display text-xl text-ink">{title}</h3>
-                {description ? <p className="text-sm text-ink-soft">{description}</p> : null}
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 space-y-1">
+                    <h3 className="text-xl text-ink">{title}</h3>
+                    {description ? <p className="text-sm text-ink-soft">{description}</p> : null}
+                </div>
+                {action ? <div className="shrink-0">{action}</div> : null}
             </div>
             {children}
         </Card>

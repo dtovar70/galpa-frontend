@@ -1,7 +1,7 @@
 import { useWatch } from 'react-hook-form'
 
 import { Input, Textarea } from '@/components/ui'
-import { brandLines, placeholderValues } from '@/utils/content'
+import { placeholderValues } from '@/utils/content'
 import { useFillPlaceholders, useSiteContent } from '@/utils/hooks/useSiteContent'
 import { FieldGroup, FieldRow } from '@/views/admin/content/components/FieldGroup'
 import { placeholderHint } from '@/views/admin/content/components/placeholders'
@@ -22,7 +22,6 @@ export function GeneralSection(props: SectionFormProps<'general'>) {
     })
     const values = placeholderValues(useSiteContent())
     const fill = useFillPlaceholders()
-    const [firstLine, secondLine] = brandLines(brandName)
     const pageTitle = titleSuffix.trim() ? `${brandName.trim()} — ${titleSuffix.trim()}` : brandName
 
     return (
@@ -31,7 +30,7 @@ export function GeneralSection(props: SectionFormProps<'general'>) {
                 <FieldRow>
                     <Input
                         label="Nombre de la marca"
-                        hint={`El logo lo muestra en dos líneas: «${firstLine}»${secondLine ? ` y «${secondLine}»` : ''}.`}
+                        hint="Razón social completa: se ve bajo el logo, en el pie de página y en los correos."
                         error={errors.brandName?.message}
                         {...register('brandName')}
                     />
@@ -77,9 +76,11 @@ export function GeneralSection(props: SectionFormProps<'general'>) {
                     maxLength={CONTENT_LIMITS.metaDescription}
                     {...register('metaDescription')}
                 />
-                <div className="rounded-2xl border-2 border-dashed border-line bg-cream px-4 py-3">
+                <div className="rounded-2xl border-2 border-dashed border-line bg-page px-4 py-3">
                     <p className="text-xs font-semibold text-ink-soft">Vista previa en Google</p>
-                    <p className="font-display text-base break-words text-sky-700">{pageTitle}</p>
+                    <p className="text-base font-semibold break-words text-frost-700">
+                        {pageTitle}
+                    </p>
                     <p className="text-sm break-words text-ink-soft">{fill(metaDescription)}</p>
                 </div>
             </FieldGroup>

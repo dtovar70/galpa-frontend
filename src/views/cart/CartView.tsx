@@ -1,13 +1,14 @@
 import { ShoppingBag } from 'lucide-react'
 
 import { ClearCartButton } from '@/components/shared/ClearCartButton'
+import { OnOrderCartNotice } from '@/components/shared/OnOrderCartNotice'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { BsApproximation } from '@/components/shared/BsApproximation'
 import { FreeShippingProgress } from '@/components/shared/FreeShippingProgress'
 import { Button, ButtonLink, Card } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
 import { ROUTES } from '@/constants/route.constant'
-import { useCartItems, useCartSubtotal } from '@/store/cartStore'
+import { useCartHasOnOrderItems, useCartItems, useCartSubtotal } from '@/store/cartStore'
 import { CART_STOCK_BLOCKED_MESSAGE } from '@/utils/cartAvailability'
 import { cn } from '@/utils/cn'
 import { shippingCost } from '@/utils/content'
@@ -21,19 +22,20 @@ export function CartView() {
     const subtotal = useCartSubtotal()
     const content = useSiteContent()
     const availability = useCartAvailability(items)
+    const hasOnOrderItems = useCartHasOnOrderItems()
     const shipping = shippingCost(subtotal, content.shipping)
     const total = subtotal + shipping
 
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
-            <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
-                Tu <span className="text-blush-500">carrito</span>
+            <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                Tu <span className="text-brand-600">carrito</span>
             </h1>
 
             {items.length === 0 ? (
                 <EmptyState
                     title="Todavía no hay nada aquí"
-                    description="Cuando encuentres el diseño perfecto, aparecerá en esta lista."
+                    description="Cuando encuentres el equipo ideal para tu espacio, aparecerá en esta lista."
                     icon={<ShoppingBag className="size-6" />}
                     action={<ButtonLink to={ROUTES.catalog}>Explorar catálogo</ButtonLink>}
                 />
@@ -63,43 +65,44 @@ export function CartView() {
                     </div>
 
                     <Card
-                        tone="cream"
+                        tone="white"
                         padding="lg"
                         className="h-fit space-y-5 lg:sticky lg:top-28"
                         aria-label="Resumen del pedido"
                     >
-                        <h2 className="font-display text-xl text-ink">Resumen</h2>
+                        <h2 className="text-xl text-ink">Resumen</h2>
 
                         <FreeShippingProgress subtotal={subtotal} />
 
                         <dl className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
                                 <dt className="text-ink-soft">Subtotal</dt>
-                                <dd className="font-semibold text-ink">
+                                <dd className="font-tech font-semibold text-ink">
                                     {formatCurrency(subtotal)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-ink-soft">Envío</dt>
-                                <dd className="font-semibold text-ink">
+                                <dd className="font-tech font-semibold text-ink">
                                     {shipping === 0 ? 'Gratis' : formatCurrency(shipping)}
                                 </dd>
                             </div>
                             <div className="flex items-baseline justify-between border-t border-line pt-3">
-                                <dt className="font-display text-base text-ink">Total</dt>
-                                <dd className="font-display text-2xl text-ink">
+                                <dt className="text-base font-bold text-ink">Total</dt>
+                                <dd className="font-tech text-2xl font-bold text-ink">
                                     {formatCurrency(total)}
                                 </dd>
                             </div>
                         </dl>
                         <BsApproximation usd={total} />
+                        {hasOnOrderItems ? <OnOrderCartNotice /> : null}
 
                         <div className="grid gap-2">
                             {availability.hasIssues ? (
                                 <>
                                     <p
                                         role="status"
-                                        className="text-sm font-semibold text-blush-700"
+                                        className="text-sm font-semibold text-danger-700"
                                     >
                                         {CART_STOCK_BLOCKED_MESSAGE}
                                     </p>

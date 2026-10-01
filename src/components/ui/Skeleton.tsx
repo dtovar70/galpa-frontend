@@ -7,7 +7,7 @@ const skeletonVariants = cva('animate-pulse bg-line motion-reduce:animate-none',
     variants: {
         shape: {
             line: 'h-4 rounded-full',
-            block: 'rounded-3xl',
+            block: 'rounded-2xl',
             circle: 'rounded-full',
         },
     },

@@ -18,7 +18,7 @@ export function StatsRow({ stats }: StatsRowProps) {
     return (
         <dl
             className={cn(
-                'grid gap-6 rounded-blob border border-line bg-white px-6 py-10 shadow-soft',
+                'grid gap-6 rounded-2xl border border-line bg-white px-6 py-10 shadow-soft',
                 stats.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
                 WIDE_COLUMNS[stats.length] ?? 'lg:grid-cols-4',
             )}
@@ -27,7 +27,7 @@ export function StatsRow({ stats }: StatsRowProps) {
                 <div key={index} className="space-y-1 text-center">
                     <dt className="sr-only">{stat.label}</dt>
                     <dd>
-                        <span className="block font-display text-4xl text-blush-500">
+                        <span className="block font-tech text-4xl font-bold text-brand-600">
                             {stat.value}
                         </span>
                         <span className="text-sm text-ink-soft">{stat.label}</span>

@@ -8,13 +8,17 @@ const badgeVariants = cva(
     {
         variants: {
             tone: {
-                blush: 'bg-blush-100 text-blush-800',
-                sky: 'bg-sky-100 text-sky-700',
-                mint: 'bg-mint-200 text-ink',
-                butter: 'bg-butter-200 text-ink',
-                lilac: 'bg-lilac-200 text-ink',
-                solid: 'bg-blush-700 text-white',
-                neutral: 'bg-line text-ink-soft',
+                /** Brand green, also "success": in stock, approved, delivered. */
+                brand: 'bg-brand-100 text-brand-800',
+                /** Amber: "Bajo pedido", pending actions. */
+                warning: 'bg-warning-100 text-warning-800',
+                /** Frost: informational states (in review, on its way). */
+                info: 'bg-frost-100 text-frost-800',
+                danger: 'bg-danger-100 text-danger-700',
+                neutral: 'bg-mist text-ink-soft',
+                /** Thin outline on white, for low-emphasis labels. */
+                outline: 'border border-line-strong bg-white text-ink-soft',
+                solid: 'bg-ink text-white',
             },
             size: {
                 sm: 'px-2.5 py-0.5 text-[11px]',
@@ -22,11 +26,13 @@ const badgeVariants = cva(
             },
         },
         defaultVariants: {
-            tone: 'blush',
+            tone: 'brand',
             size: 'md',
         },
     },
 )
+
+export type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['tone']>
 
 export interface BadgeProps
     extends HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {

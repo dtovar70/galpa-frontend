@@ -49,9 +49,9 @@ export function SectionFormLayout<F extends FieldValues>({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-display text-2xl text-ink">{label}</h2>
+                        <h2 className="text-2xl font-bold text-ink">{label}</h2>
                         {isDirty ? (
-                            <Badge tone="butter" size="sm">
+                            <Badge tone="warning" size="sm">
                                 Cambios sin guardar
                             </Badge>
                         ) : null}

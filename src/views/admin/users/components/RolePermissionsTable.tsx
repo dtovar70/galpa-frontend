@@ -16,7 +16,7 @@ function Allowed({ allowed }: { allowed: boolean }) {
         <span
             className={cn(
                 'inline-flex size-7 items-center justify-center rounded-full',
-                allowed ? 'bg-mint-200 text-ink' : 'bg-line text-ink-soft',
+                allowed ? 'bg-brand-100 text-ink' : 'bg-line text-ink-soft',
             )}
         >
             {allowed ? (
@@ -37,18 +37,18 @@ export function RolePermissionsTable({ className }: { className?: string }) {
     return (
         <details
             className={cn(
-                'group overflow-hidden rounded-3xl border border-line bg-white shadow-soft',
+                'group overflow-hidden rounded-2xl border border-line bg-white shadow-soft',
                 className,
             )}
         >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-3xl px-5 py-4 font-display text-base text-ink transition hover:bg-blush-50/60 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:outline-none focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-4 text-base font-bold text-ink transition hover:bg-brand-50/60 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-3">
-                    <ShieldCheck aria-hidden="true" className="size-5 shrink-0 text-blush-500" />
+                    <ShieldCheck aria-hidden="true" className="size-5 shrink-0 text-brand-600" />
                     ¿Qué puede hacer cada rol?
                 </span>
                 <ChevronDown
                     aria-hidden="true"
-                    className="size-5 shrink-0 text-blush-500 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+                    className="size-5 shrink-0 text-brand-600 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
                 />
             </summary>
             <div className="border-t border-line">
@@ -59,7 +59,7 @@ export function RolePermissionsTable({ className }: { className?: string }) {
                         <col className="w-18 sm:w-32" />
                         <col className="w-18 sm:w-32" />
                     </colgroup>
-                    <thead className="bg-blush-50/60">
+                    <thead className="bg-page">
                         <tr>
                             <th
                                 scope="col"
@@ -87,7 +87,7 @@ export function RolePermissionsTable({ className }: { className?: string }) {
                                 <th
                                     scope="colgroup"
                                     colSpan={3}
-                                    className="bg-cream px-4 pt-3 pb-1.5 text-left font-display text-sm font-semibold text-blush-700 sm:px-5"
+                                    className="bg-page px-4 pt-3 pb-1.5 text-left text-sm font-semibold text-brand-700 sm:px-5"
                                 >
                                     {area}
                                 </th>

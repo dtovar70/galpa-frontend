@@ -9,12 +9,12 @@ import { useNavLinks } from '@/utils/hooks/useNavLinks'
 import { useShippingContent } from '@/utils/hooks/useSiteContent'
 
 const mobileLinkVariants = cva(
-    'block rounded-2xl px-4 py-3 font-display text-lg transition duration-200',
+    'block rounded-xl px-4 py-3 text-base font-semibold transition duration-200',
     {
         variants: {
             isActive: {
-                true: 'bg-blush-100 text-blush-700',
-                false: 'text-ink hover:bg-blush-50',
+                true: 'bg-brand-50 text-brand-800',
+                false: 'text-ink hover:bg-mist',
             },
         },
         defaultVariants: { isActive: false },
@@ -70,9 +70,14 @@ export function MobileMenu() {
                     </ul>
                 </nav>
 
-                <ButtonLink to={ROUTES.catalog} fullWidth onClick={close}>
-                    Explorar catálogo
-                </ButtonLink>
+                <div className="grid gap-2">
+                    <ButtonLink to={ROUTES.catalog} fullWidth onClick={close}>
+                        Ver catálogo
+                    </ButtonLink>
+                    <ButtonLink to={ROUTES.contact} variant="secondary" fullWidth onClick={close}>
+                        Solicitar asesoría
+                    </ButtonLink>
+                </div>
 
                 <p className="text-sm text-ink-soft">{freeShippingText}</p>
             </div>

@@ -28,7 +28,7 @@ import {
 function SectionTitle({ title, description }: { title: string; description: string }) {
     return (
         <div className="space-y-1">
-            <h2 className="font-display text-xl text-ink">{title}</h2>
+            <h2 className="text-xl font-bold text-ink">{title}</h2>
             <p className="text-sm text-ink-soft">{description}</p>
         </div>
     )
@@ -128,7 +128,7 @@ function CapabilityList({
 
     return (
         <section className="space-y-3">
-            <h3 className="font-display text-base text-ink">{title}</h3>
+            <h3 className="text-base font-bold text-ink">{title}</h3>
             <div className="space-y-3">
                 {groups.map(({ area, capabilities }) => (
                     <div key={area} className="space-y-1.5">
@@ -143,7 +143,7 @@ function CapabilityList({
                                         className={cn(
                                             'mt-px flex size-5 shrink-0 items-center justify-center rounded-full',
                                             allowed
-                                                ? 'bg-mint-200 text-ink'
+                                                ? 'bg-brand-100 text-ink'
                                                 : 'bg-line text-ink-soft',
                                         )}
                                     >
@@ -171,7 +171,7 @@ function RoleAccessCard({ user }: { user: AdminSession }) {
                 description={`Tu rol es ${roleLabel}. Solo un administrador puede cambiarlo.`}
             />
             {user.role === 'ADMIN' ? (
-                <p className="flex items-center gap-3 rounded-2xl bg-mint-200/50 px-4 py-3 text-sm text-ink">
+                <p className="flex items-center gap-3 rounded-2xl bg-brand-100/50 px-4 py-3 text-sm text-ink">
                     <ShieldCheck aria-hidden="true" className="size-5 shrink-0" />
                     Tienes acceso a todo el panel.
                 </p>

@@ -15,7 +15,7 @@ export function FeaturedProducts() {
     const { home } = useSiteContent()
 
     return (
-        <section aria-labelledby="featured-heading" className="py-16 lg:py-24">
+        <section aria-labelledby="featured-heading" className="bg-mist/60 py-16 lg:py-24">
             <div className={cn(CONTAINER, 'space-y-10')}>
                 <SectionHeading
                     headingId="featured-heading"
@@ -32,7 +32,7 @@ export function FeaturedProducts() {
                 {isError ? (
                     <EmptyState
                         title="No pudimos cargar los productos"
-                        description="Algo falló al traer los favoritos. Inténtalo de nuevo."
+                        description="Algo falló al traer los destacados. Inténtalo de nuevo."
                         icon={<PackageOpen className="size-6" />}
                         action={
                             <Button variant="secondary" onClick={() => void refetch()}>

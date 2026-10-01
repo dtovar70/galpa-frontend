@@ -1,48 +1,55 @@
 import { Link } from 'react-router'
 
+import { BrandMark } from '@/components/shared/BrandMark'
 import { appConfig } from '@/configs/app.config'
 import { ROUTES } from '@/constants/route.constant'
 import { cn } from '@/utils/cn'
-import { brandLines } from '@/utils/content'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 
 export interface BrandLogoProps {
     className?: string
+    /** Light text for the dark bands (header, footer). */
+    tone?: 'light' | 'dark'
     /** Renders the tagline under the wordmark; used in the footer. */
     withTagline?: boolean
 }
 
-export function BrandLogo({ className, withTagline = false }: BrandLogoProps) {
+export function BrandLogo({ className, tone = 'light', withTagline = false }: BrandLogoProps) {
     const { general } = useSiteContent()
-    const [primaryLine, secondaryLine] = brandLines(general.brandName)
+    const onDark = tone === 'light'
 
     return (
         <Link
             to={ROUTES.home}
             aria-label={`${general.brandName} — ir al inicio`}
-            className={cn('group inline-flex items-center gap-2.5 rounded-2xl', className)}
+            className={cn('group inline-flex items-center gap-3 rounded-xl', className)}
         >
-            <img
-                src={appConfig.logo.src}
-                srcSet={appConfig.logo.srcSet}
-                sizes="64px"
-                alt=""
-                width={64}
-                height={64}
-                className="size-12 shrink-0 rounded-2xl ring-1 ring-ink/5 transition-transform duration-300 group-hover:-rotate-6 motion-reduce:transform-none lg:size-16"
-            />
+            <BrandMark className="size-10 transition-transform duration-500 group-hover:rotate-60 motion-reduce:transform-none lg:size-11" />
 
             <span className="flex flex-col leading-none">
-                <span className="font-display text-lg font-semibold tracking-tight text-ink sm:text-xl">
-                    {primaryLine}
+                <span
+                    className={cn(
+                        'text-xl font-extrabold tracking-tight sm:text-2xl',
+                        onDark ? 'text-white' : 'text-ink',
+                    )}
+                >
+                    {appConfig.brandShortName}
                 </span>
-                {secondaryLine ? (
-                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-blush-700 uppercase sm:text-xs">
-                        {secondaryLine}
-                    </span>
-                ) : null}
+                <span
+                    className={cn(
+                        'mt-1 hidden text-[0.6rem] font-semibold tracking-[0.18em] uppercase sm:block',
+                        onDark ? 'text-brand-400' : 'text-brand-700',
+                    )}
+                >
+                    {general.brandName}
+                </span>
                 {withTagline ? (
-                    <span className="mt-1.5 text-sm font-normal tracking-normal text-ink-soft normal-case">
+                    <span
+                        className={cn(
+                            'mt-2 text-sm font-normal tracking-normal normal-case',
+                            onDark ? 'text-white/70' : 'text-ink-soft',
+                        )}
+                    >
                         {general.tagline}
                     </span>
                 ) : null}

@@ -21,7 +21,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024
 const MAX_FILES_PER_UPLOAD = 8
 
 const iconButtonClass =
-    'flex size-9 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft transition hover:bg-blush-100 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40'
+    'flex size-9 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft transition hover:bg-brand-100 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40'
 
 /** Client-side check so a bad batch fails fast, with a message that names the file. */
 function validateFiles(files: File[]): string | null {
@@ -113,7 +113,7 @@ export function ProductImagesManager({ product }: ProductImagesManagerProps) {
         <Card className="space-y-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <h2 className="font-display text-xl text-ink">Fotos</h2>
+                    <h2 className="text-xl font-bold text-ink">Fotos</h2>
                     <p className="text-sm text-ink-soft">
                         La primera foto es la portada del producto en la tienda. Sin fotos se
                         muestra la ilustración.
@@ -136,13 +136,13 @@ export function ProductImagesManager({ product }: ProductImagesManagerProps) {
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={handleDropZoneDrop}
                 className={cn(
-                    'flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed px-6 py-8 text-center transition',
-                    isDragOver ? 'border-blush-400 bg-blush-50' : 'border-blush-200 bg-cream',
+                    'flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition',
+                    isDragOver ? 'border-brand-400 bg-brand-50' : 'border-brand-200 bg-page',
                 )}
             >
                 {upload.isPending ? (
                     <>
-                        <Spinner size="lg" className="text-blush-500" label="Subiendo imágenes" />
+                        <Spinner size="lg" className="text-brand-600" label="Subiendo imágenes" />
                         <p className="font-semibold text-ink">
                             Subiendo {uploadCount} {uploadCount === 1 ? 'imagen' : 'imágenes'}…
                         </p>
@@ -151,7 +151,7 @@ export function ProductImagesManager({ product }: ProductImagesManagerProps) {
                     <>
                         <span
                             aria-hidden="true"
-                            className="flex size-12 items-center justify-center rounded-full bg-white text-blush-500 shadow-soft"
+                            className="flex size-12 items-center justify-center rounded-full bg-white text-brand-600 shadow-soft"
                         >
                             <UploadCloud className="size-6" />
                         </span>
@@ -213,7 +213,7 @@ export function ProductImagesManager({ product }: ProductImagesManagerProps) {
                             className={cn(
                                 'group relative overflow-hidden rounded-2xl border-2 bg-white transition',
                                 draggedId === image.id
-                                    ? 'border-blush-400 opacity-50'
+                                    ? 'border-brand-400 opacity-50'
                                     : 'border-line',
                                 !isBusy && 'cursor-grab active:cursor-grabbing',
                             )}
@@ -266,7 +266,7 @@ export function ProductImagesManager({ product }: ProductImagesManagerProps) {
                                     }}
                                     disabled={isBusy}
                                     aria-label={`Eliminar la foto ${index + 1}`}
-                                    className={cn(iconButtonClass, 'text-blush-700')}
+                                    className={cn(iconButtonClass, 'text-brand-700')}
                                 >
                                     <Trash2 aria-hidden="true" className="size-4" />
                                 </button>

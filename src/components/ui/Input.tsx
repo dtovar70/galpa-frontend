@@ -95,7 +95,7 @@ export function Input({
                     aria-describedby={describedBy}
                     className={cn(
                         FIELD_BASE_CLASS,
-                        'h-11 rounded-full px-4',
+                        'h-11 rounded-xl px-4',
                         leadingIcon && 'pl-11',
                         trailingAction && 'pr-11',
                         error && FIELD_ERROR_CLASS,

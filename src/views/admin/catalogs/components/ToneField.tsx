@@ -3,17 +3,8 @@ import { useId } from 'react'
 import { BADGE_TONES, type BadgeTone } from '@/@types/catalog'
 import { Badge } from '@/components/ui'
 import { FIELD_LABEL_CLASS } from '@/components/ui/field.styles'
+import { STATUS_TONE_LABELS, STATUS_TONE_VARIANTS } from '@/constants/tone.constant'
 import { cn } from '@/utils/cn'
-
-const TONE_LABELS: Record<BadgeTone, string> = {
-    blush: 'Rosa',
-    sky: 'Celeste',
-    mint: 'Menta',
-    butter: 'Amarillo',
-    lilac: 'Lila',
-    solid: 'Rosa intenso',
-    neutral: 'Gris',
-}
 
 export interface ToneFieldProps {
     value: BadgeTone
@@ -33,10 +24,10 @@ export function ToneField({ value, onChange, sample }: ToneFieldProps) {
                     <label
                         key={tone}
                         className={cn(
-                            'flex cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 p-2 transition has-focus-visible:ring-2 has-focus-visible:ring-blush-400',
+                            'flex cursor-pointer flex-col items-center gap-1 rounded-xl border p-2 transition has-focus-visible:ring-2 has-focus-visible:ring-brand-500',
                             tone === value
-                                ? 'border-blush-400 bg-blush-50'
-                                : 'border-line hover:border-blush-200',
+                                ? 'border-brand-500 bg-brand-50'
+                                : 'border-line hover:border-line-strong',
                         )}
                     >
                         <input
@@ -47,10 +38,14 @@ export function ToneField({ value, onChange, sample }: ToneFieldProps) {
                             onChange={() => onChange(tone)}
                             className="sr-only"
                         />
-                        <Badge tone={tone} size="sm" className="max-w-40 truncate">
-                            {sample || TONE_LABELS[tone]}
+                        <Badge
+                            tone={STATUS_TONE_VARIANTS[tone]}
+                            size="sm"
+                            className="max-w-40 truncate"
+                        >
+                            {sample || STATUS_TONE_LABELS[tone]}
                         </Badge>
-                        <span className="text-xs text-ink-soft">{TONE_LABELS[tone]}</span>
+                        <span className="text-xs text-ink-soft">{STATUS_TONE_LABELS[tone]}</span>
                     </label>
                 ))}
             </div>

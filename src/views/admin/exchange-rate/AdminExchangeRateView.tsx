@@ -225,15 +225,18 @@ export function AdminExchangeRateView() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         <Card padding="md" className="space-y-3">
-                            <h2 className="font-display text-xl text-ink">Tasa vigente</h2>
+                            <h2 className="text-xl font-bold text-ink">Tasa vigente</h2>
                             {current ? (
                                 <>
-                                    <p className="font-display text-4xl text-ink">
+                                    <p className="text-4xl font-bold text-ink">
                                         {formatRate(current.rate)}{' '}
                                         <span className="text-lg text-ink-soft">Bs/$</span>
                                     </p>
                                     <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
-                                        <Badge tone={current.isManual ? 'butter' : 'sky'} size="sm">
+                                        <Badge
+                                            tone={current.isManual ? 'warning' : 'info'}
+                                            size="sm"
+                                        >
                                             {current.sourceLabel}
                                         </Badge>
                                         <span>Fecha valor {formatDay(current.effectiveDate)}</span>
@@ -278,7 +281,7 @@ export function AdminExchangeRateView() {
                         </Card>
 
                         <Card padding="md" className="space-y-3">
-                            <h2 className="font-display text-xl text-ink">Tasa manual</h2>
+                            <h2 className="text-xl font-bold text-ink">Tasa manual</h2>
                             <p className="text-sm text-ink-soft">
                                 Úsala si el BCV no responde. Se aplica de inmediato y se mantiene
                                 hasta que el BCV publique una tasa distinta, que la reemplaza sola.
@@ -332,9 +335,7 @@ export function AdminExchangeRateView() {
                     </div>
 
                     <Card padding="none" className="overflow-hidden">
-                        <h2 className="px-4 pt-4 pb-2 font-display text-xl text-ink">
-                            Últimas tasas
-                        </h2>
+                        <h2 className="px-4 pt-4 pb-2 text-xl font-bold text-ink">Últimas tasas</h2>
                         {data.history.length === 0 ? (
                             <p className="px-4 pb-4 text-sm text-ink-soft">
                                 Sin registros todavía.
@@ -342,7 +343,7 @@ export function AdminExchangeRateView() {
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[32rem] text-sm">
-                                    <thead className="border-y border-line bg-blush-50/60">
+                                    <thead className="border-y border-line bg-page">
                                         <tr>
                                             <th scope="col" className={headerCellClass}>
                                                 Fecha valor
@@ -365,7 +366,7 @@ export function AdminExchangeRateView() {
                                         {data.history.map((entry, index) => (
                                             <tr
                                                 key={entry.id}
-                                                className={cn(index === 0 && 'bg-mint-200/20')}
+                                                className={cn(index === 0 && 'bg-brand-100/20')}
                                             >
                                                 <td className={cellClass}>
                                                     {formatDay(entry.effectiveDate)}

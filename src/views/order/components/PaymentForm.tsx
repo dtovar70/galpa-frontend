@@ -1,39 +1,48 @@
 import { useState, type ClipboardEvent } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 
-import type { SubmitPaymentInput } from '@/@types/order'
+import { PAYMENT_METHODS, type PaymentMethod, type SubmitPaymentInput } from '@/@types/order'
 import { IdNumberField } from '@/components/shared/IdNumberField'
 import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
-import { Alert, Button, Input, Select } from '@/components/ui'
+import { Alert, Button, Input, Select, type SelectOption } from '@/components/ui'
 import { DatePicker } from '@/components/ui/DatePicker'
+import { isBolivarMethod, paymentMethodLabel } from '@/constants/payment.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { formatVeNumber } from '@/utils/formatBolivares'
 import { todayInCaracas } from '@/utils/formatDate'
-import { insertDigits, rejectNonDigits } from '@/utils/digitInput'
 import { useBanks } from '@/utils/hooks/useBanks'
 import { ProofDropzone } from '@/views/order/components/ProofDropzone'
 import {
+    cleanReference,
     PAYMENT_FIELDS,
-    REFERENCE_DIGITS,
     paymentSchema,
-    type PaymentFormInput,
+    REFERENCE_RULES,
     type PaymentFormValues,
 } from '@/views/order/schema/payment.schema'
 
-/** Digits typed, dropped (autofill, keyboards that skip `beforeinput`) or pasted: capped. */
-function referenceDigits(value: string): string {
-    return value.replace(/\D/g, '').slice(0, REFERENCE_DIGITS)
-}
+const METHOD_OPTIONS: SelectOption[] = PAYMENT_METHODS.map((method) => ({
+    value: method,
+    label: paymentMethodLabel(method),
+}))
 
-/**
- * A pasted whole reference ("Ref. 0012 3456 7890") keeps its last 6 digits, the ones asked for;
- * a shorter paste goes where the cursor is.
- */
-function pastedReference(input: HTMLInputElement, text: string): string {
-    const digits = text.replace(/\D/g, '')
-    if (digits.length >= REFERENCE_DIGITS) return digits.slice(-REFERENCE_DIGITS)
-    return insertDigits(input, digits, REFERENCE_DIGITS)
+const REFERENCE_LABELS: Record<PaymentMethod, { label: string; hint: string }> = {
+    PAGO_MOVIL: {
+        label: 'Número de referencia',
+        hint: 'El número completo que aparece en el comprobante del Pago Móvil.',
+    },
+    TRANSFERENCIA: {
+        label: 'Número de referencia',
+        hint: 'El número de la operación que aparece en el comprobante de tu banco.',
+    },
+    ZELLE: {
+        label: 'Código de confirmación',
+        hint: 'El código que muestra tu banco al enviar el Zelle.',
+    },
+    BINANCE: {
+        label: 'ID de la orden',
+        hint: 'El Order ID de la transferencia en Binance Pay.',
+    },
 }
 
 /** Day before `iso` in Caracas: the earliest payment date the API accepts. */
@@ -45,8 +54,13 @@ function dayBefore(iso: string): string {
 export interface PaymentFormProps {
     /** The order's creation date (earliest payment date is the day before). */
     createdAt: string
-    /** The order's Bs total, frozen at creation: the amount field starts with it. */
+    /** The method chosen for the order. */
+    method: PaymentMethod
+    /** Lets the admin record a payment made with another method. */
+    allowMethodChange?: boolean
+    /** The order's totals, frozen at creation: the amount field starts with the right one. */
     totalBs: number
+    totalUsd: number
     /** Sends the proof; a rejected promise with field errors pins them on the form. */
     onSubmit: (input: SubmitPaymentInput) => Promise<unknown>
     submitLabel?: string
@@ -55,21 +69,22 @@ export interface PaymentFormProps {
      * form's button is then hidden.
      */
     formId?: string
-    /** Where to find the reference's last digits; the admin reads the customer's proof. */
-    referenceHint?: string
 }
 
 /**
- * The Pago Móvil proof form (reference, bank, phone, date, amount, screenshot). Step 2 of the
- * customer's order page, and the admin's "Registrar pago manualmente".
+ * The payment proof form, with the fields of each method (bank and phone for Pago Móvil,
+ * holder for Zelle…) and the screenshot. Step 2 of the customer's order page, and the admin's
+ * "Registrar pago manualmente".
  */
 export function PaymentForm({
     createdAt,
+    method: initialMethod,
+    allowMethodChange = false,
     totalBs,
+    totalUsd,
     onSubmit,
     submitLabel = 'Enviar comprobante',
     formId,
-    referenceHint = 'Los encuentras al final del número de referencia de tu comprobante.',
 }: PaymentFormProps) {
     const [proof, setProof] = useState<File | null>(null)
     const [proofError, setProofError] = useState<string | undefined>()
@@ -83,17 +98,24 @@ export function PaymentForm({
         handleSubmit,
         setError,
         formState: { errors, isSubmitting },
-    } = useForm<PaymentFormInput, unknown, PaymentFormValues>({
+    } = useForm<PaymentFormValues>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
+            method: initialMethod,
             reference: '',
+            paidOn: today,
             payerBankCode: '',
             payerPhone: '',
             payerIdNumber: '',
-            paidOn: today,
+            payerName: '',
+            payerAccount: '',
             amountBs: formatVeNumber(totalBs),
+            amountUsd: formatVeNumber(totalUsd),
         },
     })
+    const method = useWatch({ control, name: 'method' })
+    const inBolivares = isBolivarMethod(method)
+    const referenceRule = REFERENCE_RULES[method]
 
     const submit = async (values: PaymentFormValues) => {
         setFormError(null)
@@ -119,68 +141,43 @@ export function PaymentForm({
         <form id={formId} onSubmit={handleSubmit(submit)} noValidate className="space-y-5">
             <fieldset className="grid gap-5 sm:grid-cols-2" disabled={isSubmitting}>
                 <legend className="sr-only">Datos del pago</legend>
+
+                {allowMethodChange ? (
+                    <div className="sm:col-span-2">
+                        <Select
+                            label="Método de pago"
+                            options={METHOD_OPTIONS}
+                            error={errors.method?.message}
+                            {...register('method')}
+                        />
+                    </div>
+                ) : null}
+
                 <Controller
                     control={control}
                     name="reference"
                     render={({ field }) => (
                         <Input
-                            label="Últimos 6 dígitos de la referencia"
-                            inputMode="numeric"
+                            label={REFERENCE_LABELS[method].label}
+                            inputMode={referenceRule.digitsOnly ? 'numeric' : 'text'}
                             autoComplete="off"
-                            maxLength={REFERENCE_DIGITS}
-                            placeholder="Ej. 567890"
-                            hint={referenceHint}
+                            autoCapitalize="characters"
+                            maxLength={referenceRule.max}
+                            hint={REFERENCE_LABELS[method].hint}
                             error={errors.reference?.message}
                             {...field}
-                            onBeforeInput={rejectNonDigits}
                             onChange={(event) =>
-                                field.onChange(referenceDigits(event.target.value))
+                                field.onChange(cleanReference(method, event.target.value))
                             }
                             onPaste={(event: ClipboardEvent<HTMLInputElement>) => {
                                 event.preventDefault()
                                 const text = event.clipboardData.getData('text')
-                                field.onChange(pastedReference(event.currentTarget, text))
+                                field.onChange(cleanReference(method, text))
                             }}
                         />
                     )}
                 />
-                <Select
-                    label="Banco desde el que pagaste"
-                    placeholder={banks.isPending ? 'Cargando bancos…' : 'Elige tu banco'}
-                    options={banks.options}
-                    disabled={banks.isPending}
-                    error={
-                        errors.payerBankCode?.message ??
-                        (banks.isError
-                            ? 'No pudimos cargar la lista de bancos. Recarga la página.'
-                            : undefined)
-                    }
-                    {...register('payerBankCode')}
-                />
-                <Controller
-                    control={control}
-                    name="payerPhone"
-                    render={({ field }) => (
-                        <MobilePhoneField
-                            label="Teléfono del pagador"
-                            hint="El celular desde el que hiciste el Pago Móvil."
-                            error={errors.payerPhone?.message}
-                            {...field}
-                        />
-                    )}
-                />
-                <Controller
-                    control={control}
-                    name="payerIdNumber"
-                    render={({ field }) => (
-                        <IdNumberField
-                            label="Cédula del pagador"
-                            optional
-                            error={errors.payerIdNumber?.message}
-                            {...field}
-                        />
-                    )}
-                />
+
                 <Controller
                     control={control}
                     name="paidOn"
@@ -194,14 +191,89 @@ export function PaymentForm({
                         />
                     )}
                 />
-                <Input
-                    label="Monto pagado (Bs)"
-                    inputMode="decimal"
-                    autoComplete="off"
-                    hint="Ya viene con el monto exacto; cámbialo solo si pagaste otro."
-                    error={errors.amountBs?.message}
-                    {...register('amountBs')}
-                />
+
+                {inBolivares ? (
+                    <>
+                        <Select
+                            label="Banco desde el que pagaste"
+                            placeholder={banks.isPending ? 'Cargando bancos…' : 'Elige tu banco'}
+                            options={banks.options}
+                            disabled={banks.isPending}
+                            error={
+                                errors.payerBankCode?.message ??
+                                (banks.isError
+                                    ? 'No pudimos cargar la lista de bancos. Recarga la página.'
+                                    : undefined)
+                            }
+                            {...register('payerBankCode')}
+                        />
+                        <Controller
+                            control={control}
+                            name="payerIdNumber"
+                            render={({ field }) => (
+                                <IdNumberField
+                                    label="Cédula o RIF del titular"
+                                    error={errors.payerIdNumber?.message}
+                                    {...field}
+                                />
+                            )}
+                        />
+                        {method === 'PAGO_MOVIL' ? (
+                            <Controller
+                                control={control}
+                                name="payerPhone"
+                                render={({ field }) => (
+                                    <MobilePhoneField
+                                        label="Teléfono del pagador"
+                                        hint="El celular desde el que hiciste el Pago Móvil."
+                                        error={errors.payerPhone?.message}
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        ) : null}
+                        <Input
+                            label="Monto pagado (Bs)"
+                            inputMode="decimal"
+                            autoComplete="off"
+                            hint="Ya viene con el monto exacto; cámbialo solo si pagaste otro."
+                            error={errors.amountBs?.message}
+                            className="font-tech"
+                            {...register('amountBs')}
+                        />
+                    </>
+                ) : (
+                    <>
+                        {method === 'ZELLE' ? (
+                            <Input
+                                label="Titular de la cuenta Zelle"
+                                autoComplete="name"
+                                error={errors.payerName?.message}
+                                {...register('payerName')}
+                            />
+                        ) : null}
+                        <Input
+                            label={
+                                method === 'ZELLE'
+                                    ? 'Correo o teléfono de Zelle'
+                                    : 'Binance Pay ID o correo'
+                            }
+                            autoComplete="off"
+                            error={errors.payerAccount?.message}
+                            {...register('payerAccount')}
+                        />
+                        <Input
+                            label="Monto pagado (USD)"
+                            inputMode="decimal"
+                            autoComplete="off"
+                            hint="Ya viene con el total del pedido; cámbialo solo si pagaste otro."
+                            error={errors.amountUsd?.message}
+                            className="font-tech"
+                            {...register('amountUsd')}
+                        />
+                    </>
+                )}
+
                 <div className="sm:col-span-2">
                     <ProofDropzone
                         file={proof}

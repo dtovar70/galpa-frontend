@@ -11,7 +11,7 @@ export interface RecentOrder {
     totalUsd: number
 }
 
-const STORAGE_KEY = 'manada-russo-recent-orders'
+const STORAGE_KEY = 'galpa-recent-orders'
 const MAX_ORDERS = 10
 
 function isRecentOrder(value: unknown): value is RecentOrder {

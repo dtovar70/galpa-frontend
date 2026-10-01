@@ -17,6 +17,21 @@ function sameKind(value: unknown, fallback: unknown): boolean {
     return typeof value === typeof fallback && value !== null
 }
 
+/**
+ * `stored` over `defaults`, field by field. Nested objects (the payment methods) are merged the
+ * same way, so a partial or older payload never leaves a method without one of its fields.
+ */
+function mergeFields(defaults: object, stored: Record<string, unknown>): Record<string, unknown> {
+    const merged: Record<string, unknown> = { ...defaults }
+    for (const [field, fallback] of Object.entries(defaults)) {
+        const value = stored[field]
+        if (value === undefined || !sameKind(value, fallback)) continue
+        merged[field] =
+            isPlainObject(fallback) && isPlainObject(value) ? mergeFields(fallback, value) : value
+    }
+    return merged
+}
+
 /** One section over its defaults, field by field (same rule as the API's `mergeSection`). */
 export function resolveSection<K extends ContentSection>(
     section: K,
@@ -24,13 +39,7 @@ export function resolveSection<K extends ContentSection>(
 ): SiteContent[K] {
     const defaults = DEFAULT_SITE_CONTENT[section]
     if (!isPlainObject(stored)) return defaults
-
-    const merged = { ...defaults } as Record<string, unknown>
-    for (const [field, fallback] of Object.entries(defaults)) {
-        const value = stored[field]
-        if (value !== undefined && sameKind(value, fallback)) merged[field] = value
-    }
-    return merged as unknown as SiteContent[K]
+    return mergeFields(defaults, stored) as unknown as SiteContent[K]
 }
 
 /**
@@ -56,7 +65,6 @@ export function placeholderValues(content: SiteContent): PlaceholderValues {
     return {
         envioGratis: formatShortMoney(content.shipping.freeThreshold),
         tarifaEnvio: formatShortMoney(content.shipping.flatRate),
-        produccion: content.shipping.productionCopy,
         marca: content.general.brandName,
         ciudad: content.contact.city,
     }
@@ -93,7 +101,7 @@ export interface TextSegment {
 }
 
 /**
- * "Tus *favoritos*" -> [{ "Tus " }, { "favoritos", highlighted }]. A lone asterisk (the API
+ * "Tu *confort*" -> [{ "Tu " }, { "confort", highlighted }]. A lone asterisk (the API
  * rejects them, but the preview sees them while typing) is kept as a literal character.
  */
 export function splitHighlights(text: string): TextSegment[] {
@@ -115,7 +123,7 @@ export function stripHighlights(text: string): string {
 }
 
 const COUNT_WORDS = [
-    'Un',
+    'Una',
     'Dos',
     'Tres',
     'Cuatro',
@@ -127,17 +135,11 @@ const COUNT_WORDS = [
     'Diez',
 ]
 
-/** What `{categorias}` renders: "Tres formatos", "Un formato", "Varios formatos". */
+/** What `{categorias}` renders: "Cuatro líneas", "Una línea", "Varias líneas". */
 export function categoryCountPhrase(count: number | undefined): string {
-    if (count === undefined || count === 0) return 'Varios formatos'
-    return `${COUNT_WORDS[count - 1] ?? 'Varios'} ${count === 1 ? 'formato' : 'formatos'}`
-}
-
-/** The wordmark is set on two lines: every word but the last, then the last one. */
-export function brandLines(brandName: string): [string, string] {
-    const words = brandName.trim().split(/\s+/)
-    if (words.length < 2) return [brandName.trim(), '']
-    return [words.slice(0, -1).join(' '), words.at(-1) ?? '']
+    if (count === undefined || count === 0) return 'Varias líneas'
+    if (count === 1) return 'Una línea'
+    return `${COUNT_WORDS[count - 1] ?? 'Varias'} líneas`
 }
 
 const VE_PHONE = /^0(\d{3})-(\d{3})(\d{4})$/

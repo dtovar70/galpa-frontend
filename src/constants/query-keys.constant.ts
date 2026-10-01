@@ -1,6 +1,7 @@
 import type { AdminProductQueryParams } from '@/@types/admin'
 import type { ProductQueryParams } from '@/@types/common'
 import type { AdminOrderQueryParams } from '@/@types/order'
+import type { QuoteQueryParams } from '@/@types/quote'
 import type { AdminUserQueryParams } from '@/@types/user'
 
 /**
@@ -16,6 +17,8 @@ export const queryKeys = {
         details: () => [...queryKeys.products.all, 'detail'] as const,
         detail: (slug: string) => [...queryKeys.products.details(), slug] as const,
         featured: (limit?: number) => [...queryKeys.products.all, 'featured', limit] as const,
+        /** Filter values of the catalog (`GET /products/facets`), per category. */
+        facets: (category?: string) => [...queryKeys.products.all, 'facets', category] as const,
         related: (slug: string, limit?: number) =>
             [...queryKeys.products.all, 'related', slug, limit] as const,
         /** Live stock of the cart lines; `stockKeys` are the sorted "product:variant" keys. */
@@ -62,6 +65,13 @@ export const queryKeys = {
                 [...queryKeys.admin.orders.lists(), params] as const,
             detail: (code: string) => [...queryKeys.admin.orders.all(), 'detail', code] as const,
             summary: () => [...queryKeys.admin.orders.all(), 'summary'] as const,
+        },
+        quotes: {
+            all: () => [...queryKeys.admin.all, 'quotes'] as const,
+            lists: () => [...queryKeys.admin.quotes.all(), 'list'] as const,
+            list: (params: QuoteQueryParams) =>
+                [...queryKeys.admin.quotes.lists(), params] as const,
+            detail: (code: string) => [...queryKeys.admin.quotes.all(), 'detail', code] as const,
         },
         exchangeRate: () => [...queryKeys.admin.all, 'exchange-rate'] as const,
         banks: () => [...queryKeys.admin.all, 'banks'] as const,

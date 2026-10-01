@@ -91,22 +91,6 @@ function releaseCanvas(canvas: HTMLCanvasElement): void {
     canvas.height = 0
 }
 
-/** True when some pixel is not fully opaque (checked on a small copy, cheap on any phone). */
-async function hasTransparency(file: Blob, size: ImageSize): Promise<boolean> {
-    const probe = await drawScaled(file, scaledSize(size, 256))
-    try {
-        const context = probe.getContext('2d')
-        if (!context) return true
-        const { data } = context.getImageData(0, 0, probe.width, probe.height)
-        for (let index = 3; index < data.length; index += 4) {
-            if (data[index]! < 255) return true
-        }
-        return false
-    } finally {
-        releaseCanvas(probe)
-    }
-}
-
 function renamed(name: string, extension: string): string {
     const base = name.replace(/\.[^.]+$/, '') || 'imagen'
     return `${base}.${extension}`
@@ -119,51 +103,37 @@ export interface CompressOptions {
     quality: number
     /** A file this light and already within `maxSide` is returned as is. */
     skipBelowBytes: number
-    /** Keep transparency (re-encode as PNG when the image has any); otherwise JPEG on white. */
-    keepTransparency?: boolean
 }
 
 /**
- * Downscales `file` to `maxSide` and re-encodes it (JPEG, or PNG when it has transparency and
- * `keepTransparency` is set). Returns the original when it is already small, when the result
- * would not be lighter, or when anything fails (the server still validates the upload).
+ * Downscales `file` to `maxSide` and re-encodes it as JPEG (transparent parts painted white).
+ * Returns the original when it is already small, when the result would not be lighter, or when
+ * anything fails (the server still validates the upload).
  */
-export async function compressImage(file: File, options: CompressOptions): Promise<File> {
+async function compressImage(file: File, options: CompressOptions): Promise<File> {
     try {
         const size = await readImageSize(file)
         const needsResize = Math.max(size.width, size.height) > options.maxSide
         if (!needsResize && file.size <= options.skipBelowBytes) return file
 
-        const transparent =
-            options.keepTransparency === true &&
-            file.type !== 'image/jpeg' &&
-            (await hasTransparency(file, size))
-        // A transparent image that fits gains little from a PNG re-encode.
-        if (transparent && !needsResize) return file
-
         const canvas = await drawScaled(file, scaledSize(size, options.maxSide))
         let blob: Blob
         try {
-            if (!transparent) {
-                // JPEG has no alpha: paint the transparent parts white, not black.
-                const context = canvas.getContext('2d')
-                if (context) {
-                    context.globalCompositeOperation = 'destination-over'
-                    context.fillStyle = '#ffffff'
-                    context.fillRect(0, 0, canvas.width, canvas.height)
-                }
+            // JPEG has no alpha: paint the transparent parts white, not black.
+            const context = canvas.getContext('2d')
+            if (context) {
+                context.globalCompositeOperation = 'destination-over'
+                context.fillStyle = '#ffffff'
+                context.fillRect(0, 0, canvas.width, canvas.height)
             }
-            blob = transparent
-                ? await canvasToBlob(canvas, 'image/png')
-                : await canvasToBlob(canvas, 'image/jpeg', options.quality)
+            blob = await canvasToBlob(canvas, 'image/jpeg', options.quality)
         } finally {
             releaseCanvas(canvas)
         }
 
         if (!needsResize && blob.size >= file.size) return file
-        const type = transparent ? 'image/png' : 'image/jpeg'
-        return new File([blob], renamed(file.name, transparent ? 'png' : 'jpg'), {
-            type,
+        return new File([blob], renamed(file.name, 'jpg'), {
+            type: 'image/jpeg',
             lastModified: file.lastModified,
         })
     } catch {
@@ -174,20 +144,4 @@ export async function compressImage(file: File, options: CompressOptions): Promi
 /** Payment screenshots: 1600 px is plenty to read a bank reference. */
 export function compressProof(file: File): Promise<File> {
     return compressImage(file, { maxSide: 1600, quality: 0.85, skipBelowBytes: 400 * 1024 })
-}
-
-/** Design images: 4000 px (the arte final's ceiling), transparency kept. */
-export function prepareDesignImage(file: File): Promise<File> {
-    return compressImage(file, {
-        maxSide: 4000,
-        quality: 0.9,
-        skipBelowBytes: 2 * 1024 * 1024,
-        keepTransparency: true,
-    })
-}
-
-/** True on phones that report 4 GB of RAM or less (Chromium only; unknown elsewhere). */
-export function isLowMemoryDevice(): boolean {
-    const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
-    return typeof memory === 'number' && memory <= 4
 }

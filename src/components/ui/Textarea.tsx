@@ -74,7 +74,7 @@ export function Textarea({
                 aria-describedby={describedBy}
                 className={cn(
                     FIELD_BASE_CLASS,
-                    'resize-y rounded-2xl px-4 py-3',
+                    'resize-y rounded-xl px-4 py-3',
                     error && FIELD_ERROR_CLASS,
                     className,
                 )}

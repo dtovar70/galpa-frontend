@@ -17,17 +17,17 @@ export function Accordion({ items, className }: AccordionProps) {
     return (
         <div
             className={cn(
-                'divide-y divide-line overflow-hidden rounded-3xl border border-line bg-white',
+                'divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white',
                 className,
             )}
         >
             {items.map((item) => (
-                <details key={item.id} className="group px-5 py-4 open:bg-blush-50/50">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base text-ink">
+                <details key={item.id} className="group px-5 py-4 open:bg-brand-50/50">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-ink">
                         {item.question}
                         <ChevronDown
                             aria-hidden="true"
-                            className="size-5 shrink-0 text-blush-500 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+                            className="size-5 shrink-0 text-brand-600 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
                         />
                     </summary>
                     <p className="pt-3 text-sm leading-relaxed text-ink-soft">{item.answer}</p>

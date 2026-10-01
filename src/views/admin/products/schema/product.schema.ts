@@ -1,27 +1,16 @@
 import { z } from 'zod'
 
 import type { AdminProduct, ProductInput } from '@/@types/admin'
-import type { ProductTag } from '@/@types/product'
+import { PRODUCT_TAGS, STOCK_MODES } from '@/@types/product'
 import { ADMIN_ROUTES } from '@/constants/route.constant'
 import {
     TEXT_INPUT_MAX_LENGTH as MAX_TEXT,
     TEXT_INPUT_MAX_MESSAGE as MAX_TEXT_MESSAGE,
 } from '@/constants/ui.constant'
 
-/** Mirrors the API's `CreateProductDto` rules so most mistakes never reach the server. */
-export const PRODUCT_TAGS = [
-    'nuevo',
-    'bestseller',
-    'oferta',
-    'personalizable',
-] as const satisfies readonly ProductTag[]
-
-export const PRODUCT_TAG_LABELS: Record<ProductTag, string> = {
-    nuevo: 'Nuevo',
-    bestseller: 'Favorito',
-    oferta: 'Oferta',
-    personalizable: 'Personalizable',
-}
+/** "¿Es inverter?": unknown (parts, accessories), yes or no. */
+export const INVERTER_CHOICES = ['', 'yes', 'no'] as const
+export type InverterChoice = (typeof INVERTER_CHOICES)[number]
 
 /** Router state the create page hands to the edit page right after saving. */
 export interface ProductCreatedState {
@@ -63,13 +52,16 @@ export function readSavedNotice(state: unknown): string | null {
 
 export const MAX_HIGHLIGHTS = 6
 export const MAX_VARIANTS = 30
+export const MAX_SPECS = 30
+const MAX_LEAD_TIME_DAYS = 365
+const MIN_BTU = 1000
+const MAX_BTU = 1_000_000
 export const PRODUCT_DESCRIPTION_MAX_LENGTH = 4000
 
 const MAX_PRICE = 99_999_999.99
 const MAX_STOCK = 1_000_000
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const HEX_COLOR_PATTERN = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
-const HEX_MESSAGE = 'Usa un color hexadecimal, por ejemplo #FFB3D1'
 
 /** At most two decimals, checked on the text form to dodge floating-point noise. */
 function hasTwoDecimalsAtMost(value: number): boolean {
@@ -113,20 +105,57 @@ export const productFormSchema = z
             .max(80, 'Máximo 80 caracteres')
             .refine(
                 (value) => value === '' || SLUG_PATTERN.test(value),
-                'Solo minúsculas, números y guiones, por ejemplo taza-cafe-primero',
+                'Solo minúsculas, números y guiones, por ejemplo split-daikin-12000',
             ),
         // The options come from the API; the server checks that the category still exists.
         categorySlug: z.string({ error: 'Elige una categoría' }).min(1, 'Elige una categoría'),
         price: money('Escribe el precio'),
         compareAtPrice: money('Escribe el precio anterior').optional(),
-        /** Only used (and required) when the product has no variants. */
+        /** Only used (and required) by a `STOCK` product without variants. */
         stock: stockCount('Escribe el stock disponible').optional(),
-        printText: z.string().max(80, 'Máximo 80 caracteres'),
-        colorHex: z
+        brand: z.string().trim().min(1, 'Escribe la marca').max(60, 'Máximo 60 caracteres'),
+        model: z.string().trim().max(80, 'Máximo 80 caracteres'),
+        sku: z
             .string()
             .trim()
-            .max(MAX_TEXT, MAX_TEXT_MESSAGE)
-            .regex(HEX_COLOR_PATTERN, HEX_MESSAGE),
+            .max(60, 'Máximo 60 caracteres')
+            .refine(
+                (value) => value === '' || /^[A-Za-z0-9._/-]+$/.test(value),
+                'Solo letras, números, puntos, guiones y barras',
+            ),
+        stockMode: z.enum(STOCK_MODES),
+        /** Only for `ON_ORDER`: days until it arrives (empty when unknown). */
+        leadTimeDays: z
+            .number({ error: 'Escribe los días de entrega' })
+            .int('Usa un número entero de días')
+            .min(1, 'Mínimo 1 día')
+            .max(MAX_LEAD_TIME_DAYS, `Máximo ${MAX_LEAD_TIME_DAYS} días`)
+            .optional(),
+        btu: z
+            .number({ error: 'Escribe la capacidad en BTU' })
+            .int('Usa un número entero')
+            .min(MIN_BTU, `Mínimo ${MIN_BTU.toLocaleString('es-VE')} BTU`)
+            .max(MAX_BTU, 'La capacidad es demasiado alta')
+            .optional(),
+        voltage: z.string().trim().max(20, 'Máximo 20 caracteres'),
+        inverter: z.enum(INVERTER_CHOICES),
+        refrigerant: z.string().trim().max(20, 'Máximo 20 caracteres'),
+        specs: z
+            .array(
+                z.object({
+                    label: z
+                        .string()
+                        .trim()
+                        .min(1, 'Escribe el nombre del dato')
+                        .max(60, 'Máximo 60 caracteres'),
+                    value: z
+                        .string()
+                        .trim()
+                        .min(1, 'Escribe el valor')
+                        .max(MAX_TEXT, MAX_TEXT_MESSAGE),
+                }),
+            )
+            .max(MAX_SPECS, `Máximo ${MAX_SPECS} filas`),
         description: z
             .string()
             .max(
@@ -159,14 +188,6 @@ export const productFormSchema = z
                         .min(1, 'Escribe el nombre de la variante')
                         .max(80, 'Máximo 80 caracteres'),
                     priceDelta: money('Escribe el ajuste de precio (0 si no cambia)', -MAX_PRICE),
-                    colorHex: z
-                        .string()
-                        .trim()
-                        .max(MAX_TEXT, MAX_TEXT_MESSAGE)
-                        .refine(
-                            (value) => value === '' || HEX_COLOR_PATTERN.test(value),
-                            HEX_MESSAGE,
-                        ),
                     stock: stockCount('Escribe el stock (0 si está agotada)'),
                 }),
             )
@@ -174,7 +195,11 @@ export const productFormSchema = z
         isActive: z.boolean(),
     })
     .superRefine((values, context) => {
-        if (values.variants.length === 0 && values.stock === undefined) {
+        if (
+            values.stockMode === 'STOCK' &&
+            values.variants.length === 0 &&
+            values.stock === undefined
+        ) {
             context.addIssue({
                 code: 'custom',
                 path: ['stock'],
@@ -202,13 +227,24 @@ export function toOptionalNumber(value: unknown): number | undefined {
 export const EMPTY_PRODUCT_FORM: Partial<ProductFormValues> = {
     name: '',
     slug: '',
-    printText: '',
-    colorHex: '#FFB3D1',
+    brand: '',
+    model: '',
+    sku: '',
+    stockMode: 'STOCK',
+    voltage: '',
+    inverter: '',
+    refrigerant: '',
+    specs: [],
     description: '',
     highlights: [],
     tags: [],
-    variants: [{ label: 'Estándar', priceDelta: 0, colorHex: '', stock: 0 }],
+    variants: [],
     isActive: true,
+}
+
+function toInverterChoice(isInverter: boolean | null): InverterChoice {
+    if (isInverter === null) return ''
+    return isInverter ? 'yes' : 'no'
 }
 
 export function toProductFormValues(product: AdminProduct): ProductFormValues {
@@ -219,8 +255,16 @@ export function toProductFormValues(product: AdminProduct): ProductFormValues {
         price: product.price,
         compareAtPrice: product.compareAtPrice,
         stock: product.stock,
-        printText: product.printText,
-        colorHex: product.colorHex,
+        brand: product.brand,
+        model: product.model ?? '',
+        sku: product.sku ?? '',
+        stockMode: product.stockMode,
+        leadTimeDays: product.leadTimeDays ?? undefined,
+        btu: product.btu ?? undefined,
+        voltage: product.voltage ?? '',
+        inverter: toInverterChoice(product.isInverter),
+        refrigerant: product.refrigerant ?? '',
+        specs: product.specs.map((spec) => ({ label: spec.label, value: spec.value })),
         description: product.description,
         highlights: product.highlights.map((value) => ({ value })),
         tags: product.tags,
@@ -228,7 +272,6 @@ export function toProductFormValues(product: AdminProduct): ProductFormValues {
             variantId: variant.id,
             label: variant.label,
             priceDelta: variant.priceDelta,
-            colorHex: variant.colorHex ?? '',
             stock: variant.stock,
         })),
         isActive: product.isActive,
@@ -252,10 +295,20 @@ export function toProductInput(values: ProductFormValues, mode: 'create' | 'edit
             : mode === 'edit'
               ? { compareAtPrice: null }
               : {}),
-        // With variants the API stores the sum of theirs.
-        ...(values.variants.length === 0 ? { stock: values.stock ?? 0 } : {}),
-        printText: values.printText,
-        colorHex: values.colorHex.trim().toUpperCase(),
+        // With variants the API stores the sum of theirs; on-order products keep no stock.
+        ...(values.variants.length === 0
+            ? { stock: values.stockMode === 'STOCK' ? (values.stock ?? 0) : 0 }
+            : {}),
+        brand: values.brand.trim(),
+        model: values.model.trim() || null,
+        sku: values.sku.trim() || null,
+        stockMode: values.stockMode,
+        leadTimeDays: values.stockMode === 'ON_ORDER' ? (values.leadTimeDays ?? null) : null,
+        btu: values.btu ?? null,
+        voltage: values.voltage.trim() || null,
+        isInverter: values.inverter === '' ? null : values.inverter === 'yes',
+        refrigerant: values.refrigerant.trim() || null,
+        specs: values.specs.map((spec) => ({ label: spec.label.trim(), value: spec.value.trim() })),
         description: values.description,
         highlights: values.highlights.map((highlight) => highlight.value.trim()),
         tags: values.tags,
@@ -263,8 +316,7 @@ export function toProductInput(values: ProductFormValues, mode: 'create' | 'edit
             ...(variant.variantId ? { id: variant.variantId } : {}),
             label: variant.label.trim(),
             priceDelta: variant.priceDelta,
-            ...(variant.colorHex.trim() ? { colorHex: variant.colorHex.trim().toUpperCase() } : {}),
-            stock: variant.stock,
+            stock: values.stockMode === 'STOCK' ? variant.stock : 0,
         })),
         isActive: values.isActive,
     }

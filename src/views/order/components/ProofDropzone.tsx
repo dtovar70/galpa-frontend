@@ -78,7 +78,7 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
             </span>
 
             {file && preview ? (
-                <div className="flex items-center gap-3 rounded-2xl border-2 border-line bg-white p-3">
+                <div className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3">
                     <ProofViewer src={preview} title="Tu captura del pago" />
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-ink">{file.name}</p>
@@ -93,7 +93,7 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
                             if (inputRef.current) inputRef.current.value = ''
                         }}
                         aria-label="Quitar la captura"
-                        className="flex size-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700"
                     >
                         <X aria-hidden="true" className="size-4" />
                     </button>
@@ -110,14 +110,14 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
                     className={cn(
                         'flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-6 text-center transition',
                         isOver
-                            ? 'border-blush-400 bg-blush-50'
-                            : 'border-line bg-white hover:border-blush-200',
-                        message && 'border-blush-500',
+                            ? 'border-brand-400 bg-brand-50'
+                            : 'border-line bg-white hover:border-brand-200',
+                        message && 'border-danger-500',
                         (disabled || isPreparing) && 'cursor-not-allowed opacity-60',
                     )}
                     aria-busy={isPreparing || undefined}
                 >
-                    <ImageUp aria-hidden="true" className="size-7 text-blush-500" />
+                    <ImageUp aria-hidden="true" className="size-7 text-brand-600" />
                     <span className="text-sm font-semibold text-ink">
                         {isPreparing
                             ? 'Preparando tu captura…'

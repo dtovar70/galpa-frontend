@@ -56,7 +56,7 @@ export function ProofViewer({ src, title, thumbLabel = 'Ver captura' }: ProofVie
             <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="group relative size-24 shrink-0 overflow-hidden rounded-2xl border border-line bg-white focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                className="group relative size-24 shrink-0 overflow-hidden rounded-2xl border border-line bg-white focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
                 aria-label={`Ver ${title.toLowerCase()}`}
             >
                 <img
@@ -91,18 +91,18 @@ export function ProofViewer({ src, title, thumbLabel = 'Ver captura' }: ProofVie
                     event.stopPropagation()
                     if (event.target === event.currentTarget) close()
                 }}
-                className="fixed inset-0 m-auto h-[min(90vh,56rem)] w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/60 backdrop:backdrop-blur-sm"
+                className="fixed inset-0 m-auto h-[min(90vh,56rem)] w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-3xl bg-page p-0 text-ink shadow-lift backdrop:bg-ink/60 backdrop:backdrop-blur-sm"
             >
                 {isOpen ? (
                     <div className="flex h-full flex-col">
                         <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
-                            <p className="min-w-0 truncate font-display text-base">{title}</p>
+                            <p className="min-w-0 truncate text-base font-bold">{title}</p>
                             <div className="flex shrink-0 items-center gap-1">
                                 <button
                                     type="button"
                                     onClick={() => setZoomed((value) => !value)}
                                     aria-label={zoomed ? 'Alejar' : 'Acercar'}
-                                    className="flex size-9 items-center justify-center rounded-full hover:bg-blush-100"
+                                    className="flex size-9 items-center justify-center rounded-full hover:bg-brand-100"
                                 >
                                     {zoomed ? (
                                         <ZoomOut aria-hidden="true" className="size-5" />
@@ -115,7 +115,7 @@ export function ProofViewer({ src, title, thumbLabel = 'Ver captura' }: ProofVie
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label="Abrir en una pestaña nueva"
-                                    className="flex size-9 items-center justify-center rounded-full hover:bg-blush-100"
+                                    className="flex size-9 items-center justify-center rounded-full hover:bg-brand-100"
                                 >
                                     <ExternalLink aria-hidden="true" className="size-5" />
                                 </a>
@@ -123,7 +123,7 @@ export function ProofViewer({ src, title, thumbLabel = 'Ver captura' }: ProofVie
                                     type="button"
                                     onClick={close}
                                     aria-label="Cerrar"
-                                    className="flex size-9 items-center justify-center rounded-full hover:bg-blush-100"
+                                    className="flex size-9 items-center justify-center rounded-full hover:bg-brand-100"
                                 >
                                     <X aria-hidden="true" className="size-5" />
                                 </button>

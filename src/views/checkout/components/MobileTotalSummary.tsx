@@ -30,14 +30,14 @@ export function MobileTotalSummary({
 
     return (
         <details
-            className={cn('group rounded-3xl border border-line bg-white lg:hidden', className)}
+            className={cn('group rounded-2xl border border-line bg-white lg:hidden', className)}
         >
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-4 py-3 focus-visible:outline-2 focus-visible:outline-blush-400 [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 focus-visible:outline-2 focus-visible:outline-brand-400 [&::-webkit-details-marker]:hidden">
                 <span className="min-w-0 text-sm text-ink">
                     <span className="font-semibold">Total: {formatCurrency(total)}</span>
                     {bolivares ? <span className="text-ink-soft"> · ≈ {bolivares}</span> : null}
                 </span>
-                <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blush-700">
+                <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-700">
                     <span className="group-open:hidden">Ver resumen</span>
                     <span className="hidden group-open:inline">Ocultar</span>
                     <ChevronDown

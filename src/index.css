@@ -1,62 +1,85 @@
 @import 'tailwindcss';
 
 @theme {
-    --font-display: 'Fredoka', ui-rounded, system-ui, sans-serif;
+    /*
+     * One family for the whole UI (headings use its heavier weights) and a technical face for
+     * figures the customer compares: BTU, prices, order and quote codes.
+     */
+    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-tech: 'Space Grotesk', ui-monospace, 'SFMono-Regular', monospace;
 
-    /* pink scale */
-    --color-blush-50: #fff5f9;
-    --color-blush-100: #ffe7f1;
-    --color-blush-200: #ffd1e4;
-    --color-blush-300: #ffb3d1;
-    --color-blush-400: #ff8fb8;
-    --color-blush-500: #fb6fa5;
-    --color-blush-600: #e75f9b;
-    --color-blush-700: #c1427b; /* >= 4.5:1 with white, cream and blush-50 */
-    --color-blush-800: #9c3a66;
-    --color-blush-900: #7a2e50;
+    /* Brand green: 500 is the logo color, 700+ is safe for text on white (>= 4.5:1). */
+    --color-brand-50: #ecfdf5;
+    --color-brand-100: #d1fae5;
+    --color-brand-200: #a7f3d0;
+    --color-brand-300: #6ee7b7;
+    --color-brand-400: #34d399;
+    --color-brand-500: #10b981;
+    --color-brand-600: #059669;
+    --color-brand-700: #047857;
+    --color-brand-800: #065f46;
+    --color-brand-900: #064e3b;
 
-    /* blue scale */
-    --color-sky-50: #f2f9ff;
-    --color-sky-100: #e0f1ff;
-    --color-sky-200: #c4e4ff;
-    --color-sky-300: #a8d8ff;
-    --color-sky-400: #7cc0ff;
-    --color-sky-500: #57a9f5;
-    --color-sky-600: #3e9be0;
-    --color-sky-700: #2f7cb8;
-    --color-sky-800: #255f8d;
-    --color-sky-900: #1c4869;
+    /* Frost: the "cold air" accent. Used sparingly (info badges, airflow, highlights on dark). */
+    --color-frost-50: #f0f9ff;
+    --color-frost-100: #e0f2fe;
+    --color-frost-200: #bae6fd;
+    --color-frost-300: #7dd3fc;
+    --color-frost-400: #38bdf8;
+    --color-frost-500: #0ea5e9;
+    --color-frost-600: #0284c7;
+    --color-frost-700: #0369a1;
+    --color-frost-800: #075985;
+    --color-frost-900: #0c4a6e;
 
-    /* accents */
-    --color-lilac-200: #e4d9ff;
-    --color-lilac-400: #c0aeff;
-    --color-mint-200: #c9f2e0;
-    --color-mint-400: #7fd9b4;
-    --color-butter-200: #ffefc2;
-    --color-butter-400: #ffd979;
+    /* Amber: "Bajo pedido" and warnings. */
+    --color-warning-50: #fffbeb;
+    --color-warning-100: #fef3c7;
+    --color-warning-200: #fde68a;
+    --color-warning-300: #fcd34d;
+    --color-warning-400: #fbbf24;
+    --color-warning-500: #f59e0b;
+    --color-warning-600: #d97706;
+    --color-warning-700: #b45309;
+    --color-warning-800: #92400e;
+    --color-warning-900: #78350f;
 
-    /* neutrals */
-    --color-cream: #fff9fb;
-    --color-ink: #2e2438;
-    --color-ink-soft: #6b5f78;
-    --color-line: #f0e4ec;
+    --color-danger-50: #fef2f2;
+    --color-danger-100: #fee2e2;
+    --color-danger-200: #fecaca;
+    --color-danger-300: #fca5a5;
+    --color-danger-400: #f87171;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #dc2626;
+    --color-danger-700: #b91c1c;
+    --color-danger-800: #991b1b;
+    --color-danger-900: #7f1d1d;
 
-    --radius-xl2: 1.5rem;
-    --radius-blob: 2.5rem;
+    /* Neutrals: ink text on a cool off-white page; surface is the dark band color. */
+    --color-ink: #0a0f0d;
+    --color-ink-soft: #4a5650;
+    --color-ink-muted: #6b7670;
+    --color-surface: #111814;
+    --color-surface-raised: #1a241f;
+    --color-page: #f6f8f7;
+    --color-mist: #eef2f0;
+    --color-line: #e2e8e4;
+    --color-line-strong: #cbd5cf;
 
-    --shadow-soft: 0 10px 30px -12px rgb(231 95 155 / 0.25);
-    --shadow-lift: 0 18px 40px -16px rgb(46 36 56 / 0.25);
+    --radius-xl2: 1.25rem;
+
+    --shadow-soft: 0 1px 2px rgb(10 15 13 / 0.04), 0 8px 24px -12px rgb(10 15 13 / 0.12);
+    --shadow-lift: 0 2px 4px rgb(10 15 13 / 0.05), 0 20px 40px -18px rgb(10 15 13 / 0.25);
+    /* A faint green halo for the primary call to action. */
+    --shadow-glow: 0 8px 24px -10px rgb(16 185 129 / 0.55);
 
     --animate-marquee: marquee 45s linear infinite;
 
-    /*
-     * Loader: each paw lands, holds, then fades while the next one lands. The cycle is
-     * longer than the trail so the trail clears before it starts over, which is what makes
-     * it read as an animal walking past rather than a row of blinking icons.
-     */
-    --animate-paw-step: paw-step 1.9s ease-in-out infinite;
-    --animate-breathe: breathe 2.6s ease-in-out infinite;
+    /* AirFlowLoader: the rotor spins, the air waves leave it one after another. */
+    --animate-rotor: rotor 1.4s linear infinite;
+    --animate-airflow: airflow 1.8s ease-out infinite;
+    --animate-soft-pulse: soft-pulse 2s ease-in-out infinite;
 
     /* The select panel unfolds from the edge it is anchored to, so it reads as attached
      * to the field rather than dropped on top of it. */
@@ -86,26 +109,6 @@
         }
     }
 
-    @keyframes paw-step {
-        0%,
-        100% {
-            opacity: 0;
-            transform: translateY(var(--paw-lift)) rotate(var(--paw-tilt)) scale(0.55);
-        }
-        12% {
-            opacity: 1;
-            transform: translateY(var(--paw-lift)) rotate(var(--paw-tilt)) scale(1);
-        }
-        45% {
-            opacity: 1;
-            transform: translateY(var(--paw-lift)) rotate(var(--paw-tilt)) scale(1);
-        }
-        70% {
-            opacity: 0;
-            transform: translateY(var(--paw-lift)) rotate(var(--paw-tilt)) scale(0.9);
-        }
-    }
-
     @keyframes select-pop {
         from {
             opacity: 0;
@@ -117,13 +120,34 @@
         }
     }
 
-    @keyframes breathe {
+    @keyframes rotor {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Each wave drifts away from the unit and fades; delays stagger the three of them. */
+    @keyframes airflow {
+        0% {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        25% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+    }
+
+    @keyframes soft-pulse {
         0%,
         100% {
-            transform: scale(1) rotate(0deg);
+            opacity: 1;
         }
         50% {
-            transform: scale(1.06) rotate(-3deg);
+            opacity: 0.55;
         }
     }
 
@@ -148,7 +172,7 @@
     }
 
     body {
-        @apply bg-cream font-sans text-ink antialiased;
+        @apply bg-page font-sans text-ink antialiased;
     }
 
     h1,
@@ -157,11 +181,11 @@
     h4,
     h5,
     h6 {
-        @apply font-display font-semibold tracking-tight;
+        @apply font-display font-bold tracking-tight;
     }
 
     :focus-visible {
-        @apply ring-2 ring-blush-400 ring-offset-2 ring-offset-cream outline-none;
+        @apply ring-2 ring-brand-500 ring-offset-2 ring-offset-page outline-none;
     }
 
     /*
@@ -224,7 +248,7 @@
         border: 4px solid transparent;
         border-radius: 9999px;
         background-clip: padding-box;
-        background-color: var(--color-blush-300);
+        background-color: var(--color-line-strong);
     }
 
     textarea::-webkit-scrollbar-corner,
@@ -236,12 +260,12 @@
         textarea,
         .scroll-soft {
             scrollbar-width: thin;
-            scrollbar-color: var(--color-blush-300) transparent;
+            scrollbar-color: var(--color-line-strong) transparent;
         }
     }
 
     ::selection {
-        @apply bg-blush-200 text-ink;
+        @apply bg-brand-200 text-ink;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -260,6 +284,12 @@
         /* A countdown is a timer, not decoration: its length decides when the alert closes. */
         [data-countdown] {
             animation-duration: var(--countdown-duration) !important;
+        }
+
+        /* The loader's message keeps a gentle fade: the only sign of progress left. */
+        [data-reduced-pulse] {
+            animation-duration: 2s !important;
+            animation-iteration-count: infinite !important;
         }
     }
 }

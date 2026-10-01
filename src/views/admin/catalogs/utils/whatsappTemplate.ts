@@ -2,7 +2,7 @@ import type { OrderStatus } from '@/@types/order'
 
 /**
  * Placeholders of the "Avisar por WhatsApp" templates. The API fills them in
- * (backend-cups/src/orders/whatsapp/whatsapp-template.ts): keep the list, the rules and
+ * (backend-galpa/src/orders/whatsapp/whatsapp-template.ts): keep the list, the rules and
  * `renderWhatsAppTemplate` in sync with it. Here they only drive the editor and its preview.
  */
 export const WHATSAPP_PLACEHOLDERS = [
@@ -15,7 +15,7 @@ export const WHATSAPP_PLACEHOLDERS = [
         description: 'Motivo del último cambio a este estado (rechazo, cancelación)',
     },
     { name: 'marca', description: 'Nombre de la tienda' },
-    { name: 'envio', description: 'Agencia y guía del envío, o el método de entrega' },
+    { name: 'envio', description: 'Transporte y guía del despacho, o el método de entrega' },
     { name: 'comprobante', description: 'Enlace al comprobante de compra (PDF)' },
 ] as const
 
@@ -27,9 +27,10 @@ export const WHATSAPP_TEMPLATE_MAX_LENGTH = 1000
 /** Statuses that have a purchase receipt (the only ones where `{comprobante}` is allowed). */
 export const RECEIPT_STATUSES: readonly OrderStatus[] = [
     'PAGO_VERIFICADO',
-    'EN_PRODUCCION',
-    'LISTO_PARA_ENTREGA',
-    'ENVIADO',
+    'ESPERANDO_MERCANCIA',
+    'EN_PREPARACION',
+    'LISTO_PARA_RETIRO',
+    'DESPACHADO',
     'ENTREGADO',
 ]
 
@@ -61,13 +62,13 @@ export function whatsAppTemplateError(template: string, status?: OrderStatus): s
 export function sampleWhatsAppValues(brandName: string): Record<WhatsAppPlaceholder, string> {
     return {
         nombre: 'Ana',
-        pedido: 'MR-000123',
-        enlace: 'https://manadarusso.com/pedido/MR-000123?t=…',
-        total: '$36,00 (Bs. 30.760,69)',
+        pedido: 'GP-000123',
+        enlace: 'https://galpa.com.ve/pedido/GP-000123?t=…',
+        total: '$480,00 (Bs 410.152,80)',
         motivo: 'La referencia no coincide con el monto',
         marca: brandName,
         envio: 'MRW, guía 123456',
-        comprobante: 'https://api.manadarusso.com/api/orders/MR-000123/receipt.pdf?t=…',
+        comprobante: 'https://api.galpa.com.ve/api/orders/GP-000123/receipt.pdf?t=…',
     }
 }
 

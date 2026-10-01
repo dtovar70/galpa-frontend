@@ -23,25 +23,25 @@ export function BotStatusCard({ bot, isRefreshing, onRefresh }: BotStatusCardPro
         <Card padding="none" className="space-y-5 p-5 sm:p-6">
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 space-y-2">
-                    <h2 className="font-display text-xl text-ink">Bot de Telegram</h2>
+                    <h2 className="text-xl font-bold text-ink">Bot de Telegram</h2>
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone={bot.connected ? 'mint' : 'neutral'} size="sm">
+                        <Badge tone={bot.connected ? 'brand' : 'neutral'} size="sm">
                             <span
                                 aria-hidden="true"
                                 className={cn(
                                     'size-2 rounded-full',
                                     bot.connected
-                                        ? 'bg-mint-400 ring-2 ring-white'
+                                        ? 'bg-brand-400 ring-2 ring-white'
                                         : 'bg-ink-soft/60',
                                 )}
                             />
                             {bot.connected ? 'Conectado' : 'Desconectado'}
                         </Badge>
-                        <Badge tone="sky" size="sm">
+                        <Badge tone="info" size="sm">
                             {MODE_LABEL[bot.mode]}
                         </Badge>
                         {bot.enabled ? null : (
-                            <Badge tone="butter" size="sm">
+                            <Badge tone="warning" size="sm">
                                 Apagado
                             </Badge>
                         )}
@@ -76,7 +76,7 @@ export function BotStatusCard({ bot, isRefreshing, onRefresh }: BotStatusCardPro
                                     href={telegramUserUrl(bot.username)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-sky-700 hover:underline"
+                                    className="text-frost-700 hover:underline"
                                 >
                                     @{bot.username}
                                 </a>

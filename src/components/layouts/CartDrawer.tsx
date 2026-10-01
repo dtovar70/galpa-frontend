@@ -2,11 +2,10 @@ import { ShoppingBag, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { CartLineStockNotice } from '@/components/shared/CartLineStockNotice'
-import { CartPersonalization } from '@/components/shared/CartPersonalization'
 import { ClearCartButton } from '@/components/shared/ClearCartButton'
 import { FreeShippingProgress } from '@/components/shared/FreeShippingProgress'
-import { CartLineMedia } from '@/components/shared/CartLineMedia'
-import { DesignBadge, GarmentColorNote } from '@/components/shared/DesignBadge'
+import { OnOrderNote } from '@/components/shared/OnOrderNote'
+import { ProductMedia } from '@/components/shared/ProductMedia'
 import { Button, ButtonLink, Drawer, QuantityStepper } from '@/components/ui'
 import { MAX_LINE_QUANTITY, useCartActions, useCartItems, useCartSubtotal } from '@/store/cartStore'
 import { productPath, ROUTES } from '@/constants/route.constant'
@@ -33,7 +32,7 @@ export function CartDrawer() {
                         <FreeShippingProgress subtotal={subtotal} />
                         <div className="flex items-baseline justify-between">
                             <span className="text-sm text-ink-soft">Subtotal</span>
-                            <span className="font-display text-xl text-ink">
+                            <span className="font-tech text-xl font-bold text-ink">
                                 {formatCurrency(subtotal)}
                             </span>
                         </div>
@@ -42,7 +41,7 @@ export function CartDrawer() {
                                 <>
                                     <p
                                         role="status"
-                                        className="text-xs font-semibold text-blush-700"
+                                        className="text-xs font-semibold text-danger-700"
                                     >
                                         {CART_STOCK_BLOCKED_MESSAGE}
                                     </p>
@@ -72,13 +71,13 @@ export function CartDrawer() {
                 <div className="flex min-h-full flex-col items-center justify-center gap-4 py-8 text-center">
                     <span
                         aria-hidden="true"
-                        className="flex size-16 items-center justify-center rounded-full bg-blush-100 text-blush-500"
+                        className="flex size-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-600"
                     >
                         <ShoppingBag className="size-7" />
                     </span>
-                    <p className="font-display text-lg">Tu carrito está vacío</p>
+                    <p className="text-lg font-bold">Tu carrito está vacío</p>
                     <p className="max-w-xs text-sm text-ink-soft">
-                        Elige una taza, una franela o un llavero y personalízalo a tu gusto.
+                        Explora nuestros aires acondicionados, repuestos y accesorios.
                     </p>
                     <ButtonLink to={ROUTES.catalog} onClick={close}>
                         Explorar catálogo
@@ -99,28 +98,31 @@ export function CartDrawer() {
                             const max = stock?.max ?? MAX_LINE_QUANTITY
                             return (
                                 <li key={item.lineId} className="flex gap-3 py-4">
-                                    <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white p-1.5">
-                                        <CartLineMedia item={item} size="sm" />
+                                    <div className="flex size-16 shrink-0 items-center justify-center rounded-xl border border-line bg-white p-1">
+                                        <ProductMedia
+                                            category={item.category}
+                                            image={
+                                                item.imageUrl ? { url: item.imageUrl } : undefined
+                                            }
+                                            fallbackAlt={item.name}
+                                            size="sm"
+                                        />
                                     </div>
 
                                     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                                         <Link
                                             to={productPath(item.slug)}
                                             onClick={close}
-                                            className="font-display text-sm leading-snug text-ink"
+                                            className="text-sm leading-snug font-semibold text-ink"
                                         >
                                             {item.name}
                                         </Link>
-                                        <p className="text-xs text-ink-soft">{item.variantLabel}</p>
-                                        {item.design ? <DesignBadge /> : null}
-                                        {item.design?.color ? (
-                                            <GarmentColorNote color={item.design.color} />
+                                        <p className="text-xs text-ink-soft">
+                                            {item.brand} · {item.variantLabel}
+                                        </p>
+                                        {item.stockMode === 'ON_ORDER' ? (
+                                            <OnOrderNote leadTimeDays={item.leadTimeDays} />
                                         ) : null}
-                                        <CartPersonalization
-                                            item={item}
-                                            size="sm"
-                                            editable={false}
-                                        />
 
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <QuantityStepper
@@ -131,7 +133,7 @@ export function CartDrawer() {
                                                     updateQuantity(item.lineId, quantity, max)
                                                 }
                                             />
-                                            <span className="text-sm font-semibold text-ink">
+                                            <span className="font-tech text-sm font-semibold text-ink">
                                                 {formatCurrency(item.unitPrice * item.quantity)}
                                             </span>
                                         </div>
@@ -148,7 +150,7 @@ export function CartDrawer() {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        aria-label={`Quitar ${item.name}${item.personalization ? ` (${item.personalization})` : ''} del carrito`}
+                                        aria-label={`Quitar ${item.name} (${item.variantLabel}) del carrito`}
                                         onClick={() => removeItem(item.lineId)}
                                         className="size-11 shrink-0 self-start px-0 text-ink-soft"
                                     >

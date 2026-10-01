@@ -4,7 +4,6 @@ import type { PlaceholderValues } from '@/utils/content'
 const DESCRIPTIONS: Record<ContentPlaceholder, string> = {
     envioGratis: 'el monto para envío gratis',
     tarifaEnvio: 'la tarifa de envío',
-    produccion: 'el tiempo de producción',
     categorias: 'la cantidad de categorías en palabras',
     marca: 'el nombre de la marca',
     ciudad: 'la ciudad',
@@ -12,7 +11,7 @@ const DESCRIPTIONS: Record<ContentPlaceholder, string> = {
 
 /**
  * Hint under a field that accepts placeholders:
- * "Puedes usar {envioGratis} (el monto para envío gratis, hoy $35)."
+ * "Puedes usar {envioGratis} (el monto para envío gratis, hoy $500)."
  */
 export function placeholderHint(
     names: readonly ContentPlaceholder[],

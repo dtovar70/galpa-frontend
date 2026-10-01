@@ -2,19 +2,26 @@ import { useCallback, useState } from 'react'
 import { ShoppingBag } from 'lucide-react'
 import { useNavigate } from 'react-router'
 
-import { isPaymentConfigured } from '@/@types/content'
 import type { OrderLineProblem } from '@/@types/order'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { OnOrderCartNotice } from '@/components/shared/OnOrderCartNotice'
 import { WhatsAppNotice } from '@/components/shared/WhatsAppNotice'
 import { ButtonLink } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
 import { orderPath, ROUTES } from '@/constants/route.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
-import { useCartActions, useCartItems, useCartSubtotal } from '@/store/cartStore'
+import { isBolivarMethod } from '@/constants/payment.constant'
+import {
+    useCartActions,
+    useCartHasOnOrderItems,
+    useCartItems,
+    useCartSubtotal,
+} from '@/store/cartStore'
 import { cn } from '@/utils/cn'
 import { shippingCost } from '@/utils/content'
 import { useExchangeRate } from '@/utils/hooks/useExchangeRate'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
+import { checkoutPaymentMethods, configuredPaymentMethods } from '@/utils/payment'
 import { rememberOrder } from '@/utils/recentOrders'
 import { CheckoutForm } from '@/views/checkout/components/CheckoutForm'
 import { MobileTotalSummary } from '@/views/checkout/components/MobileTotalSummary'
@@ -30,12 +37,13 @@ import type { CheckoutValues, DeliveryMethod } from '@/views/checkout/schema/che
 import { isLineProblemsError, lineProblemsOf } from '@/views/checkout/utils/lineProblems'
 
 const RATE_UNAVAILABLE_TEXT =
-    'No pudimos obtener la tasa del BCV. Intenta más tarde o contáctanos por WhatsApp.'
+    'No pudimos obtener la tasa del BCV, así que por ahora no podemos calcular el monto en bolívares. Intenta más tarde o contáctanos por WhatsApp.'
 
 export function CheckoutView() {
     const items = useCartItems()
     const subtotal = useCartSubtotal()
-    const { clear, updateQuantity, removeItem, removeDesign } = useCartActions()
+    const { clear, updateQuantity, removeItem } = useCartActions()
+    const hasOnOrderItems = useCartHasOnOrderItems()
     const navigate = useNavigate()
     const content = useSiteContent()
     const rate = useExchangeRate()
@@ -50,9 +58,14 @@ export function CheckoutView() {
     const shipping = deliveryMethod === 'pickup' ? 0 : shippingCost(subtotal, content.shipping)
     const total = subtotal + shipping
 
-    const paymentReady = isPaymentConfigured(content.payment) && serverBlock !== 'payment'
     // Unknown (still loading or the request failed) is not a block: the API has the last word.
     const rateMissing = (rate.data !== undefined && !rate.data.available) || serverBlock === 'rate'
+    const rateValue = rate.data?.available ? rate.data.rate : null
+    const configured = serverBlock === 'payment' ? [] : configuredPaymentMethods(content.payment)
+    // Without a rate the bolívar methods are hidden; the dollar ones still work.
+    const paymentMethods =
+        serverBlock === 'payment' ? [] : checkoutPaymentMethods(content.payment, !rateMissing)
+    const onlyRateMissing = paymentMethods.length === 0 && configured.some(isBolivarMethod)
 
     const handleDeliveryChange = useCallback((method: DeliveryMethod) => {
         setDeliveryMethod(method)
@@ -63,12 +76,11 @@ export function CheckoutView() {
         setProblems([])
         const input = {
             ...values,
+            customerIdNumber: values.customerIdNumber || undefined,
             items: items.map((item) => ({
                 productId: item.productId,
                 variantId: item.variantId || undefined,
                 quantity: item.quantity,
-                personalization: item.personalization || undefined,
-                designId: item.design?.id,
             })),
         }
         // Same order body => same key, so a retry after a timeout never creates a second order;
@@ -117,9 +129,7 @@ export function CheckoutView() {
         for (const problem of problems) {
             const item = items[problem.index]
             if (!item) continue
-            // A refused design leaves the line without it; the customer can make a new one.
-            if (problem.kind === 'design') removeDesign(item.lineId)
-            else if (problem.available > 0) updateQuantity(item.lineId, problem.available)
+            if (problem.available > 0) updateQuantity(item.lineId, problem.available)
             else removeItem(item.lineId)
         }
         setProblems([])
@@ -128,8 +138,8 @@ export function CheckoutView() {
 
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
-            <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
-                Finalizar <span className="text-blush-500">compra</span>
+            <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                Finalizar <span className="text-brand-600">compra</span>
             </h1>
 
             {items.length === 0 ? (
@@ -148,25 +158,28 @@ export function CheckoutView() {
                             shipping={shipping}
                             total={total}
                         />
-                        {!paymentReady ? (
-                            <WhatsAppNotice title="Por ahora no podemos recibir pedidos en línea">
-                                Estamos terminando de configurar los pagos. Escríbenos por WhatsApp
-                                con los productos de tu carrito y te ayudamos a completar tu pedido.
-                            </WhatsAppNotice>
+                        {hasOnOrderItems ? <OnOrderCartNotice /> : null}
+                        {paymentMethods.length === 0 ? (
+                            onlyRateMissing ? (
+                                <WhatsAppNotice title="Tasa BCV no disponible">
+                                    {RATE_UNAVAILABLE_TEXT}
+                                </WhatsAppNotice>
+                            ) : (
+                                <WhatsAppNotice title="Por ahora no podemos recibir pedidos en línea">
+                                    Estamos terminando de configurar los métodos de pago. Escríbenos
+                                    por WhatsApp con los productos de tu carrito y te ayudamos a
+                                    completar tu pedido.
+                                </WhatsAppNotice>
+                            )
                         ) : (
-                            <>
-                                {rateMissing ? (
-                                    <WhatsAppNotice title="Tasa BCV no disponible">
-                                        {RATE_UNAVAILABLE_TEXT}
-                                    </WhatsAppNotice>
-                                ) : null}
-                                <CheckoutForm
-                                    onConfirm={handleConfirm}
-                                    onDeliveryMethodChange={handleDeliveryChange}
-                                    disabled={rateMissing}
-                                    formError={formError}
-                                />
-                            </>
+                            <CheckoutForm
+                                onConfirm={handleConfirm}
+                                onDeliveryMethodChange={handleDeliveryChange}
+                                paymentMethods={paymentMethods}
+                                total={total}
+                                rate={rateValue}
+                                formError={formError}
+                            />
                         )}
                     </div>
                     <OrderSummary

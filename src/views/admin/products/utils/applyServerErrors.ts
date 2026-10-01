@@ -10,8 +10,14 @@ const TOP_LEVEL_FIELDS = new Set<string>([
     'price',
     'compareAtPrice',
     'stock',
-    'printText',
-    'colorHex',
+    'brand',
+    'model',
+    'sku',
+    'stockMode',
+    'leadTimeDays',
+    'btu',
+    'voltage',
+    'refrigerant',
     'description',
     'tags',
     'isActive',
@@ -20,7 +26,8 @@ const TOP_LEVEL_FIELDS = new Set<string>([
 /** API field path to form field path, or `null` when the form has no matching input. */
 function toFormPath(field: string): FieldPath<ProductFormValues> | null {
     if (TOP_LEVEL_FIELDS.has(field)) return field as FieldPath<ProductFormValues>
-    if (/^variants\.\d+\.(label|priceDelta|colorHex|stock)$/.test(field)) {
+    if (field === 'isInverter') return 'inverter'
+    if (/^(variants\.\d+\.(label|priceDelta|stock)|specs\.\d+\.(label|value))$/.test(field)) {
         return field as FieldPath<ProductFormValues>
     }
     const highlight = /^highlights\.(\d+)$/.exec(field)

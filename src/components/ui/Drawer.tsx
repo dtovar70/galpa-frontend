@@ -9,7 +9,7 @@ import { cn } from '@/utils/cn'
 const panelVariants = cva(
     // Above `sm` the panel floats inset from the window edges, so it reads as a card
     // instead of a slab sliced by the top and bottom of the viewport.
-    'pointer-events-auto flex h-full w-full flex-col overflow-hidden bg-cream shadow-lift transition-transform duration-300 ease-out motion-reduce:transition-none',
+    'pointer-events-auto flex h-full w-full flex-col overflow-hidden bg-page shadow-lift transition-transform duration-300 ease-out motion-reduce:transition-none',
     {
         variants: {
             side: {
@@ -135,7 +135,7 @@ export function Drawer({ isOpen, onClose, title, side = 'right', children, foote
                 className={cn('relative z-10 flex w-full', panelVariants({ side, isOpen }))}
             >
                 <header className="flex items-center justify-between gap-4 border-b border-line px-6 py-5">
-                    <h2 id={titleId} className="font-display text-xl">
+                    <h2 id={titleId} className="text-xl font-bold">
                         {title}
                     </h2>
                     <button
@@ -143,7 +143,7 @@ export function Drawer({ isOpen, onClose, title, side = 'right', children, foote
                         onClick={onClose}
                         tabIndex={isOpen ? 0 : -1}
                         aria-label="Cerrar"
-                        className="flex size-11 items-center justify-center rounded-full text-ink transition hover:bg-blush-100 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                        className="flex size-11 items-center justify-center rounded-full text-ink transition hover:bg-brand-100 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
                     >
                         <X aria-hidden="true" className="size-5" />
                     </button>

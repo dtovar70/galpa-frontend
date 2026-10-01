@@ -1,11 +1,11 @@
 /**
  * Editable site content: one JSON value per section, stored in `site_content`.
  *
- * Mirror of backend-cups/src/content/content.types.ts. Keep both files identical (only the
+ * Mirror of backend-galpa/src/content/content.types.ts. Keep both files identical (only the
  * comments that point at each other differ), so the storefront and the API agree on the shape.
  *
  * Text conventions shared by the API and the storefront:
- * - Highlighted words (painted pink in headings) are wrapped in asterisks: "Tus *favoritos*".
+ * - Highlighted words (painted green in headings) are wrapped in asterisks: "Tu *confort*".
  * - Placeholders in braces are replaced when rendered, e.g. "{envioGratis}" -> "$35". Each field
  *   accepts only the placeholders listed in `CONTENT_PLACEHOLDERS`.
  */
@@ -33,9 +33,7 @@ export const CONTENT_PLACEHOLDERS = {
     envioGratis: '{envioGratis}',
     /** Flat shipping rate, as money: "$4". */
     tarifaEnvio: '{tarifaEnvio}',
-    /** Production-time copy of the shipping section. */
-    produccion: '{produccion}',
-    /** Number of categories in words: "Tres formatos". */
+    /** Number of categories in words: "Cuatro líneas". */
     categorias: '{categorias}',
     /** Brand name of the general section. */
     marca: '{marca}',
@@ -170,7 +168,7 @@ export interface ContactPageContent {
     intro: string
     faqEyebrow: string
     faqTitle: string
-    /** Accept {envioGratis}, {tarifaEnvio} and {produccion}. */
+    /** Accept {envioGratis} and {tarifaEnvio}. */
     faq: FaqItem[]
 }
 
@@ -181,10 +179,12 @@ export interface ShippingContent {
     flatRate: number
     /** Accepts {envioGratis}. */
     freeShippingCopy: string
-    productionCopy: string
+    /** How and when paid orders leave the store ("Despachamos en 24 a 48 horas hábiles"). */
+    dispatchCopy: string
 }
 
-export interface PaymentContent {
+export interface PagoMovilDetails {
+    enabled: boolean
     /** Four-digit bank code, "0102". */
     bankCode: string
     bankName: string
@@ -192,7 +192,43 @@ export interface PaymentContent {
     /** Cédula or RIF, "V-12345678" / "J-123456789". */
     idNumber: string
     holderName: string
+}
+
+export const BANK_ACCOUNT_TYPES = ['CORRIENTE', 'AHORRO'] as const
+export type BankAccountType = (typeof BANK_ACCOUNT_TYPES)[number]
+
+export interface TransferDetails {
+    enabled: boolean
+    bankCode: string
+    bankName: string
+    /** 20 digits. */
+    accountNumber: string
+    accountType: BankAccountType
+    idNumber: string
+    holderName: string
+}
+
+export interface ZelleDetails {
+    enabled: boolean
+    email: string
+    holderName: string
+}
+
+export interface BinanceDetails {
+    enabled: boolean
+    /** Binance Pay ID. */
+    payId: string
+    email: string
+    holderName: string
+}
+
+export interface PaymentContent {
+    /** General note shown with every method. */
     instructions: string
+    pagoMovil: PagoMovilDetails
+    transfer: TransferDetails
+    zelle: ZelleDetails
+    binance: BinanceDetails
 }
 
 export interface SiteContent {
@@ -206,13 +242,16 @@ export interface SiteContent {
     payment: PaymentContent
 }
 
-/** Checkout needs every Pago Móvil detail (instructions are optional). */
-export function isPaymentConfigured(payment: PaymentContent): boolean {
-    return [
-        payment.bankCode,
-        payment.bankName,
-        payment.phone,
-        payment.idNumber,
-        payment.holderName,
-    ].every((value) => value.trim() !== '')
+function filled(...values: string[]): boolean {
+    return values.every((value) => value.trim() !== '')
 }
+
+/** A method is offered when it is enabled and every field the customer needs is filled. */
+export const PAYMENT_METHOD_CONFIGURED = {
+    PAGO_MOVIL: ({ pagoMovil: m }: PaymentContent) =>
+        m.enabled && filled(m.bankCode, m.bankName, m.phone, m.idNumber, m.holderName),
+    TRANSFERENCIA: ({ transfer: m }: PaymentContent) =>
+        m.enabled && filled(m.bankCode, m.bankName, m.accountNumber, m.idNumber, m.holderName),
+    ZELLE: ({ zelle: m }: PaymentContent) => m.enabled && filled(m.email, m.holderName),
+    BINANCE: ({ binance: m }: PaymentContent) => m.enabled && filled(m.payId, m.holderName),
+} as const

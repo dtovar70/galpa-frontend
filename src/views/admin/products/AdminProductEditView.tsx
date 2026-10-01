@@ -126,7 +126,7 @@ export function AdminProductEditView() {
 
                 <ProductImagesManager product={current} />
 
-                <Card tone="cream" elevation="none" padding="sm" className="text-sm text-ink-soft">
+                <Card tone="muted" elevation="none" padding="sm" className="text-sm text-ink-soft">
                     Los cambios de abajo se guardan con el botón “Guardar cambios”. Las fotos se
                     guardan al instante.
                 </Card>

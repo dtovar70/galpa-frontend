@@ -1,9 +1,9 @@
-import type { CartDesign } from '@/@types/design'
-import type { CategorySlug } from '@/@types/product'
+import type { CategorySlug, StockMode } from '@/@types/product'
 
 /**
- * A cart line stores a render-ready snapshot instead of the whole product so the
- * persisted payload stays small and survives catalog changes.
+ * A cart line stores a render-ready snapshot instead of the whole product so the persisted
+ * payload stays small and survives catalog changes. A line is identified by its product and
+ * variant: adding the same pair again only raises the quantity.
  */
 export interface CartItem {
     lineId: string
@@ -11,23 +11,17 @@ export interface CartItem {
     slug: string
     name: string
     category: CategorySlug
+    brand: string
+    model: string | null
     variantId: string
     variantLabel: string
-    colorHex: string
-    printText: string
-    /** First product photo at the time it was added; absent for illustrated products. */
+    /** First product photo at the time it was added; absent when the product has none. */
     imageUrl?: string
     unitPrice: number
     quantity: number
-    /** Text, name or date to print ("" when none). Part of the line identity. */
-    personalization: string
-    /** The product is tagged `personalizable`, so the text can be edited from the cart. */
-    personalizable: boolean
-    /**
-     * The customer's own image ("Diseño propio"), uploaded before checkout. Part of the line
-     * identity: two designs of the same product are two lines. Null for regular lines.
-     */
-    design: CartDesign | null
+    stockMode: StockMode
+    /** Days until an on-order line arrives (null when unknown). */
+    leadTimeDays: number | null
 }
 
 export interface CartLineTotals {

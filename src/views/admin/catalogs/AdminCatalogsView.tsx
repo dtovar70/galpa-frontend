@@ -74,7 +74,7 @@ export function AdminCatalogsView() {
         <>
             <AdminPageHeader
                 title="Catálogos"
-                description="Nombres y textos que se ven en la tienda y en el panel: los estados de los pedidos, los bancos de Pago Móvil y los códigos de celular."
+                description="Nombres y textos que se ven en la tienda y en el panel: los estados de los pedidos, los bancos de Pago Móvil y transferencias y los códigos de celular."
             />
 
             <div
@@ -82,7 +82,7 @@ export function AdminCatalogsView() {
                 aria-label="Catálogos"
                 onKeyDown={onKeyDown}
                 // Phones: three equal cells (icon over a short name), so no tab hides off-screen.
-                className="mb-8 grid grid-cols-3 gap-1 rounded-3xl border-2 border-line bg-white p-1 sm:flex sm:w-max sm:max-w-full sm:rounded-full"
+                className="mb-8 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-white p-1 sm:flex sm:w-max sm:max-w-full sm:rounded-full"
             >
                 {SECTIONS.map(({ id, label, shortLabel, icon: Icon }) => {
                     const isActive = id === active
@@ -100,8 +100,8 @@ export function AdminCatalogsView() {
                                 'flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-xs font-semibold whitespace-nowrap transition',
                                 'sm:flex-row sm:gap-2 sm:rounded-full sm:px-4 sm:text-sm',
                                 isActive
-                                    ? 'bg-blush-100 text-blush-800'
-                                    : 'text-ink-soft hover:bg-blush-50 hover:text-ink',
+                                    ? 'bg-brand-100 text-brand-800'
+                                    : 'text-ink-soft hover:bg-brand-50 hover:text-ink',
                             )}
                         >
                             <Icon aria-hidden="true" className="size-4" />

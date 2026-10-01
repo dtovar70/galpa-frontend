@@ -70,9 +70,4 @@ export const AdminOrderService = {
      * cookie authenticates it and the API streams the file or redirects to a signed URL.
      */
     proofUrl: (proofPath: string) => `${apiConfig.baseUrl}${proofPath}`,
-    /**
-     * Absolute URL of a line's design file (preview, arte final or an original), also authorized
-     * by the session cookie. Downloads are named like `MR-000123-linea1-arte-final.png`.
-     */
-    designUrl: (path: string) => `${apiConfig.baseUrl}${path}`,
 } as const

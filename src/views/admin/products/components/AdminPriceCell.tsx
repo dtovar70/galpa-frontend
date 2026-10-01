@@ -25,7 +25,7 @@ function DeltaPill({ delta }: { delta: number }) {
         <span
             className={cn(
                 'rounded-full px-1.5 py-px text-[0.7rem] font-bold tabular-nums',
-                delta < 0 ? 'bg-sky-100 text-sky-800' : 'bg-butter-200 text-ink',
+                delta < 0 ? 'bg-frost-100 text-frost-800' : 'bg-warning-100 text-ink',
             )}
         >
             {formatDelta(delta)}
@@ -98,8 +98,8 @@ export function AdminPriceCell({ product, align = 'start' }: AdminPriceCellProps
                         onBlur={close}
                         onClick={onClick}
                         className={cn(
-                            'inline-flex cursor-help items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[0.7rem] font-semibold whitespace-nowrap text-sky-900 transition hover:bg-sky-100',
-                            isOpen && 'bg-sky-100',
+                            'inline-flex cursor-help items-center gap-1 rounded-full bg-frost-50 px-2 py-0.5 text-[0.7rem] font-semibold whitespace-nowrap text-frost-900 transition hover:bg-frost-100',
+                            isOpen && 'bg-frost-100',
                         )}
                     >
                         <Tags aria-hidden="true" className="size-3" />
@@ -121,9 +121,7 @@ export function AdminPriceCell({ product, align = 'start' }: AdminPriceCellProps
                         decorative
                         className="w-64 p-3.5 text-left"
                     >
-                        <p className="mb-2 font-display text-sm font-semibold text-ink">
-                            Precio por variante
-                        </p>
+                        <p className="mb-2 text-sm font-semibold text-ink">Precio por variante</p>
                         <ul className="divide-y divide-line">
                             {product.variants.map((variant, index) => (
                                 <li

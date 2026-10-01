@@ -22,10 +22,7 @@ export function CatalogView() {
     // Phones and tablets get the filters in a drawer; the side card only fits from `lg`.
     const isDesktop = useMediaQuery('(min-width: 64rem)')
     const [filtersOpen, setFiltersOpen] = useState(false)
-    const activeFilterCount =
-        (filters.category !== undefined ? 1 : 0) +
-        (filters.priceBracket !== 'all' ? 1 : 0) +
-        filters.tags.length
+    const activeFilterCount = catalog.activeFilterCount + (filters.category !== undefined ? 1 : 0)
 
     const activeCategory = (categories ?? []).find((category) => category.slug === filters.category)
     /** A deleted category, or a mistyped link: known only once the categories have loaded. */
@@ -39,25 +36,16 @@ export function CatalogView() {
     const closeFilters = () => setFiltersOpen(false)
     const hasNoResults = !isPending && !isError && products.length === 0
 
-    const filterPanel = (
-        <CatalogFilters
-            filters={filters}
-            isFiltered={catalog.isFiltered}
-            onCategoryChange={catalog.setCategory}
-            onPriceBracketChange={catalog.setPriceBracket}
-            onTagToggle={catalog.toggleTag}
-            onClear={catalog.clearFilters}
-        />
-    )
+    const filterPanel = <CatalogFilters catalog={catalog} />
 
     if (isUnknownCategory) {
         return (
             <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
                 <header className="space-y-3">
-                    <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
+                    <p className="text-sm font-bold tracking-[0.2em] text-brand-700 uppercase">
                         Catálogo
                     </p>
-                    <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
                         Categoría no encontrada
                     </h1>
                 </header>
@@ -74,21 +62,21 @@ export function CatalogView() {
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
             <header className="space-y-3">
-                <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
+                <p className="text-sm font-bold tracking-[0.2em] text-brand-700 uppercase">
                     Catálogo
                 </p>
-                <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
-                    {activeCategory?.name ?? 'Todo lo que sublimamos'}
+                <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                    {activeCategory?.name ?? 'Equipos, repuestos y accesorios'}
                 </h1>
                 <p className="max-w-2xl text-ink-soft">
                     {activeCategory?.description ??
-                        'Filtra por categoría, precio o etiqueta. Cada diseño se personaliza con tu texto o tu foto.'}
+                        'Filtra por marca, capacidad, voltaje o disponibilidad. Si tienes dudas, un asesor te ayuda a elegir.'}
                 </p>
 
                 {filters.search ? (
                     <p className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
                         Resultados para
-                        <span className="inline-flex items-center gap-2 rounded-full bg-blush-100 px-3 py-1 font-semibold text-blush-700">
+                        <span className="inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-1 font-semibold text-brand-800">
                             {filters.search}
                             <button
                                 type="button"
@@ -140,7 +128,7 @@ export function CatalogView() {
                         >
                             Filtros
                             {activeFilterCount > 0 ? (
-                                <span className="flex min-w-6 items-center justify-center rounded-full bg-blush-700 px-1.5 text-xs font-bold text-white tabular-nums">
+                                <span className="flex min-w-6 items-center justify-center rounded-full bg-brand-600 px-1.5 text-xs font-bold text-white tabular-nums">
                                     <span className="sr-only">(</span>
                                     {activeFilterCount}
                                     <span className="sr-only"> activos)</span>

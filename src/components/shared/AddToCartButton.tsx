@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ShoppingBag } from 'lucide-react'
 
-import type { CartDesign } from '@/@types/design'
 import type { Product } from '@/@types/product'
 import { Button, type ButtonProps } from '@/components/ui'
 import { useCartActions, useCartItems } from '@/store/cartStore'
@@ -18,16 +17,10 @@ export interface AddToCartButtonProps extends Pick<
     product: Product
     variantId: string
     quantity?: number
-    /** Text to print, for `personalizable` products (part of the cart line identity). */
-    personalization?: string
-    /** The customer's own image ("Diseño propio"); part of the cart line identity. */
-    design?: CartDesign | null
     label?: string
     /** Opening the drawer is the default success feedback; cards can opt out. */
     openDrawerOnAdd?: boolean
-    /** Called after the line was added (e.g. to let go of a design that is now in the cart). */
-    onAdded?: () => void
-    /** Blocks adding for a reason of the caller (e.g. a design made for another version). */
+    /** Blocks adding for a reason of the caller. */
     disabled?: boolean
 }
 
@@ -35,11 +28,8 @@ export function AddToCartButton({
     product,
     variantId,
     quantity = 1,
-    personalization,
-    design,
     label = 'Agregar',
     openDrawerOnAdd = true,
-    onAdded,
     disabled = false,
     ...buttonProps
 }: AddToCartButtonProps) {
@@ -52,8 +42,7 @@ export function AddToCartButton({
     useEffect(() => () => clearTimeout(timeoutRef.current), [])
 
     const handleClick = () => {
-        addItem(product, variantId, quantity, personalization, design)
-        onAdded?.()
+        addItem(product, variantId, quantity)
         setIsConfirming(true)
         clearTimeout(timeoutRef.current)
         timeoutRef.current = setTimeout(() => setIsConfirming(false), CONFIRMATION_MS)
@@ -64,7 +53,7 @@ export function AddToCartButton({
     const variant = product.variants.find((candidate) => candidate.id === variantId)
     const stock = stockOf(product, variant)
     const isSoldOut = stock <= 0
-    // Every unit left is already in the cart (lines of this version share its stock).
+    // Every unit left is already in the cart (on-order products have no limit).
     const isAllInCart = !isSoldOut && cartUnitsOf(cartItems, product.id, variantId) >= stock
 
     return (

@@ -142,3 +142,15 @@ export const AdminExchangeRateView = lazy(() =>
         default: module.AdminExchangeRateView,
     })),
 )
+
+export const AdminQuotesView = lazy(() =>
+    import('@/views/admin/quotes/AdminQuotesView').then((module) => ({
+        default: module.AdminQuotesView,
+    })),
+)
+
+export const AdminQuoteEditorView = lazy(() =>
+    import('@/views/admin/quotes/AdminQuoteEditorView').then((module) => ({
+        default: module.AdminQuoteEditorView,
+    })),
+)

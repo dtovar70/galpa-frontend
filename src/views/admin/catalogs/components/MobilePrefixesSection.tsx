@@ -61,7 +61,7 @@ function NewMobilePrefixForm({
         <Card>
             <form onSubmit={submit} noValidate className="space-y-5">
                 <div>
-                    <h3 className="font-display text-xl text-ink">Nuevo código</h3>
+                    <h3 className="text-xl font-bold text-ink">Nuevo código</h3>
                     <p className="text-xs text-ink-soft">
                         Se añade al final de la lista, activo. El código no se puede cambiar
                         después.

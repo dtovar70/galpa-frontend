@@ -3,29 +3,20 @@ import { Link } from 'react-router'
 
 import type { Product, ProductTag } from '@/@types/product'
 import { AddToCartButton } from '@/components/shared/AddToCartButton'
+import { AvailabilityBadge } from '@/components/shared/AvailabilityBadge'
 import { PriceTag } from '@/components/shared/PriceTag'
 import { ProductMedia } from '@/components/shared/ProductMedia'
-import { categorySurface } from '@/components/shared/illustration/artwork'
-import { Badge, Card, type BadgeProps } from '@/components/ui'
+import { ProductSpecChips } from '@/components/shared/ProductSpecChips'
+import { Badge, Card } from '@/components/ui'
+import { leadTimeText, PRODUCT_TAG_LABELS, PRODUCT_TAG_TONES } from '@/constants/product.constant'
 import { productPath } from '@/constants/route.constant'
 import { cn } from '@/utils/cn'
 import { priceRange } from '@/utils/productPrice'
 import { defaultVariant as pickDefaultVariant } from '@/utils/productStock'
-import { useCategory } from '@/views/catalog/hooks/useCategories'
 import { productDetailQueryOptions } from '@/views/product/hooks/useProduct'
-import { PRODUCT_TAG_LABELS } from '@/constants/product.constant'
 
-const TAG_TONE: Record<ProductTag, NonNullable<BadgeProps['tone']>> = {
-    nuevo: 'solid',
-    bestseller: 'butter',
-    oferta: 'sky',
-    personalizable: 'mint',
-}
-
-const VISIBLE_TAGS = 2
-
-/** Which tags win the card's limited space: a deal first, then news, then the rest. */
-const TAG_PRIORITY: readonly ProductTag[] = ['oferta', 'nuevo', 'bestseller', 'personalizable']
+/** Which tag wins the card's corner: a deal first, then news, then best sellers. */
+const TAG_PRIORITY: readonly ProductTag[] = ['oferta', 'nuevo', 'bestseller']
 
 export interface ProductCardProps {
     product: Product
@@ -33,13 +24,14 @@ export interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     const queryClient = useQueryClient()
-    // First version in stock; when all are sold out the button shows "Agotado".
+    // First version available; when all are sold out the button shows "Agotado".
     const defaultVariant = pickDefaultVariant(product)
     const { min: fromPrice, max: toPrice } = priceRange(product)
-    const category = useCategory(product.category)
-    const accentColor = category?.colorHex
-    const surface = categorySurface(product.category, accentColor ?? product.colorHex)
     const coverImage = product.images.at(0)
+    const leadTime = product.availability === 'ON_ORDER' ? leadTimeText(product.leadTimeDays) : null
+    const topTag = [...product.tags].sort(
+        (a, b) => TAG_PRIORITY.indexOf(a) - TAG_PRIORITY.indexOf(b),
+    )[0]
 
     const prefetchDetail = () => {
         void queryClient.prefetchQuery(productDetailQueryOptions(product.slug))
@@ -53,60 +45,44 @@ export function ProductCard({ product }: ProductCardProps) {
             onFocus={prefetchDetail}
             className="group relative flex h-full flex-col overflow-hidden"
         >
-            {/*
-              Fixed square frame. Photos (usually shot on white) get a white surface and are
-              contained below the badges, uncropped; drawings keep the category surface.
-            */}
-            <div
-                className={cn(
-                    'relative flex aspect-square items-center justify-center overflow-hidden p-3 sm:p-6',
-                    coverImage ? 'bg-white' : surface.className,
-                )}
-                style={coverImage ? undefined : surface.style}
-            >
-                {/*
-                  Two-column phone grid: one tag only, on a single line, so it never covers the
-                  photo; wider cards show two.
-                */}
-                <ul className="absolute top-2.5 right-2.5 left-2.5 z-10 flex gap-1 overflow-hidden sm:top-4 sm:right-4 sm:left-4 sm:flex-wrap sm:gap-1.5">
-                    {[...product.tags]
-                        .sort((a, b) => TAG_PRIORITY.indexOf(a) - TAG_PRIORITY.indexOf(b))
-                        .slice(0, VISIBLE_TAGS)
-                        .map((tag, index) => (
-                            <li key={tag} className={cn('shrink-0', index > 0 && 'max-sm:hidden')}>
-                                <Badge tone={TAG_TONE[tag]} size="sm">
-                                    {PRODUCT_TAG_LABELS[tag]}
-                                </Badge>
-                            </li>
-                        ))}
-                </ul>
+            {/* Fixed square frame: photos are contained uncropped, placeholders fill it. */}
+            <div className="relative flex aspect-square items-center justify-center overflow-hidden border-b border-line bg-white">
+                <div className="absolute inset-x-2.5 top-2.5 z-10 flex items-start justify-between gap-1.5 sm:inset-x-4 sm:top-4">
+                    <AvailabilityBadge product={product} />
+                    {topTag ? (
+                        <Badge tone={PRODUCT_TAG_TONES[topTag]} size="sm" className="max-sm:hidden">
+                            {PRODUCT_TAG_LABELS[topTag]}
+                        </Badge>
+                    ) : null}
+                </div>
 
                 <ProductMedia
                     category={product.category}
-                    color={product.colorHex}
-                    printText={product.printText}
-                    accentColor={accentColor}
                     image={coverImage}
                     fallbackAlt={product.name}
-                    size="md"
+                    size="lg"
                     sizes="(min-width: 1280px) 18rem, (min-width: 640px) 33vw, 50vw"
                     className={cn(
-                        'transition-transform duration-300 motion-reduce:transform-none',
+                        'absolute inset-0 size-full max-w-none rounded-none transition-transform duration-300 motion-reduce:transform-none',
                         coverImage
-                            ? 'absolute inset-0 size-full max-w-none rounded-none object-contain px-3 pt-10 pb-3 group-hover:scale-105 sm:px-6 sm:pt-14 sm:pb-6'
-                            : 'group-hover:-translate-y-1',
+                            ? 'object-contain px-3 pt-10 pb-3 group-hover:scale-105 sm:px-6 sm:pt-14 sm:pb-6'
+                            : 'group-hover:scale-[1.03]',
                     )}
                 />
             </div>
 
             <div className="flex flex-1 flex-col gap-1.5 p-3 sm:gap-2 sm:p-5">
-                {category ? (
-                    <p className="truncate text-[11px] font-semibold tracking-[0.12em] text-blush-700 uppercase sm:text-xs sm:tracking-[0.15em]">
-                        {category.name}
-                    </p>
-                ) : null}
+                <p className="truncate text-[11px] font-bold tracking-[0.12em] text-brand-700 uppercase sm:text-xs">
+                    {product.brand}
+                    {product.model ? (
+                        <span className="font-tech font-medium tracking-normal text-ink-muted normal-case">
+                            {' '}
+                            · {product.model}
+                        </span>
+                    ) : null}
+                </p>
 
-                <h3 className="font-display text-base leading-snug text-ink sm:text-lg">
+                <h3 className="text-sm leading-snug font-semibold text-ink sm:text-base">
                     <Link
                         to={productPath(product.slug)}
                         className="rounded-sm after:absolute after:inset-0 after:content-['']"
@@ -115,10 +91,10 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Link>
                 </h3>
 
-                {product.description ? (
-                    <p className="line-clamp-2 text-xs text-ink-soft sm:text-sm">
-                        {product.description}
-                    </p>
+                <ProductSpecChips product={product} />
+
+                {leadTime ? (
+                    <p className="text-xs font-medium text-warning-800">{leadTime}</p>
                 ) : null}
 
                 {/*

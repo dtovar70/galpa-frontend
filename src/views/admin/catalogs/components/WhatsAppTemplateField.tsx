@@ -110,7 +110,7 @@ export function WhatsAppTemplateField({
                                 type="button"
                                 onClick={() => insert(placeholder.name)}
                                 aria-label={`Insertar {${placeholder.name}}: ${placeholder.description}`}
-                                className="rounded-full border-2 border-line bg-white px-2.5 py-1 font-mono text-xs text-ink transition hover:border-blush-300 hover:bg-blush-50 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                                className="rounded-full border border-line bg-white px-2.5 py-1 font-mono text-xs text-ink transition hover:border-brand-300 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
                             >
                                 {`{${placeholder.name}}`}
                             </button>
@@ -121,7 +121,7 @@ export function WhatsAppTemplateField({
 
             <div className="space-y-2">
                 <p className="text-sm font-semibold text-ink">Vista previa con datos de ejemplo</p>
-                <div className="rounded-3xl bg-[#efeae2] p-4">
+                <div className="rounded-2xl bg-[#efeae2] p-4">
                     <div className="ml-auto max-w-[92%] rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line text-[#111b21] shadow-sm">
                         {preview ? (
                             <MessageText text={preview} />

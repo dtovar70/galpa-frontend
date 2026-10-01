@@ -5,13 +5,13 @@ import { CircleAlert, CircleCheck, Info, X, type LucideIcon } from 'lucide-react
 import { cn } from '@/utils/cn'
 
 const alertVariants = cva(
-    'group relative flex items-start gap-3 overflow-hidden rounded-2xl border-2 px-4 py-3 text-sm font-medium',
+    'group relative flex items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 text-sm font-medium',
     {
         variants: {
             tone: {
-                success: 'border-mint-400/60 bg-mint-200/50 text-ink',
-                error: 'border-blush-300 bg-blush-50 text-blush-800',
-                info: 'border-sky-300 bg-sky-50 text-sky-900',
+                success: 'border-brand-200 bg-brand-50 text-brand-900',
+                error: 'border-danger-200 bg-danger-50 text-danger-800',
+                info: 'border-frost-200 bg-frost-50 text-frost-900',
             },
         },
         defaultVariants: {
@@ -23,9 +23,9 @@ const alertVariants = cva(
 type AlertTone = NonNullable<VariantProps<typeof alertVariants>['tone']>
 
 const TONE_DETAILS: Record<AlertTone, { icon: LucideIcon; iconClass: string; barClass: string }> = {
-    success: { icon: CircleCheck, iconClass: 'text-mint-400', barClass: 'bg-mint-400' },
-    error: { icon: CircleAlert, iconClass: 'text-blush-600', barClass: 'bg-blush-400' },
-    info: { icon: Info, iconClass: 'text-sky-600', barClass: 'bg-sky-400' },
+    success: { icon: CircleCheck, iconClass: 'text-brand-600', barClass: 'bg-brand-500' },
+    error: { icon: CircleAlert, iconClass: 'text-danger-600', barClass: 'bg-danger-400' },
+    info: { icon: Info, iconClass: 'text-frost-600', barClass: 'bg-frost-400' },
 }
 
 export interface AlertProps extends VariantProps<typeof alertVariants> {
@@ -61,7 +61,7 @@ export function Alert({
                     type="button"
                     onClick={onDismiss}
                     aria-label="Cerrar mensaje"
-                    className="-my-1 -mr-2 grid size-7 shrink-0 place-items-center rounded-full text-ink-soft transition hover:bg-white/70 hover:text-ink focus-visible:outline-2 focus-visible:outline-blush-400"
+                    className="-my-1 -mr-2 grid size-7 shrink-0 place-items-center rounded-full text-ink-soft transition hover:bg-white/70 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand-400"
                 >
                     <X aria-hidden="true" className="size-4" />
                 </button>

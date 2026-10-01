@@ -54,13 +54,13 @@ export function SessionTimeoutDialog({
                     dialog.querySelector<HTMLButtonElement>('[data-autofocus]')?.focus()
                 }
             }}
-            className="fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl bg-cream p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm"
+            className="fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl bg-page p-0 text-ink shadow-lift backdrop:bg-ink/40 backdrop:backdrop-blur-sm"
         >
             {isOpen ? (
                 <div className="scroll-soft max-h-[calc(100dvh-2rem)] space-y-5 overflow-y-auto overscroll-contain p-6">
                     <div className="space-y-2">
-                        <h2 id={titleId} className="flex items-center gap-2 font-display text-xl">
-                            <Clock aria-hidden="true" className="size-5 text-blush-500" />
+                        <h2 id={titleId} className="flex items-center gap-2 text-xl font-bold">
+                            <Clock aria-hidden="true" className="size-5 text-warning-600" />
                             ¿Sigues ahí?
                         </h2>
                         <p id={descriptionId} className="text-sm text-ink-soft">
@@ -69,23 +69,23 @@ export function SessionTimeoutDialog({
                         </p>
                     </div>
 
-                    <div className="space-y-3 rounded-2xl border-2 border-blush-200 bg-blush-50 px-4 pt-4 pb-5 text-center">
+                    <div className="space-y-3 rounded-2xl border border-warning-200 bg-warning-50 px-4 pt-4 pb-5 text-center">
                         <p className="text-sm text-ink-soft">
                             Tu sesión se cerrará en
-                            <span className="block font-display text-6xl leading-tight text-blush-700 tabular-nums">
+                            <span className="block font-tech text-6xl leading-tight font-bold text-warning-800 tabular-nums">
                                 {secondsLeft}
                             </span>
                             {secondsLeft === 1 ? 'segundo' : 'segundos'}
                         </p>
                         <div
                             aria-hidden="true"
-                            className="relative h-1.5 overflow-hidden rounded-full bg-blush-100"
+                            className="relative h-1.5 overflow-hidden rounded-full bg-warning-100"
                         >
                             {/* Same look as the `Alert` countdown bar, driven by the wall clock so
                                 it stays right after the tab sleeps or the dialog reopens. */}
                             <span
                                 style={{ transform: `scaleX(${remainingFraction})` }}
-                                className="absolute inset-0 origin-left bg-blush-400 transition-transform duration-300 ease-linear motion-reduce:transition-none"
+                                className="absolute inset-0 origin-left bg-warning-500 transition-transform duration-300 ease-linear motion-reduce:transition-none"
                             />
                         </div>
                     </div>

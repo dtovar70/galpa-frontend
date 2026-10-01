@@ -37,7 +37,7 @@ export function useSiteContent(): SiteContent {
     return useSiteContentQuery().data ?? DEFAULT_SITE_CONTENT
 }
 
-/** Fills `{envioGratis}`, `{produccion}`, `{marca}`… with the current content. */
+/** Fills `{envioGratis}`, `{marca}`… with the current content. */
 export function useFillPlaceholders(): (text: string, extra?: PlaceholderValues) => string {
     const content = useSiteContent()
     const values = useMemo(() => placeholderValues(content), [content])
@@ -48,7 +48,7 @@ export function useFillPlaceholders(): (text: string, extra?: PlaceholderValues)
     )
 }
 
-/** Shipping settings plus the rendered free-shipping line ("Envío gratis desde $35"). */
+/** Shipping settings plus the rendered free-shipping line ("Envío gratis desde $500"). */
 export function useShippingContent() {
     const { shipping } = useSiteContent()
     const fill = useFillPlaceholders()

@@ -77,7 +77,7 @@ export function OrderStatusesSection() {
 
             <section className="space-y-3" aria-labelledby="catalog-groups-title">
                 <div className="space-y-1">
-                    <h2 id="catalog-groups-title" className="font-display text-2xl text-ink">
+                    <h2 id="catalog-groups-title" className="text-2xl font-bold text-ink">
                         Pestañas de Pedidos
                     </h2>
                     <p className="text-sm text-ink-soft">
@@ -108,7 +108,7 @@ export function OrderStatusesSection() {
 
             <section className="space-y-3" aria-labelledby="catalog-statuses-title">
                 <div className="space-y-1">
-                    <h2 id="catalog-statuses-title" className="font-display text-2xl text-ink">
+                    <h2 id="catalog-statuses-title" className="text-2xl font-bold text-ink">
                         Estados
                     </h2>
                     <p className="text-sm text-ink-soft">

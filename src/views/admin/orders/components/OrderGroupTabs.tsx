@@ -17,7 +17,7 @@ const SKELETON_TABS = 5
  * 42rem fits the whole row with two-digit counts.
  */
 const TABLIST_CLASS =
-    'flex flex-wrap gap-1 rounded-3xl border-2 border-line bg-white p-1 @2xl:w-max @2xl:flex-nowrap @2xl:rounded-full'
+    'flex flex-wrap gap-1 rounded-2xl border border-line bg-white p-1 @2xl:w-max @2xl:flex-nowrap @2xl:rounded-full'
 /** Narrow, each pill grows from 9.5rem: two per row on phones, three on wider containers. */
 const TAB_SIZE_CLASS = 'flex-[1_1_9.5rem] @2xl:flex-none'
 
@@ -117,8 +117,8 @@ export function OrderGroupTabs({
                                 'inline-flex items-center justify-center gap-2 rounded-full py-2 pr-2.5 pl-4 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-offset-white',
                                 TAB_SIZE_CLASS,
                                 isActive
-                                    ? 'bg-blush-100 text-blush-800'
-                                    : 'text-ink-soft hover:bg-blush-50 hover:text-ink',
+                                    ? 'bg-brand-100 text-brand-800'
+                                    : 'text-ink-soft hover:bg-brand-50 hover:text-ink',
                                 count === undefined && 'pr-4',
                             )}
                         >
@@ -128,9 +128,9 @@ export function OrderGroupTabs({
                                     className={cn(
                                         'min-w-6 rounded-full px-1.5 py-0.5 text-center text-xs font-bold tabular-nums',
                                         isUrgent
-                                            ? 'bg-blush-700 text-white'
+                                            ? 'bg-brand-700 text-white'
                                             : isActive
-                                              ? 'bg-white text-blush-700'
+                                              ? 'bg-white text-brand-700'
                                               : 'bg-line/80 text-ink-soft',
                                     )}
                                 >

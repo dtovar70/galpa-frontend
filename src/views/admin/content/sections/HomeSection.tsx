@@ -124,7 +124,7 @@ export function HomeSection(props: SectionFormProps<'home'>) {
                 />
             </FieldGroup>
 
-            <FieldGroup title="Favoritos" description="Los productos destacados.">
+            <FieldGroup title="Destacados" description="Los productos destacados.">
                 <FieldRow>
                     <Input
                         label="Antetítulo"
@@ -153,7 +153,10 @@ export function HomeSection(props: SectionFormProps<'home'>) {
                 />
             </FieldGroup>
 
-            <FieldGroup title="Cómo funciona" description="Los pasos numerados.">
+            <FieldGroup
+                title="Por qué elegirnos"
+                description="Las razones numeradas (asesoría, stock, instalación, pagos)."
+            >
                 <Input
                     label="Antetítulo"
                     error={errors.stepsEyebrow?.message}
@@ -172,25 +175,25 @@ export function HomeSection(props: SectionFormProps<'home'>) {
                     {...register('stepsDescription')}
                 />
                 <SortableList
-                    label="Pasos"
+                    label="Razones"
                     itemIds={steps.fields.map((field) => field.id)}
-                    itemName={(position) => `Paso ${position}`}
+                    itemName={(position) => `Razón ${position}`}
                     onMove={steps.move}
                     onRemove={steps.remove}
                     onAdd={() => steps.append({ title: '', description: '' })}
-                    addLabel="Agregar paso"
+                    addLabel="Agregar razón"
                     minItems={CONTENT_LIST_SIZES.steps.min}
                     maxItems={CONTENT_LIST_SIZES.steps.max}
                     error={errors.steps?.message ?? errors.steps?.root?.message}
                     renderItem={(index) => (
                         <>
                             <Input
-                                label="Título del paso"
+                                label="Título de la razón"
                                 error={errors.steps?.[index]?.title?.message}
                                 {...register(`steps.${index}.title`)}
                             />
                             <Textarea
-                                label="Descripción del paso"
+                                label="Descripción de la razón"
                                 rows={2}
                                 error={errors.steps?.[index]?.description?.message}
                                 maxLength={CONTENT_LIMITS.text}
@@ -257,7 +260,7 @@ export function HomeSection(props: SectionFormProps<'home'>) {
                                 <Input
                                     label="Producto"
                                     optional
-                                    hint="Por ejemplo: Taza personalizada."
+                                    hint="Por ejemplo: Split 12.000 BTU inverter."
                                     error={errors.testimonials?.[index]?.product?.message}
                                     {...register(`testimonials.${index}.product`)}
                                 />
@@ -269,7 +272,7 @@ export function HomeSection(props: SectionFormProps<'home'>) {
 
             <FieldGroup
                 title="Banner final"
-                description="El recuadro con el formulario del boletín."
+                description="El recuadro oscuro del final, con el botón de WhatsApp."
             >
                 <Input
                     label="Etiqueta"

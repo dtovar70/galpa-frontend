@@ -7,13 +7,13 @@ import { formatDateTime } from '@/utils/formatDate'
 export function OrderHistory({ order }: { order: AdminOrder }) {
     return (
         <Card padding="md" className="space-y-4">
-            <h2 className="font-display text-xl text-ink">Historial</h2>
+            <h2 className="text-xl font-bold text-ink">Historial</h2>
             <ol className="space-y-3 border-l-2 border-line pl-4">
                 {order.history.map((entry, index) => (
                     <li key={`${entry.to}-${index}`} className="relative space-y-1">
                         <span
                             aria-hidden="true"
-                            className="absolute top-1.5 -left-[1.3rem] size-2.5 rounded-full bg-blush-400"
+                            className="absolute top-1.5 -left-[1.3rem] size-2.5 rounded-full bg-brand-400"
                         />
                         <div className="flex flex-wrap items-center gap-2">
                             <OrderStatusBadge status={entry.to} size="sm" />

@@ -1,9 +1,11 @@
+import { BrandsStrip } from '@/views/home/components/BrandsStrip'
+import { BtuCalculator } from '@/views/home/components/BtuCalculator'
 import { CategoryStrip } from '@/views/home/components/CategoryStrip'
 import { CtaBanner } from '@/views/home/components/CtaBanner'
 import { FeaturedProducts } from '@/views/home/components/FeaturedProducts'
 import { Hero } from '@/views/home/components/Hero'
-import { HowItWorks } from '@/views/home/components/HowItWorks'
 import { Testimonials } from '@/views/home/components/Testimonials'
+import { WhyChooseUs } from '@/views/home/components/WhyChooseUs'
 
 export function HomeView() {
     return (
@@ -11,7 +13,9 @@ export function HomeView() {
             <Hero />
             <CategoryStrip />
             <FeaturedProducts />
-            <HowItWorks />
+            <BtuCalculator />
+            <WhyChooseUs />
+            <BrandsStrip />
             <Testimonials />
             <CtaBanner />
         </>

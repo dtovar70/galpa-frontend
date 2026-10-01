@@ -62,7 +62,7 @@ function NewBankForm({
         <Card>
             <form onSubmit={submit} noValidate className="space-y-5">
                 <div>
-                    <h3 className="font-display text-xl text-ink">Nuevo banco</h3>
+                    <h3 className="text-xl font-bold text-ink">Nuevo banco</h3>
                     <p className="text-xs text-ink-soft">
                         Se añade al final de la lista, activo. El código no se puede cambiar
                         después.
@@ -141,9 +141,9 @@ export function BanksSection() {
         <div className="space-y-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <p className="text-sm text-ink-soft">
-                    Los bancos activos aparecen, en este orden, al elegir el banco de un Pago Móvil.
-                    Desactiva un banco para ocultarlo; los que ya tienen pagos no se pueden
-                    eliminar.
+                    Los bancos activos aparecen, en este orden, al elegir el banco de un Pago Móvil
+                    o una transferencia. Desactiva un banco para ocultarlo; los que ya tienen pagos
+                    no se pueden eliminar.
                 </p>
                 {isCreating ? null : (
                     <Button

@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 
-const STORAGE_KEY = 'mrc:checkout-idempotency'
+const STORAGE_KEY = 'galpa:checkout-idempotency'
 
 interface StoredKey {
     /** Fingerprint of what the key was minted for (the order body); another body, a new key. */

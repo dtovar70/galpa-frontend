@@ -52,14 +52,14 @@ const optionVariants = cva(
     'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition duration-150',
     {
         variants: {
-            isSelected: { true: 'text-blush-700', false: 'text-ink-soft' },
+            isSelected: { true: 'text-brand-700', false: 'text-ink-soft' },
             isActive: { true: '', false: '' },
             isDisabled: { true: 'cursor-not-allowed opacity-45', false: '' },
         },
         compoundVariants: [
-            { isSelected: true, isActive: true, class: 'bg-blush-200 text-blush-800' },
-            { isSelected: true, isActive: false, class: 'bg-blush-100' },
-            { isSelected: false, isActive: true, class: 'bg-blush-50 text-ink' },
+            { isSelected: true, isActive: true, class: 'bg-brand-200 text-brand-800' },
+            { isSelected: true, isActive: false, class: 'bg-brand-100' },
+            { isSelected: false, isActive: true, class: 'bg-brand-50 text-ink' },
         ],
         defaultVariants: { isSelected: false, isActive: false, isDisabled: false },
     },
@@ -359,7 +359,7 @@ export function Select({
                               'aria-invalid': error ? true : undefined,
                               // 16px text: iOS zooms into smaller focused fields.
                               className:
-                                  'peer absolute inset-0 z-10 size-full cursor-pointer appearance-none rounded-full text-base opacity-0 disabled:cursor-not-allowed',
+                                  'peer absolute inset-0 z-10 size-full cursor-pointer appearance-none rounded-xl text-base opacity-0 disabled:cursor-not-allowed',
                           }
                         : {
                               tabIndex: -1,
@@ -402,11 +402,11 @@ export function Select({
                     onKeyDown={onTriggerKeyDown}
                     className={cn(
                         FIELD_BASE_CLASS,
-                        'flex h-11 items-center justify-between gap-3 rounded-full px-4 text-left outline-none',
-                        'enabled:hover:border-blush-200',
-                        isOpen && 'border-blush-400 ring-4 ring-blush-200/70',
+                        'flex h-11 items-center justify-between gap-3 rounded-xl px-4 text-left outline-none',
+                        'enabled:hover:border-brand-200',
+                        isOpen && 'border-brand-400 ring-4 ring-brand-100',
                         isTouch &&
-                            'pointer-events-none peer-focus-visible:border-blush-400 peer-focus-visible:ring-4 peer-focus-visible:ring-blush-200/70',
+                            'pointer-events-none peer-focus-visible:border-brand-400 peer-focus-visible:ring-4 peer-focus-visible:ring-brand-100',
                         error && FIELD_ERROR_CLASS,
                         className,
                     )}
@@ -418,7 +418,7 @@ export function Select({
                         aria-hidden="true"
                         className={cn(
                             'size-4 shrink-0 text-ink-soft transition duration-200',
-                            isOpen && 'rotate-180 text-blush-500',
+                            isOpen && 'rotate-180 text-brand-600',
                         )}
                     />
                 </button>
@@ -438,7 +438,7 @@ export function Select({
                         }}
                         className={cn(
                             'absolute z-30 max-h-60 w-max space-y-0.5 overflow-y-auto overscroll-contain',
-                            'animate-select-pop rounded-2xl border-2 border-line bg-white p-1.5 shadow-lift',
+                            'animate-select-pop rounded-2xl border border-line bg-white p-1.5 shadow-lift',
                             panel.dropUp
                                 ? 'bottom-full mb-2 origin-bottom'
                                 : 'top-full mt-2 origin-top',

@@ -1,5 +1,6 @@
 import type { OrderStatus } from '@/@types/order'
 import { Badge, Skeleton, type BadgeProps } from '@/components/ui'
+import { STATUS_TONE_VARIANTS } from '@/constants/tone.constant'
 import { cn } from '@/utils/cn'
 import { useOrderStatusCatalog } from '@/utils/hooks/useOrderStatusCatalog'
 
@@ -22,7 +23,7 @@ export function OrderStatusBadge({ status, size, className }: OrderStatusBadgePr
     }
     const info = catalog.status(status)
     return (
-        <Badge tone={info.tone} size={size} className={className}>
+        <Badge tone={STATUS_TONE_VARIANTS[info.tone]} size={size} className={className}>
             {info.label}
         </Badge>
     )

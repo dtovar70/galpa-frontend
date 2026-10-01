@@ -1,11 +1,11 @@
 import { useWatch } from 'react-hook-form'
 
-import { Input } from '@/components/ui'
+import { Input, Textarea } from '@/components/ui'
 import { fillPlaceholders, formatShortMoney } from '@/utils/content'
 import { FieldGroup, FieldRow } from '@/views/admin/content/components/FieldGroup'
 import { SectionFormLayout } from '@/views/admin/content/components/SectionFormLayout'
 import { useSectionForm, type SectionFormProps } from '@/views/admin/content/hooks/useSectionForm'
-import { SECTION_FORMS } from '@/views/admin/content/schema/content.schema'
+import { CONTENT_LIMITS, SECTION_FORMS } from '@/views/admin/content/schema/content.schema'
 import { toOptionalNumber } from '@/views/admin/products/schema/product.schema'
 
 function isAmount(value: unknown): value is number {
@@ -53,7 +53,7 @@ export function ShippingSection(props: SectionFormProps<'shipping'>) {
                         {...register('flatRate', { setValueAs: toOptionalNumber })}
                     />
                 </FieldRow>
-                <p className="rounded-2xl bg-sky-50 px-4 py-3 text-sm text-ink">
+                <p className="rounded-xl bg-frost-50 px-4 py-3 text-sm text-ink">
                     Pedidos desde <strong>{threshold}</strong>: envío gratis. Por debajo se cobran{' '}
                     <strong>{rate}</strong>.
                 </p>
@@ -66,11 +66,13 @@ export function ShippingSection(props: SectionFormProps<'shipping'>) {
                     error={errors.freeShippingCopy?.message}
                     {...register('freeShippingCopy')}
                 />
-                <Input
-                    label="Tiempo de producción"
-                    hint="Pie de página, página de producto, preguntas ({produccion}) y pedido confirmado."
-                    error={errors.productionCopy?.message}
-                    {...register('productionCopy')}
+                <Textarea
+                    label="Texto de despacho"
+                    rows={2}
+                    hint="Página de producto: cuándo y cómo salen los pedidos pagados."
+                    error={errors.dispatchCopy?.message}
+                    maxLength={CONTENT_LIMITS.text}
+                    {...register('dispatchCopy')}
                 />
             </FieldGroup>
         </SectionFormLayout>

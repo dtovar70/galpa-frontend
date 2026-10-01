@@ -3,7 +3,8 @@ import { useId, useState } from 'react'
 import type { AdminOrder } from '@/@types/order'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Button } from '@/components/ui'
-import { formatBolivares } from '@/utils/formatBolivares'
+import { paymentMethodLabel } from '@/constants/payment.constant'
+import { formatOrderAmount } from '@/utils/payment'
 import { useRecordPayment } from '@/views/admin/hooks/useAdminOrders'
 import { PaymentForm } from '@/views/order/components/PaymentForm'
 
@@ -33,8 +34,9 @@ export function ManualPaymentAction({ order }: { order: AdminOrder }) {
                 description={
                     <>
                         Para un comprobante que el cliente envió por WhatsApp. El pedido pasará a
-                        «Pendiente por verificación» y luego lo confirmas como siempre. Monto del
-                        pedido: {formatBolivares(order.totals.totalBs)} (fijado al crearlo).
+                        «Comprobante por verificar» y luego lo apruebas como siempre. Método
+                        elegido: {paymentMethodLabel(order.paymentMethod)} ·{' '}
+                        {formatOrderAmount(order.paymentMethod, order.totals)} (fijado al crearlo).
                         {order.status === 'EXPIRADO'
                             ? ' El pedido está expirado: se toma otra vez el stock que haya.'
                             : ''}
@@ -53,8 +55,10 @@ export function ManualPaymentAction({ order }: { order: AdminOrder }) {
                 <PaymentForm
                     formId={formId}
                     createdAt={order.createdAt}
+                    method={order.paymentMethod}
+                    allowMethodChange
                     totalBs={order.totals.totalBs}
-                    referenceHint="Los encuentras al final del número de referencia del comprobante del cliente."
+                    totalUsd={order.totals.totalUsd}
                     onSubmit={async (input) => {
                         await recordPayment.mutateAsync(input)
                         setIsOpen(false)

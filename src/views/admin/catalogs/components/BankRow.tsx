@@ -13,7 +13,7 @@ import { useUpdateBank } from '@/views/admin/hooks/useAdminCatalogs'
 
 /** `aria-disabled` instead of `disabled` keeps keyboard focus on the button while saving. */
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
 function plural(count: number, singular: string, pluralForm: string): string {
     return `${count} ${count === 1 ? singular : pluralForm}`
@@ -57,13 +57,13 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
         <li
             data-bank-code={bank.code}
             className={cn(
-                'rounded-3xl border-2 border-line bg-white shadow-soft',
-                !bank.isActive && 'bg-cream/60',
+                'rounded-2xl border border-line bg-white shadow-soft',
+                !bank.isActive && 'bg-page/60',
             )}
         >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 sm:p-4">
                 <div className="flex min-w-0 flex-1 basis-56 items-center gap-3">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-cream text-sm font-bold text-ink">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-page text-sm font-bold text-ink">
                         <span className="sr-only">Posición </span>
                         {index + 1}
                     </span>
@@ -72,7 +72,7 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
                             <span className="font-mono text-sm text-ink-soft">{bank.code}</span>
                             <h3
                                 className={cn(
-                                    'min-w-0 font-display text-lg break-words',
+                                    'min-w-0 text-lg font-bold break-words',
                                     bank.isActive ? 'text-ink' : 'text-ink-soft',
                                 )}
                             >
@@ -135,7 +135,7 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
                             aria-expanded={isExpanded}
                             aria-controls={panelId}
                             aria-label={`Renombrar ${bank.name}`}
-                            className={cn(actionClass, isExpanded && 'bg-blush-100 text-blush-700')}
+                            className={cn(actionClass, isExpanded && 'bg-brand-100 text-brand-700')}
                         >
                             <Pencil aria-hidden="true" className="size-4" />
                         </button>

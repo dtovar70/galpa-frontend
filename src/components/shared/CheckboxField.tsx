@@ -15,7 +15,7 @@ export interface CheckboxFieldProps {
 export function CheckboxField({ checked, onChange, children, hint, disabled }: CheckboxFieldProps) {
     const id = useId()
     return (
-        <div className="flex items-start gap-3 rounded-2xl border-2 border-line bg-white px-4 py-3">
+        <div className="flex items-start gap-3 rounded-2xl border border-line bg-white px-4 py-3">
             {/*
               Drawn by hand instead of `accent-color`: browsers pick the tick color themselves
               (black on our pink), so the box is styled here and the tick is always white.
@@ -28,7 +28,7 @@ export function CheckboxField({ checked, onChange, children, hint, disabled }: C
                     disabled={disabled}
                     onChange={(event) => onChange(event.target.checked)}
                     aria-describedby={hint ? `${id}-hint` : undefined}
-                    className="peer size-5 cursor-pointer appearance-none rounded-md border-2 border-ink/25 bg-white transition-colors checked:border-blush-700 checked:bg-blush-700 hover:border-blush-400 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="peer size-5 cursor-pointer appearance-none rounded-md border-2 border-ink/25 bg-white transition-colors checked:border-brand-700 checked:bg-brand-700 hover:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
                 <Check
                     aria-hidden="true"

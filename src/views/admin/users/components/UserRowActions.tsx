@@ -5,7 +5,7 @@ import { Tooltip } from '@/components/ui'
 import { cn } from '@/utils/cn'
 
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2'
 /** Still focusable (aria-disabled), so keyboard users also reach the tooltip saying why. */
 const blockedClass = 'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-ink-soft'
 

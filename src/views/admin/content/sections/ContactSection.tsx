@@ -74,7 +74,7 @@ export function ContactSection(props: SectionFormProps<'contact'>) {
                 </FieldRow>
                 <FieldRow>
                     <Input
-                        label="Ciudad del taller"
+                        label="Dirección de la tienda"
                         error={errors.city?.message}
                         {...register('city')}
                     />

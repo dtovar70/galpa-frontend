@@ -1,6 +1,6 @@
 import type { CartAvailability } from '@/@types/cart'
 import type { Paginated, ProductQueryParams } from '@/@types/common'
-import type { Category, Product } from '@/@types/product'
+import type { Category, CategorySlug, Product, ProductFacets } from '@/@types/product'
 import { apiClient } from '@/services/ApiClient'
 import { isApiError, NotFoundError } from '@/services/errors'
 
@@ -27,10 +27,21 @@ async function getProducts(params: ProductQueryParams = {}): Promise<Paginated<P
             minPrice: params.minPrice,
             maxPrice: params.maxPrice,
             tags: params.tags,
+            brand: params.brands,
+            availability: params.availability,
+            btuMin: params.btuMin,
+            btuMax: params.btuMax,
+            voltage: params.voltage,
+            inverter: params.inverter,
             page: params.page,
             pageSize: params.pageSize,
         },
     })
+}
+
+/** Brands, capacities, voltages and price range of the active products (of one category). */
+function getFacets(category?: CategorySlug, signal?: AbortSignal): Promise<ProductFacets> {
+    return apiClient.get<ProductFacets>('/products/facets', { query: { category }, signal })
 }
 
 function getProductBySlug(slug: string): Promise<Product> {
@@ -70,6 +81,7 @@ function getCategories(): Promise<Category[]> {
  */
 export const ProductService = {
     getProducts,
+    getFacets,
     getProductBySlug,
     getFeaturedProducts,
     getRelatedProducts,

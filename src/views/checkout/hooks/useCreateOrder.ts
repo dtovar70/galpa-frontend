@@ -8,10 +8,6 @@ import { isApiError } from '@/services/errors'
 export const EXCHANGE_RATE_UNAVAILABLE = 'EXCHANGE_RATE_UNAVAILABLE'
 export const PAYMENT_METHOD_UNAVAILABLE = 'PAYMENT_METHOD_UNAVAILABLE'
 export const ORDER_ITEMS_INVALID = 'ORDER_ITEMS_INVALID'
-/** A line's design is gone, expired or does not match the line (400). */
-export const ORDER_DESIGN_INVALID = 'ORDER_DESIGN_INVALID'
-/** A line's design was already ordered (409). */
-export const ORDER_DESIGN_USED = 'ORDER_DESIGN_USED'
 /** The idempotency key was already used for a different order body (409). */
 export const IDEMPOTENCY_KEY_REUSED = 'IDEMPOTENCY_KEY_REUSED'
 

@@ -1,12 +1,14 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import type { CategorySlug } from '@/@types/product'
-import { ProductIllustration } from '@/components/shared/ProductIllustration'
+import { ProductPlaceholder } from '@/components/shared/ProductPlaceholder'
+import { placeholderArtFor } from '@/constants/category.constant'
+import { useCategory } from '@/views/catalog/hooks/useCategories'
 import { cldSrcSet, cldUrl } from '@/utils/cloudinary'
 import { cn } from '@/utils/cn'
 
-/** Same width caps as `ProductIllustration`, so a photo and a drawing occupy the same slot. */
-const photoVariants = cva('aspect-square w-full rounded-2xl object-cover select-none', {
+/** Same width caps as `ProductPlaceholder`, so a photo and a drawing occupy the same slot. */
+const photoVariants = cva('aspect-square w-full rounded-2xl bg-white object-contain select-none', {
     variants: {
         size: {
             sm: 'max-w-16 rounded-xl',
@@ -38,11 +40,7 @@ export interface ProductMediaImage {
 
 export interface ProductMediaProps extends VariantProps<typeof photoVariants> {
     category: CategorySlug
-    color: string
-    printText: string
-    /** Category color, used to tint the generic illustration (see `ProductIllustration`). */
-    accentColor?: string
-    /** Uploaded photo; when missing, the generated illustration is drawn instead. */
+    /** Uploaded photo; when missing, the category's line-art placeholder is drawn instead. */
     image?: ProductMediaImage
     /** Accessible name for the photo when it has no `alt` of its own. */
     fallbackAlt?: string
@@ -54,12 +52,9 @@ export interface ProductMediaProps extends VariantProps<typeof photoVariants> {
     fetchPriority?: 'high' | 'low' | 'auto'
 }
 
-/** A product's photo when it has one, otherwise its generated illustration. */
+/** A product's photo when it has one, otherwise its category placeholder. */
 export function ProductMedia({
     category,
-    color,
-    printText,
-    accentColor,
     image,
     fallbackAlt,
     size,
@@ -68,13 +63,12 @@ export function ProductMedia({
     sizes,
     fetchPriority,
 }: ProductMediaProps) {
+    const categoryInfo = useCategory(category)
+
     if (!image) {
         return (
-            <ProductIllustration
-                category={category}
-                color={color}
-                printText={printText}
-                accentColor={accentColor}
+            <ProductPlaceholder
+                art={placeholderArtFor(category, categoryInfo)}
                 size={size}
                 className={className}
             />

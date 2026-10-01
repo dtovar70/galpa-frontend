@@ -6,23 +6,34 @@ import {
 } from '@/constants/ui.constant'
 import { mobilePhoneSchema } from '@/utils/veFormats'
 
-export const CONTACT_TOPICS = ['personalizado', 'mayoreo', 'pedido', 'otro'] as const
+export const CONTACT_TOPICS = ['ASESORIA', 'COTIZACION', 'SOPORTE', 'OTRO'] as const
 
 export type ContactTopic = (typeof CONTACT_TOPICS)[number]
 
 export const CONTACT_TOPIC_LABELS: Record<ContactTopic, string> = {
-    personalizado: 'Quiero un diseño personalizado',
-    mayoreo: 'Pedido por mayor',
-    pedido: 'Consulta sobre un pedido',
-    otro: 'Otro tema',
+    ASESORIA: 'Quiero asesoría para elegir un equipo',
+    COTIZACION: 'Necesito una cotización',
+    SOPORTE: 'Soporte, repuestos o garantía',
+    OTRO: 'Otro tema',
+}
+
+export const SPACE_TYPES = ['RESIDENCIAL', 'COMERCIAL'] as const
+
+export type SpaceType = (typeof SPACE_TYPES)[number]
+
+export const SPACE_TYPE_LABELS: Record<SpaceType, string> = {
+    RESIDENCIAL: 'Residencial (hogar)',
+    COMERCIAL: 'Comercial (oficina, local, industria)',
 }
 
 export const CONTACT_MESSAGE_MAX_LENGTH = 600
+export const CONTACT_AREA_MAX = 5000
 
 /**
  * Same rules as the API's ContactMessageDto, so most mistakes are caught before sending. The
  * WhatsApp is optional; when given it is a mobile ("0424-1234567", from `MobilePhoneField`).
- * `website` is the hidden honeypot input (people leave it empty).
+ * Space type and area are optional and kept as typed (`""` when empty). `productSlug` comes from
+ * the `?producto=` link of a product page. `website` is the hidden honeypot input.
  */
 export const contactSchema = z.object({
     fullName: z
@@ -37,6 +48,19 @@ export const contactSchema = z.object({
         .pipe(z.email('Escribe un correo válido, por ejemplo hola@correo.com')),
     phone: mobilePhoneSchema({ required: '', optional: true }),
     topic: z.enum(CONTACT_TOPICS),
+    spaceType: z.union([z.enum(SPACE_TYPES), z.literal('')]),
+    areaM2: z
+        .string()
+        .trim()
+        .refine(
+            (value) => {
+                if (value === '') return true
+                const area = Number(value.replace(',', '.'))
+                return Number.isFinite(area) && area >= 1 && area <= CONTACT_AREA_MAX
+            },
+            `Indica un área entre 1 y ${CONTACT_AREA_MAX.toLocaleString('es-VE')} m²`,
+        ),
+    productSlug: z.string(),
     message: z
         .string()
         .trim()
@@ -48,4 +72,13 @@ export const contactSchema = z.object({
 export type ContactValues = z.infer<typeof contactSchema>
 
 /** Fields the API may pin an error on (`details[].field`). */
-export const CONTACT_FIELDS = ['fullName', 'email', 'phone', 'topic', 'message'] as const
+export const CONTACT_FIELDS = [
+    'fullName',
+    'email',
+    'phone',
+    'topic',
+    'spaceType',
+    'areaM2',
+    'productSlug',
+    'message',
+] as const

@@ -18,29 +18,30 @@ export const SECTION_META: Record<ContentSection, SectionMeta> = {
     },
     home: {
         label: 'Inicio',
-        description: 'Portada, títulos de cada bloque de la página de inicio y el banner final.',
+        description:
+            'Portada, títulos de cada bloque, «Por qué elegirnos», opiniones y el banner final.',
     },
     about: {
         label: 'Nosotros',
-        description: 'Historia del taller, valores y cifras de la página Nosotros.',
+        description: 'Trayectoria, valores y cifras de la página Nosotros.',
     },
     contact: {
         label: 'Contacto y redes',
         description:
-            'Correo, teléfonos, ciudad, horario y redes. Se usan en Contacto, el pie de página y los enlaces de WhatsApp.',
+            'Correo, teléfonos, dirección, horario y redes. Se usan en Asesoría, el pie de página y los enlaces de WhatsApp.',
     },
     contactPage: {
-        label: 'Página de contacto',
-        description: 'Encabezado y preguntas frecuentes de la página Contacto.',
+        label: 'Página de asesoría',
+        description: 'Encabezado y preguntas frecuentes de la página Asesoría y contacto.',
     },
     shipping: {
         label: 'Envíos',
         description:
-            'Monto para envío gratis, tarifa y tiempo de producción. El carrito y el checkout calculan el envío con estos valores.',
+            'Monto para envío gratis, tarifa y texto de despacho. El carrito y el checkout calculan el envío con estos valores.',
     },
     payment: {
-        label: 'Pago Móvil',
+        label: 'Métodos de pago',
         description:
-            'Datos para que el cliente te pague por Pago Móvil. Todavía no se muestran en la tienda: el checkout los usará más adelante.',
+            'Pago Móvil, transferencia, Zelle y Binance. El checkout ofrece solo los métodos activos y completos.',
     },
 }

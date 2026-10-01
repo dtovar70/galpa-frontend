@@ -3,8 +3,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Save } from 'lucide-react'
 import { useForm, useWatch, type UseFormSetError } from 'react-hook-form'
 
+import { CategoryIconGlyph } from '@/components/shared/CategoryIconGlyph'
 import type { AdminCategory, CategoryCreateInput, CategoryInput } from '@/@types/admin'
-import { Alert, Button, Card, Input, Textarea } from '@/components/ui'
+import { Alert, Button, Card, Input, Select, Textarea, type SelectOption } from '@/components/ui'
+import {
+    CATEGORY_ICON_NAMES,
+    CATEGORY_ICONS,
+    isCategoryIconName,
+} from '@/constants/category.constant'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { toColorInputValue } from '@/utils/color'
@@ -16,8 +22,12 @@ import {
     EMPTY_CATEGORY_FORM,
     type CategoryFormValues,
 } from '@/views/admin/categories/schema/category.schema'
-import { CategoryDesignTemplate } from '@/views/admin/categories/components/CategoryDesignTemplate'
 import { useCreateCategory, useUpdateCategory } from '@/views/admin/hooks/useAdminCategories'
+
+const ICON_OPTIONS: SelectOption[] = [
+    { value: '', label: 'Predeterminado (aire acondicionado)' },
+    ...CATEGORY_ICON_NAMES.map((name) => ({ value: name, label: CATEGORY_ICONS[name].label })),
+]
 
 function toFormValues(category: AdminCategory): CategoryFormValues {
     return {
@@ -26,6 +36,7 @@ function toFormValues(category: AdminCategory): CategoryFormValues {
         tagline: category.tagline,
         description: category.description,
         colorHex: category.colorHex,
+        icon: isCategoryIconName(category.icon) ? category.icon : '',
     }
 }
 
@@ -37,13 +48,14 @@ function toInput(values: CategoryFormValues): CategoryCreateInput {
         tagline: values.tagline.trim(),
         description: values.description.trim(),
         colorHex: values.colorHex.trim().toUpperCase(),
+        icon: values.icon || null,
     }
 }
 
 /** The slug is the category's identity: only sent on create. */
 function toUpdateInput(values: CategoryFormValues): CategoryInput {
-    const { name, tagline, description, colorHex } = toInput(values)
-    return { name, tagline, description, colorHex }
+    const { name, tagline, description, colorHex, icon } = toInput(values)
+    return { name, tagline, description, colorHex, icon }
 }
 
 /** Pins API validation errors (and a taken slug) on their fields. */
@@ -101,7 +113,7 @@ export function CategoryForm(props: CategoryFormProps) {
         resolver: zodResolver(categoryFormSchema),
         defaultValues: category ? toFormValues(category) : EMPTY_CATEGORY_FORM,
     })
-    const [colorHex, name] = useWatch({ control, name: ['colorHex', 'name'] })
+    const [colorHex, name, icon] = useWatch({ control, name: ['colorHex', 'name', 'icon'] })
 
     const submit = handleSubmit((values) => {
         setIsSaved(false)
@@ -146,11 +158,12 @@ export function CategoryForm(props: CategoryFormProps) {
                 <div className="flex items-center gap-3">
                     <span
                         aria-hidden="true"
-                        className="size-10 shrink-0 rounded-2xl border border-ink/10"
-                        style={{ backgroundColor: toColorInputValue(colorHex) }}
-                    />
+                        className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink text-brand-400"
+                    >
+                        <CategoryIconGlyph name={icon} className="size-5" />
+                    </span>
                     <div className="min-w-0">
-                        <h2 className="font-display text-xl break-words text-ink">{title}</h2>
+                        <h2 className="text-xl break-words text-ink">{title}</h2>
                         <p className="text-xs break-words text-ink-soft">
                             Se añade al final del menú y del catálogo.
                         </p>
@@ -165,7 +178,7 @@ export function CategoryForm(props: CategoryFormProps) {
                         label="Slug (URL)"
                         optional
                         hint="Se genera a partir del nombre. No se puede cambiar después."
-                        placeholder="gorras-bordadas"
+                        placeholder="aires-inverter"
                         autoCapitalize="none"
                         spellCheck={false}
                         error={errors.slug?.message}
@@ -196,27 +209,45 @@ export function CategoryForm(props: CategoryFormProps) {
                 maxLength={CATEGORY_DESCRIPTION_MAX_LENGTH}
                 {...register('description')}
             />
-            <div className="flex items-start gap-3">
-                <label className="mt-6.5 flex shrink-0 flex-col">
-                    <span className="sr-only">Elegir color de {title}</span>
-                    <input
-                        type="color"
-                        value={toColorInputValue(colorHex)}
-                        onChange={(event) =>
-                            setValue('colorHex', event.target.value.toUpperCase(), {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                            })
-                        }
-                        className="size-11 cursor-pointer rounded-full border-2 border-line bg-white p-1"
-                    />
-                </label>
-                <div className="w-full max-w-48">
-                    <Input
-                        label="Color (hex)"
-                        spellCheck={false}
-                        error={errors.colorHex?.message}
-                        {...register('colorHex')}
+            <div className="grid grid-cols-1 items-start gap-5 @lg:grid-cols-2">
+                <div className="flex items-start gap-3">
+                    <label className="mt-6.5 flex shrink-0 flex-col">
+                        <span className="sr-only">Elegir color de {title}</span>
+                        <input
+                            type="color"
+                            value={toColorInputValue(colorHex)}
+                            onChange={(event) =>
+                                setValue('colorHex', event.target.value.toUpperCase(), {
+                                    shouldDirty: true,
+                                    shouldValidate: true,
+                                })
+                            }
+                            className="size-11 cursor-pointer rounded-xl border border-line bg-white p-1"
+                        />
+                    </label>
+                    <div className="w-full max-w-48">
+                        <Input
+                            label="Color (hex)"
+                            spellCheck={false}
+                            error={errors.colorHex?.message}
+                            {...register('colorHex')}
+                        />
+                    </div>
+                </div>
+                <div className="flex items-end gap-3">
+                    <span
+                        aria-hidden="true"
+                        className="grid size-11 shrink-0 place-items-center rounded-xl bg-ink text-brand-400"
+                    >
+                        <CategoryIconGlyph name={icon} className="size-5" />
+                    </span>
+                    <Select
+                        label="Ícono"
+                        hint="Se muestra en el inicio y en el menú de categorías."
+                        options={ICON_OPTIONS}
+                        error={errors.icon?.message}
+                        className="flex-1"
+                        {...register('icon')}
                     />
                 </div>
             </div>
@@ -263,9 +294,6 @@ export function CategoryForm(props: CategoryFormProps) {
     return props.mode === 'create' ? (
         <Card className="@container">{form}</Card>
     ) : (
-        <div className="@container space-y-6">
-            {form}
-            <CategoryDesignTemplate category={props.category} />
-        </div>
+        <div className="@container">{form}</div>
     )
 }

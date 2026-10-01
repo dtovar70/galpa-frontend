@@ -53,7 +53,7 @@ export function ClearCartButton({ itemCount, className }: ClearCartButtonProps) 
                 type="button"
                 aria-label={`Vaciar el carrito (${itemCount} productos)`}
                 onClick={() => setIsArmed(true)}
-                className="flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700"
+                className="flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700"
             >
                 <Trash2 aria-hidden="true" className="size-4" />
             </button>

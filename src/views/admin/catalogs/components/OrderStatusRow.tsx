@@ -8,6 +8,7 @@ import type { OrderStatus } from '@/@types/order'
 import { Alert, Badge, Button, Input, Textarea, Tooltip } from '@/components/ui'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
+import { STATUS_TONE_VARIANTS } from '@/constants/tone.constant'
 import { cn } from '@/utils/cn'
 import { useFillPlaceholders } from '@/utils/hooks/useSiteContent'
 import { ReadOnlyFields } from '@/views/admin/catalogs/components/ReadOnlyFields'
@@ -22,13 +23,15 @@ import { RECEIPT_STATUSES } from '@/views/admin/catalogs/utils/whatsappTemplate'
 import { useUpdateOrderStatus } from '@/views/admin/hooks/useAdminCatalogs'
 
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2'
 
 /** Where the customer message of a status is not the whole story. */
 const MESSAGE_NOTES: Partial<Record<OrderStatus, string>> = {
-    LISTO_PARA_ENTREGA:
-        'Para retiro en el taller, el cliente ve un mensaje fijo: “¡Tu pedido está listo para retirar!”.',
-    ENVIADO: 'Si al marcarlo como enviado escribes la agencia y la guía, el cliente ve esa nota.',
+    ESPERANDO_MERCANCIA:
+        'Solo aparece en pedidos con equipos bajo pedido. Si escribes una nota al marcarlo, el cliente ve esa nota.',
+    LISTO_PARA_RETIRO: 'Solo para pedidos con retiro en tienda.',
+    DESPACHADO:
+        'Solo para pedidos con envío. Si al despacharlo escribes el transporte y la guía, el cliente ve esa nota.',
     CANCELADO: 'Si escribes un motivo al cancelar, el cliente ve ese motivo.',
     EXPIRADO: 'También se muestra cuando el plazo para pagar venció pero aún puede pagar.',
 }
@@ -76,10 +79,10 @@ export function OrderStatusRow({ status, whatsappTemplate, groupLabel }: OrderSt
     const [hasOpened, setHasOpened] = useState(false)
 
     return (
-        <li className="rounded-3xl border-2 border-line bg-white shadow-soft">
+        <li className="rounded-2xl border border-line bg-white shadow-soft">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 sm:p-4">
                 <div className="flex min-w-0 flex-1 basis-60 flex-wrap items-center gap-x-3 gap-y-1">
-                    <Badge tone={status.tone}>{status.label}</Badge>
+                    <Badge tone={STATUS_TONE_VARIANTS[status.tone]}>{status.label}</Badge>
                     <span className="inline-flex items-center gap-1 font-mono text-xs text-ink-soft">
                         <Lock aria-hidden="true" className="size-3" />
                         {status.code}
@@ -102,7 +105,7 @@ export function OrderStatusRow({ status, whatsappTemplate, groupLabel }: OrderSt
                         aria-expanded={isExpanded}
                         aria-controls={panelId}
                         aria-label={`Editar ${status.label}`}
-                        className={cn(actionClass, isExpanded && 'bg-blush-100 text-blush-700')}
+                        className={cn(actionClass, isExpanded && 'bg-brand-100 text-brand-700')}
                     >
                         <Pencil aria-hidden="true" className="size-4" />
                     </button>
@@ -218,17 +221,22 @@ function OrderStatusForm({ status, whatsappTemplate, groupLabel }: OrderStatusRo
 
                 <div className="space-y-4">
                     <p className="text-sm font-semibold text-ink">Vista previa</p>
-                    <div className="space-y-3 rounded-3xl border-2 border-line bg-cream/60 p-4">
+                    <div className="space-y-3 rounded-2xl border border-line bg-page/60 p-4">
                         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-soft">
                             <span>En el panel:</span>
-                            <Badge tone={values.tone ?? status.tone}>{previewLabel}</Badge>
-                            <Badge tone={values.tone ?? status.tone} size="sm">
+                            <Badge tone={STATUS_TONE_VARIANTS[values.tone ?? status.tone]}>
+                                {previewLabel}
+                            </Badge>
+                            <Badge
+                                tone={STATUS_TONE_VARIANTS[values.tone ?? status.tone]}
+                                size="sm"
+                            >
                                 {previewLabel}
                             </Badge>
                         </div>
-                        <div className="rounded-2xl border-2 border-line bg-white p-4">
+                        <div className="rounded-2xl border border-line bg-white p-4">
                             <p className="text-xs text-ink-soft">En la página del pedido:</p>
-                            <p className="mt-1 font-display text-lg break-words text-ink">
+                            <p className="mt-1 text-lg font-bold break-words text-ink">
                                 {previewTitle || '—'}
                             </p>
                             {previewBody ? (

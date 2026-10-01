@@ -3,13 +3,16 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/utils/cn'
 
-const cardVariants = cva('rounded-3xl border transition duration-300', {
+const cardVariants = cva('rounded-2xl border transition duration-300', {
     variants: {
         tone: {
             white: 'border-line bg-white',
-            cream: 'border-line bg-cream',
-            blush: 'border-blush-100 bg-blush-50',
-            sky: 'border-sky-100 bg-sky-50',
+            /** Recessed panel on the page background. */
+            muted: 'border-line bg-page',
+            brand: 'border-brand-100 bg-brand-50',
+            info: 'border-frost-100 bg-frost-50',
+            /** Dark band: ink surface with light text. */
+            dark: 'border-white/10 bg-surface text-white',
         },
         elevation: {
             none: '',

@@ -1,6 +1,9 @@
 import type { OrderStatus } from '@/@types/order'
 
-/** Colors a status badge may take (the `Badge` tones). Mirrors the API's `BADGE_TONES`. */
+/**
+ * Colors a status may take, as the API stores them (mirrors its `BADGE_TONES`). The storefront
+ * paints them with its own badge variants (see `STATUS_TONE_VARIANTS`).
+ */
 export const BADGE_TONES = ['blush', 'sky', 'mint', 'butter', 'lilac', 'solid', 'neutral'] as const
 export type BadgeTone = (typeof BADGE_TONES)[number]
 
@@ -13,7 +16,7 @@ export interface OrderStatusInfo {
     customerLabel: string
     /** Heading of the message on the customer's order page. */
     customerTitle: string | null
-    /** Body of that message; may use `{produccion}` and `{marca}`. */
+    /** Body of that message; may use `{marca}`. */
     customerDescription: string | null
     groupCode: string
     tone: BadgeTone
@@ -97,7 +100,7 @@ export interface MobilePrefix {
 }
 
 /** Content fields checked against the mobile codes. */
-export type ContentPhoneField = 'payment.phone' | 'contact.whatsapp'
+export type ContentPhoneField = 'payment.pagoMovil.phone' | 'contact.whatsapp'
 
 export interface AdminMobilePrefix extends MobilePrefix {
     isActive: boolean

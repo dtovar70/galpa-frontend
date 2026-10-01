@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Clock, Mail, Package, PackageSearch } from 'lucide-react'
+import { Clock, Mail, Package, PackageSearch, Warehouse } from 'lucide-react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -15,26 +15,31 @@ import { orderPath, ROUTES } from '@/constants/route.constant'
 import { isApiError } from '@/services/errors'
 import { OrderService } from '@/services/OrderService'
 import { cn } from '@/utils/cn'
+import { PAYMENT_METHOD_CONFIGURED } from '@/@types/content'
+import { isBolivarMethod, paymentMethodLabel } from '@/constants/payment.constant'
 import { formatDateTime } from '@/utils/formatDate'
 import { useCountdown } from '@/utils/hooks/useCountdown'
 import { useOrderStatusCatalog } from '@/utils/hooks/useOrderStatusCatalog'
+import { useSiteContent } from '@/utils/hooks/useSiteContent'
+import { configuredPaymentMethods } from '@/utils/payment'
 import { rememberOrder } from '@/utils/recentOrders'
 import { OrderItemsCard } from '@/views/order/components/OrderItemsCard'
+import { OrderQrCard } from '@/views/order/components/OrderQrCard'
 import { OrderTimeline } from '@/views/order/components/OrderTimeline'
-import { PagoMovilCard } from '@/views/order/components/PagoMovilCard'
 import { PaymentDeadline } from '@/views/order/components/PaymentDeadline'
 import { PaymentForm } from '@/views/order/components/PaymentForm'
-import { OrderQrCard } from '@/views/order/components/OrderQrCard'
 import { PaymentHistory } from '@/views/order/components/PaymentHistory'
+import { PaymentInstructionsCard } from '@/views/order/components/PaymentInstructionsCard'
+import { PaymentMethodSwitcher } from '@/views/order/components/PaymentMethodSwitcher'
 import { StatusMessage } from '@/views/order/components/StatusMessage'
-import { useOrder, useSubmitPayment } from '@/views/order/hooks/useOrder'
+import { useChangePaymentMethod, useOrder, useSubmitPayment } from '@/views/order/hooks/useOrder'
 
 const pageClass = 'space-y-8 py-10 lg:py-14'
 
 function StepTitle({ number, children }: { number: number; children: string }) {
     return (
-        <h2 className="flex items-center gap-3 font-display text-xl text-ink">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blush-700 text-base text-white">
+        <h2 className="flex items-center gap-3 text-xl text-ink">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-ink font-tech text-base text-brand-400">
                 {number}
             </span>
             {children}
@@ -56,7 +61,7 @@ function OrderSkeleton() {
 }
 
 /**
- * The customer's private order page (`/pedido/MR-000123?t=<token>`): how to pay, the proof
+ * The customer's private order page (`/pedido/GP-000123?t=<token>`): how to pay, the proof
  * upload and, afterwards, where the order stands. Works without an account.
  */
 export function OrderView() {
@@ -81,6 +86,8 @@ export function OrderView() {
     }, [location, navigate])
     const { data: order, isPending, isError, error, refetch } = useOrder(code, token)
     const submitPayment = useSubmitPayment(code, token)
+    const changeMethod = useChangePaymentMethod(code, token)
+    const { payment: paymentContent } = useSiteContent()
     // Status names and messages come from the catalog: wait for it rather than flash codes.
     const statusCatalog = useOrderStatusCatalog()
     const remaining = useCountdown(order?.paymentDueAt)
@@ -144,11 +151,18 @@ export function OrderView() {
         needsPayment &&
         (order.status === 'EXPIRADO' || (order.status === 'PENDIENTE_PAGO' && remaining === 0))
     const rejection = order.status === 'PAGO_RECHAZADO' ? order.payments[0]?.rejectionReason : null
+    // The store's details for the order's method; missing when it was turned off meanwhile.
+    const methodAvailable = PAYMENT_METHOD_CONFIGURED[order.paymentMethod](paymentContent)
+    const canSwitchMethod = order.status === 'PENDIENTE_PAGO' || order.status === 'PAGO_RECHAZADO'
+    const methodLabel = paymentMethodLabel(order.paymentMethod)
     const paymentForm = (
         <Card padding="md">
             <PaymentForm
+                key={order.paymentMethod}
                 createdAt={order.createdAt}
+                method={order.paymentMethod}
                 totalBs={order.totals.totalBs}
+                totalUsd={order.totals.totalUsd}
                 onSubmit={async (input) => {
                     await submitPayment.mutateAsync(input)
                     // The form is replaced by a shorter page: bring the customer back up to the
@@ -164,7 +178,7 @@ export function OrderView() {
             <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div className="min-w-0 space-y-2">
                     <p className="text-sm font-semibold text-ink-soft">Pedido</p>
-                    <h1 className="font-display text-4xl tracking-tight break-words text-ink uppercase sm:text-5xl">
+                    <h1 className="font-tech text-4xl font-bold tracking-tight break-words text-ink sm:text-5xl">
                         {order.code}
                     </h1>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
@@ -201,8 +215,8 @@ export function OrderView() {
                         <span className="font-semibold break-all text-ink">
                             {order.customer.email}
                         </span>{' '}
-                        con el resumen, los datos del Pago Móvil y el enlace para volver a este
-                        pedido. Si no lo ves, revisa spam o promociones.
+                        con el resumen, los datos para pagar con {methodLabel} y el enlace para
+                        volver a este pedido. Si no lo ves, revisa spam o promociones.
                     </CreatedNoticeItem>
                     {order.canSubmitPayment ? (
                         <CreatedNoticeItem icon={<Clock className="size-5" />}>
@@ -215,15 +229,21 @@ export function OrderView() {
                             a estar disponibles.
                         </CreatedNoticeItem>
                     ) : null}
+                    {order.hasOnOrderItems ? (
+                        <CreatedNoticeItem icon={<Warehouse className="size-5" />}>
+                            Tu pedido incluye equipos bajo pedido: te avisaremos cuando lleguen a
+                            nuestro almacén para coordinar la entrega.
+                        </CreatedNoticeItem>
+                    ) : null}
                     <CreatedNoticeItem icon={<Package className="size-5" />}>
                         En este dispositivo también lo encuentras en{' '}
                         <Link
                             to={ROUTES.myOrders}
-                            className="font-semibold text-blush-700 underline underline-offset-2"
+                            className="font-semibold text-brand-700 underline underline-offset-2"
                         >
                             Mis pedidos
                         </Link>{' '}
-                        (la cajita junto al carrito, o en el menú).
+                        (el ícono de paquete junto al carrito, o en el menú).
                     </CreatedNoticeItem>
                 </ul>
             </ConfirmDialog>
@@ -238,13 +258,15 @@ export function OrderView() {
                         </Alert>
                     ) : null}
 
-                    {needsPayment && !late && order.pagoMovil ? (
+                    {needsPayment && !late && methodAvailable ? (
                         <>
                             <section className="space-y-4" aria-label="Paso 1">
-                                <StepTitle number={1}>Paga desde tu banco</StepTitle>
+                                <StepTitle number={1}>Realiza tu pago</StepTitle>
                                 <p className="text-sm text-ink-soft">
-                                    Haz un Pago Móvil por el monto exacto con estos datos. Usa los
-                                    botones para copiarlos.
+                                    {isBolivarMethod(order.paymentMethod)
+                                        ? `Haz tu ${methodLabel} por el monto exacto en bolívares con estos datos.`
+                                        : `Envía el monto exacto en dólares por ${methodLabel} con estos datos.`}{' '}
+                                    Usa los botones para copiarlos.
                                 </p>
                                 {order.status === 'PENDIENTE_PAGO' ? (
                                     <div className="space-y-2">
@@ -255,7 +277,14 @@ export function OrderView() {
                                         </p>
                                     </div>
                                 ) : null}
-                                <PagoMovilCard order={order} pagoMovil={order.pagoMovil} />
+                                <PaymentInstructionsCard order={order} payment={paymentContent} />
+                                {canSwitchMethod ? (
+                                    <PaymentMethodSwitcher
+                                        order={order}
+                                        methods={configuredPaymentMethods(paymentContent)}
+                                        onChange={(method) => changeMethod.mutateAsync(method)}
+                                    />
+                                ) : null}
                             </section>
                             <section className="space-y-4" aria-label="Paso 2">
                                 <StepTitle number={2}>Sube el comprobante</StepTitle>
@@ -269,7 +298,7 @@ export function OrderView() {
 
                     {late ? (
                         <section className="space-y-4" aria-labelledby="late-payment-title">
-                            <h2 id="late-payment-title" className="font-display text-xl text-ink">
+                            <h2 id="late-payment-title" className="text-xl text-ink">
                                 Sube tu comprobante
                             </h2>
                             <p className="text-sm text-ink-soft">
@@ -289,14 +318,24 @@ export function OrderView() {
                         </section>
                     ) : null}
 
-                    {needsPayment && !late && !order.pagoMovil ? (
-                        <WhatsAppNotice
-                            title="Escríbenos para pagar"
-                            message={`Hola, quiero pagar mi pedido ${order.code}.`}
-                        >
-                            Estamos actualizando los datos de Pago Móvil. Escríbenos por WhatsApp
-                            con tu código {order.code} y te los enviamos.
-                        </WhatsAppNotice>
+                    {needsPayment && !late && !methodAvailable ? (
+                        <>
+                            <WhatsAppNotice
+                                title="Escríbenos para pagar"
+                                message={`Hola, quiero pagar mi pedido ${order.code}.`}
+                            >
+                                Estamos actualizando los datos de {methodLabel}. Escríbenos por
+                                WhatsApp con tu código {order.code} y te los enviamos, o elige otro
+                                método de pago.
+                            </WhatsAppNotice>
+                            {canSwitchMethod ? (
+                                <PaymentMethodSwitcher
+                                    order={order}
+                                    methods={configuredPaymentMethods(paymentContent)}
+                                    onChange={(method) => changeMethod.mutateAsync(method)}
+                                />
+                            ) : null}
+                        </>
                     ) : null}
 
                     {order.status === 'CANCELADO' ? (
@@ -314,10 +353,10 @@ export function OrderView() {
 
                 <aside className="min-w-0 space-y-6">
                     <Card padding="lg" className="space-y-4">
-                        <h2 className="font-display text-xl text-ink">Seguimiento</h2>
+                        <h2 className="text-xl text-ink">Seguimiento</h2>
                         <OrderTimeline order={order} />
                     </Card>
-                    <OrderItemsCard order={order} token={token} />
+                    <OrderItemsCard order={order} />
                     <OrderQrCard code={order.code} url={link} />
                 </aside>
             </div>
@@ -330,7 +369,7 @@ function CreatedNoticeItem({ icon, children }: { icon: ReactNode; children: Reac
         <li className="flex items-start gap-3">
             <span
                 aria-hidden="true"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blush-100 text-blush-600"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700"
             >
                 {icon}
             </span>

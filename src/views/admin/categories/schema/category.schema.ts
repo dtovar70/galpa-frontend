@@ -4,6 +4,7 @@ import {
     TEXT_INPUT_MAX_LENGTH as MAX_TEXT,
     TEXT_INPUT_MAX_MESSAGE as MAX_TEXT_MESSAGE,
 } from '@/constants/ui.constant'
+import { CATEGORY_ICON_NAMES } from '@/constants/category.constant'
 import { HEX_COLOR_PATTERN, SLUG_PATTERN } from '@/views/admin/products/schema/product.schema'
 
 export const CATEGORY_NAME_MAX_LENGTH = 60
@@ -23,7 +24,7 @@ export const categoryFormSchema = z.object({
         .max(CATEGORY_SLUG_MAX_LENGTH, `Máximo ${CATEGORY_SLUG_MAX_LENGTH} caracteres`)
         .refine(
             (value) => value === '' || SLUG_PATTERN.test(value),
-            'Solo minúsculas, números y guiones, por ejemplo gorras-bordadas',
+            'Solo minúsculas, números y guiones, por ejemplo aires-inverter',
         ),
     tagline: z.string().trim().max(MAX_TEXT, MAX_TEXT_MESSAGE),
     description: z
@@ -37,7 +38,9 @@ export const categoryFormSchema = z.object({
         .string()
         .trim()
         .max(MAX_TEXT, MAX_TEXT_MESSAGE)
-        .regex(HEX_COLOR_PATTERN, 'Usa un color hexadecimal, por ejemplo #FFB3D1'),
+        .regex(HEX_COLOR_PATTERN, 'Usa un color hexadecimal, por ejemplo #10B981'),
+    /** Lucide icon name, or "" for the default one. */
+    icon: z.union([z.enum(CATEGORY_ICON_NAMES), z.literal('')]),
 })
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>
@@ -47,5 +50,6 @@ export const EMPTY_CATEGORY_FORM: CategoryFormValues = {
     slug: '',
     tagline: '',
     description: '',
-    colorHex: '#FFD979',
+    colorHex: '#10B981',
+    icon: 'air-vent',
 }

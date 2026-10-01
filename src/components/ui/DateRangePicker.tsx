@@ -26,20 +26,20 @@ const TWO_MONTHS_QUERY = '(min-width: 50rem)'
 
 /*
  * The range reads as one pill: the cells carry the pale band (rounded at both ends) and the
- * day buttons sit on top of it, solid blush at the ends. While a second day is only being
+ * day buttons sit on top of it, solid green at the ends. While a second day is only being
  * hovered, `.is-previewing` on the root pales the band and the hovered end turns dashed.
  */
 const RANGE_CALENDAR_CLASSES: Partial<ClassNames> = {
     ...CALENDAR_CLASSES,
-    range_start: `rounded-l-full bg-blush-100 group-[.is-previewing]/calendar:bg-blush-50 ${CALENDAR_SELECTED_DAY_CLASS}`,
-    range_end: `rounded-r-full bg-blush-100 group-[.is-previewing]/calendar:bg-blush-50 ${CALENDAR_SELECTED_DAY_CLASS}`,
+    range_start: `rounded-l-full bg-brand-100 group-[.is-previewing]/calendar:bg-brand-50 ${CALENDAR_SELECTED_DAY_CLASS}`,
+    range_end: `rounded-r-full bg-brand-100 group-[.is-previewing]/calendar:bg-brand-50 ${CALENDAR_SELECTED_DAY_CLASS}`,
     range_middle:
-        'bg-blush-100 group-[.is-previewing]/calendar:bg-blush-50 [&>button]:rounded-full [&>button]:text-blush-800 [&>button]:hover:bg-blush-200',
+        'bg-brand-100 group-[.is-previewing]/calendar:bg-brand-50 [&>button]:rounded-full [&>button]:text-brand-800 [&>button]:hover:bg-brand-200',
 }
 
 /** The day under the pointer while only the start is picked: a dashed, not-yet-chosen end. */
 const PREVIEW_END_CLASS =
-    '[&>button]:bg-white! [&>button]:text-blush-700! [&>button]:outline-2 [&>button]:-outline-offset-2 [&>button]:outline-blush-400 [&>button]:outline-dashed'
+    '[&>button]:bg-white! [&>button]:text-brand-700! [&>button]:outline-2 [&>button]:-outline-offset-2 [&>button]:outline-brand-400 [&>button]:outline-dashed'
 
 function firstVisibleMonth(anchor: Date, twoMonths: boolean): Date {
     return twoMonths ? subMonths(startOfMonth(anchor), 1) : startOfMonth(anchor)
@@ -162,14 +162,14 @@ export function DateRangePicker({
                 onClick={() => (isOpen ? close() : open())}
                 className={cn(
                     FIELD_BASE_CLASS,
-                    'flex h-11 items-center gap-2.5 rounded-full px-4 text-left outline-none hover:border-blush-200',
-                    hasValue && 'border-blush-200 bg-blush-50/60 pr-11',
-                    isOpen && 'border-blush-400 ring-4 ring-blush-200/70',
+                    'flex h-11 items-center gap-2.5 rounded-xl px-4 text-left outline-none hover:border-brand-200',
+                    hasValue && 'border-brand-200 bg-brand-50/60 pr-11',
+                    isOpen && 'border-brand-400 ring-4 ring-brand-100',
                 )}
             >
                 <CalendarDays
                     aria-hidden="true"
-                    className={cn('size-4 shrink-0', hasValue ? 'text-blush-600' : 'text-ink-soft')}
+                    className={cn('size-4 shrink-0', hasValue ? 'text-brand-600' : 'text-ink-soft')}
                 />
                 <span
                     className={cn(
@@ -188,7 +188,7 @@ export function DateRangePicker({
                         triggerRef.current?.focus()
                     }}
                     aria-label="Quitar el filtro de fechas"
-                    className="absolute top-1/2 right-1.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700"
+                    className="absolute top-1/2 right-1.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700"
                 >
                     <X aria-hidden="true" className="size-4" />
                 </button>
@@ -227,8 +227,8 @@ export function DateRangePicker({
                                             className={cn(
                                                 'w-full rounded-full border-2 px-3 py-1.5 text-left text-sm font-semibold whitespace-nowrap transition sm:rounded-lg sm:border-0 sm:px-2.5 sm:py-1',
                                                 isActive
-                                                    ? 'border-blush-400 bg-blush-100 text-blush-700'
-                                                    : 'border-line text-ink-soft hover:bg-blush-50 hover:text-ink',
+                                                    ? 'border-brand-400 bg-brand-100 text-brand-700'
+                                                    : 'border-line text-ink-soft hover:bg-brand-50 hover:text-ink',
                                             )}
                                         >
                                             {preset.label}

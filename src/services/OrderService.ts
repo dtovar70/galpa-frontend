@@ -1,24 +1,36 @@
 import type {
     CreatedOrder,
     CreateOrderInput,
+    PaymentMethod,
     PublicOrder,
     SubmitPaymentInput,
 } from '@/@types/order'
+import { isBolivarMethod } from '@/constants/payment.constant'
 import { apiClient } from '@/services/ApiClient'
 
 function orderPath(code: string, suffix = ''): string {
     return `/orders/${encodeURIComponent(code)}${suffix}`
 }
 
-/** Multipart body of a payment proof (customer page and the admin's manual registration). */
+/**
+ * Multipart body of a payment proof (customer page and the admin's manual registration): the
+ * common fields plus only those of the chosen method.
+ */
 export function paymentFormData(input: SubmitPaymentInput): FormData {
     const form = new FormData()
+    form.append('method', input.method)
     form.append('reference', input.reference)
-    form.append('payerBankCode', input.payerBankCode)
-    form.append('payerPhone', input.payerPhone)
-    if (input.payerIdNumber) form.append('payerIdNumber', input.payerIdNumber)
     form.append('paidOn', input.paidOn)
-    form.append('amountBs', input.amountBs)
+    if (isBolivarMethod(input.method)) {
+        form.append('payerBankCode', input.payerBankCode)
+        form.append('payerIdNumber', input.payerIdNumber)
+        if (input.method === 'PAGO_MOVIL') form.append('payerPhone', input.payerPhone)
+        form.append('amountBs', input.amountBs)
+    } else {
+        if (input.method === 'ZELLE') form.append('payerName', input.payerName)
+        form.append('payerAccount', input.payerAccount)
+        form.append('amountUsd', input.amountUsd)
+    }
     if (input.proof) form.append('proof', input.proof)
     return form
 }
@@ -53,4 +65,12 @@ export const OrderService = {
         apiClient.post<PublicOrder>(orderPath(code, '/payment'), paymentFormData(input), {
             query: { t: token },
         }),
+
+    /** Switches how the customer will pay (while waiting for, or after a rejected, payment). */
+    changePaymentMethod: (code: string, token: string, method: PaymentMethod) =>
+        apiClient.patch<PublicOrder>(
+            orderPath(code, '/payment-method'),
+            { method },
+            { query: { t: token } },
+        ),
 } as const

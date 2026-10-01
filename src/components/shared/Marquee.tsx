@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react'
+import { Snowflake } from 'lucide-react'
 
 import { cn } from '@/utils/cn'
 
@@ -24,7 +24,7 @@ export function Marquee({ items, className }: MarqueeProps) {
     return (
         <div
             className={cn(
-                'flex overflow-hidden bg-ink py-2 text-xs font-semibold text-cream',
+                'flex overflow-hidden border-b border-white/5 bg-surface py-2 text-xs font-semibold text-white/85',
                 className,
             )}
         >
@@ -46,7 +46,7 @@ export function Marquee({ items, className }: MarqueeProps) {
                                 key={`${repeat}-${item}`}
                                 className="flex items-center gap-2 px-6"
                             >
-                                <Sparkles aria-hidden="true" className="size-3.5 text-blush-300" />
+                                <Snowflake aria-hidden="true" className="size-3.5 text-brand-400" />
                                 {item}
                             </span>
                         )),

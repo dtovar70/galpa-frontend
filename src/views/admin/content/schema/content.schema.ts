@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import {
+    BANK_ACCOUNT_TYPES,
     CONTENT_PLACEHOLDERS,
     type AboutValueIcon,
     type ContentPlaceholder,
@@ -8,10 +9,16 @@ import {
     type SiteContent,
 } from '@/@types/content'
 import { findUnknownPlaceholder, hasBrokenHighlights } from '@/utils/content'
-import { idNumberSchema, mobilePhoneSchema, VE_PHONE_PATTERN } from '@/utils/veFormats'
+import {
+    ID_NUMBER_MESSAGE,
+    ID_NUMBER_PATTERN,
+    mobilePhoneSchema,
+    VE_MOBILE_PATTERN,
+    VE_PHONE_PATTERN,
+} from '@/utils/veFormats'
 
 /**
- * Admin forms for the site content. They mirror the API DTOs (backend-cups/src/content/dto):
+ * Admin forms for the site content. They mirror the API DTOs (backend-galpa/src/content/dto):
  * same lengths, list sizes, formats, placeholders and highlight rules, so most mistakes never
  * reach the server. Lists of plain texts are held as `{ value }` objects, which is the shape
  * `useFieldArray` needs.
@@ -41,6 +48,7 @@ export const CONTENT_LIMITS = {
     bankName: 100,
     holderName: 80,
     instructions: 500,
+    payId: 40,
     testimonialQuote: 400,
     testimonialName: 60,
     testimonialProduct: 80,
@@ -61,6 +69,9 @@ export const CONTENT_MAX_MONEY = 100_000
 
 export { ID_NUMBER_PATTERN, VE_MOBILE_PATTERN, VE_PHONE_PATTERN } from '@/utils/veFormats'
 export const BANK_CODE_PATTERN = /^\d{4}$/
+const ACCOUNT_NUMBER_PATTERN = /^\d{20}$/
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PAY_ID_PATTERN = /^[A-Za-z0-9]+$/
 export const SOCIAL_HANDLE_PATTERN = /^(?:[A-Za-z0-9._]{1,30})?$/
 
 export const ABOUT_VALUE_ICONS = [
@@ -228,7 +239,7 @@ export const homeSchema = z.object({
     steps: list(
         z.object({ title: text(L.itemTitle), description: text(L.text) }),
         CONTENT_LIST_SIZES.steps,
-        'un paso',
+        'una razón',
     ),
     testimonialsEyebrow: text(L.label),
     testimonialsTitle: title(),
@@ -308,7 +319,7 @@ export type ContactFormValues = z.input<typeof contactSchema>
 
 /* ----------------------------------------------------------- Contact page */
 
-export const FAQ_PLACEHOLDERS = ['envioGratis', 'tarifaEnvio', 'produccion'] as const
+export const FAQ_PLACEHOLDERS = ['envioGratis', 'tarifaEnvio'] as const
 
 export const contactPageSchema = z.object({
     badge: text(L.label),
@@ -333,21 +344,152 @@ export const shippingSchema = z.object({
     freeThreshold: money('Escribe el monto para envío gratis'),
     flatRate: money('Escribe la tarifa de envío'),
     freeShippingCopy: text(L.announcement, { placeholders: ['envioGratis'] }),
-    productionCopy: text(L.announcement),
+    dispatchCopy: text(L.text),
 })
 export type ShippingFormValues = z.input<typeof shippingSchema>
 
 /* ---------------------------------------------------------------- Payment */
 
+/** A plain text field of a payment method; whether it is required depends on `enabled`. */
+function methodText(max: number) {
+    return z.string().trim().max(max, `Máximo ${max} caracteres`)
+}
+
+type IssueAdder = (field: string, message: string) => void
+
+function issueAdder(context: z.RefinementCtx): IssueAdder {
+    return (field, message) => context.addIssue({ code: 'custom', path: [field], message })
+}
+
+/**
+ * Checks a filled field's format always, and its presence only when the method is enabled:
+ * a disabled method may be left half-filled.
+ */
+function checkField(
+    add: IssueAdder,
+    enabled: boolean,
+    field: string,
+    value: string,
+    rule: { required: string; pattern?: RegExp; message?: string },
+): void {
+    if (value === '') {
+        if (enabled) add(field, rule.required)
+        return
+    }
+    if (rule.pattern && !rule.pattern.test(value)) add(field, rule.message ?? rule.required)
+}
+
+const pagoMovilSchema = z
+    .object({
+        enabled: z.boolean(),
+        bankCode: z.string(),
+        bankName: methodText(L.bankName),
+        phone: z.string().trim(),
+        idNumber: z.string().trim().toUpperCase(),
+        holderName: methodText(L.holderName),
+    })
+    .superRefine((method, context) => {
+        const add = issueAdder(context)
+        checkField(add, method.enabled, 'bankCode', method.bankCode, {
+            required: 'Elige el banco',
+            pattern: BANK_CODE_PATTERN,
+        })
+        checkField(add, method.enabled, 'phone', method.phone, {
+            required: 'Escribe el teléfono de Pago Móvil',
+            pattern: VE_MOBILE_PATTERN,
+            message: 'Usa un celular con el formato 0412-5550134',
+        })
+        checkField(add, method.enabled, 'idNumber', method.idNumber, {
+            required: 'Escribe la cédula o RIF',
+            pattern: ID_NUMBER_PATTERN,
+            message: ID_NUMBER_MESSAGE,
+        })
+        checkField(add, method.enabled, 'holderName', method.holderName, {
+            required: 'Escribe el nombre del titular',
+        })
+    })
+
+const transferSchema = z
+    .object({
+        enabled: z.boolean(),
+        bankCode: z.string(),
+        bankName: methodText(L.bankName),
+        accountNumber: z.string().trim(),
+        accountType: z.enum(BANK_ACCOUNT_TYPES),
+        idNumber: z.string().trim().toUpperCase(),
+        holderName: methodText(L.holderName),
+    })
+    .superRefine((method, context) => {
+        const add = issueAdder(context)
+        checkField(add, method.enabled, 'bankCode', method.bankCode, {
+            required: 'Elige el banco',
+            pattern: BANK_CODE_PATTERN,
+        })
+        checkField(add, method.enabled, 'accountNumber', method.accountNumber, {
+            required: 'Escribe el número de cuenta',
+            pattern: ACCOUNT_NUMBER_PATTERN,
+            message: 'El número de cuenta tiene 20 dígitos',
+        })
+        checkField(add, method.enabled, 'idNumber', method.idNumber, {
+            required: 'Escribe la cédula o RIF',
+            pattern: ID_NUMBER_PATTERN,
+            message: ID_NUMBER_MESSAGE,
+        })
+        checkField(add, method.enabled, 'holderName', method.holderName, {
+            required: 'Escribe el nombre del titular',
+        })
+    })
+
+const zelleSchema = z
+    .object({
+        enabled: z.boolean(),
+        email: methodText(L.email),
+        holderName: methodText(L.holderName),
+    })
+    .superRefine((method, context) => {
+        const add = issueAdder(context)
+        checkField(add, method.enabled, 'email', method.email, {
+            required: 'Escribe el correo de Zelle',
+            pattern: EMAIL_PATTERN,
+            message: 'Escribe un correo válido, por ejemplo pagos@empresa.com',
+        })
+        checkField(add, method.enabled, 'holderName', method.holderName, {
+            required: 'Escribe el nombre del titular',
+        })
+    })
+
+const binanceSchema = z
+    .object({
+        enabled: z.boolean(),
+        payId: methodText(L.payId),
+        email: methodText(L.email),
+        holderName: methodText(L.holderName),
+    })
+    .superRefine((method, context) => {
+        const add = issueAdder(context)
+        checkField(add, method.enabled, 'payId', method.payId, {
+            required: 'Escribe el Binance Pay ID',
+            pattern: PAY_ID_PATTERN,
+            message: 'Solo letras y números',
+        })
+        checkField(add, false, 'email', method.email, {
+            required: '',
+            pattern: EMAIL_PATTERN,
+            message: 'Escribe un correo válido, por ejemplo pagos@empresa.com',
+        })
+        checkField(add, method.enabled, 'holderName', method.holderName, {
+            required: 'Escribe el nombre del titular',
+        })
+    })
+
 export const paymentSchema = z.object({
-    bankCode: pattern(BANK_CODE_PATTERN, 'Elige el banco', 4),
-    bankName: text(L.bankName, { required: 'Elige el banco' }),
-    phone: mobilePhoneSchema({ required: 'Escribe el teléfono de Pago Móvil' }),
-    idNumber: idNumberSchema({ required: 'Escribe la cédula o RIF' }),
-    holderName: text(L.holderName, { required: 'Escribe el nombre del titular' }),
     instructions: text(L.instructions, { optional: true }),
+    pagoMovil: pagoMovilSchema,
+    transfer: transferSchema,
+    zelle: zelleSchema,
+    binance: binanceSchema,
 })
-export type PaymentFormValues = z.infer<typeof paymentSchema>
+export type PaymentFormValues = z.input<typeof paymentSchema>
 
 /* ------------------------------------------------------------- Converters */
 

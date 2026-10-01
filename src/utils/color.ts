@@ -13,28 +13,3 @@ export function toColorInputValue(hex: string | undefined): string {
     }
     return '#FFFFFF'
 }
-
-function toRgb(hex: string): [number, number, number] {
-    const full = toColorInputValue(hex)
-    return [1, 3, 5].map((start) => Number.parseInt(full.slice(start, start + 2), 16)) as [
-        number,
-        number,
-        number,
-    ]
-}
-
-/** Blends `hex` towards `target` by `amount` (0 keeps `hex`, 1 returns `target`). */
-export function mixHex(hex: string, target: string, amount: number): string {
-    const from = toRgb(hex)
-    const to = toRgb(target)
-    const channels = from.map((value, index) =>
-        Math.round(value + ((to[index] ?? value) - value) * amount),
-    )
-    return `#${channels.map((value) => value.toString(16).padStart(2, '0')).join('')}`.toUpperCase()
-}
-
-/** A dark color (perceived lightness under half), e.g. a black or navy garment. */
-export function isDarkHex(hex: string): boolean {
-    const [r, g, b] = toRgb(hex)
-    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5
-}

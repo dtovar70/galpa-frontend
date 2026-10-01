@@ -16,8 +16,8 @@ export function RelatedProducts({ slug }: RelatedProductsProps) {
             <SectionHeading
                 headingId="related-heading"
                 level="h3"
-                eyebrow="También te puede gustar"
-                title="*Combina* con esto"
+                eyebrow="Productos relacionados"
+                title="También te puede *interesar*"
             />
 
             <ProductGrid

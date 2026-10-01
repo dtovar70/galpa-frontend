@@ -10,7 +10,7 @@ export interface ReadOnlyFieldsProps {
 /** Values the admin can see but not change, each with a lock, and why. */
 export function ReadOnlyFields({ fields, explanation }: ReadOnlyFieldsProps) {
     return (
-        <div className="space-y-2 rounded-2xl border-2 border-dashed border-line bg-cream/60 p-4">
+        <div className="space-y-2 rounded-2xl border-2 border-dashed border-line bg-page/60 p-4">
             <dl className="grid grid-cols-1 gap-3 @md:grid-cols-3">
                 {fields.map((field) => (
                     <div key={field.label} className="min-w-0">

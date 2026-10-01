@@ -19,12 +19,12 @@ const DESCRIPTION = 'Recibe los pagos por verificar en Telegram y apruébalos de
 
 function TelegramHelp() {
     return (
-        <Card tone="sky" elevation="none" padding="none" className="space-y-3 p-5">
-            <h2 className="flex items-center gap-2 font-display text-lg text-ink">
-                <MessageCircleQuestion aria-hidden="true" className="size-5 text-sky-700" />
+        <Card tone="info" elevation="none" padding="none" className="space-y-3 p-5">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
+                <MessageCircleQuestion aria-hidden="true" className="size-5 text-frost-700" />
                 ¿Cómo funciona?
             </h2>
-            <ul className="list-disc space-y-2 pl-5 text-sm text-ink-soft marker:text-sky-400">
+            <ul className="list-disc space-y-2 pl-5 text-sm text-ink-soft marker:text-frost-400">
                 <li>
                     Cada pago por verificar llega a <strong>todos</strong> los chats vinculados.
                 </li>
@@ -127,7 +127,7 @@ export function AdminTelegramView() {
                             <div className="flex items-baseline justify-between gap-3">
                                 <h2
                                     id="telegram-chats-title"
-                                    className="font-display text-xl text-ink"
+                                    className="text-xl font-bold text-ink"
                                 >
                                     Chats vinculados
                                 </h2>

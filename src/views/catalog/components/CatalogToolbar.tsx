@@ -23,13 +23,13 @@ function isSortOption(value: string): value is SortOption {
 
 export function CatalogToolbar({ total, sort, isRefreshing, onSortChange }: CatalogToolbarProps) {
     return (
-        <div className="flex flex-col gap-3 rounded-3xl border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
             <p aria-live="polite" className="text-sm text-ink-soft">
                 {isRefreshing ? (
                     'Actualizando resultados…'
                 ) : (
                     <>
-                        <span className="font-semibold text-ink">{total}</span>{' '}
+                        <span className="font-tech font-semibold text-ink">{total}</span>{' '}
                         {total === 1 ? 'producto encontrado' : 'productos encontrados'}
                     </>
                 )}
