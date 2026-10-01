@@ -12,7 +12,7 @@ import { formatDateTime } from '@/utils/formatDate'
 import { forgetOrder, readRecentOrders, type RecentOrder } from '@/utils/recentOrders'
 
 const LOOKUP_LINK_CLASS =
-    'font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
+    'font-semibold text-blush-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
 
 /** Orders placed from this browser (their private links are kept in local storage). */
 export function MyOrdersView() {

@@ -41,6 +41,36 @@ export interface Product {
     images: ProductImage[]
 }
 
+/** A rectangle relative to a photo: (0, 0) is its top-left corner, 1 its full width/height. */
+export interface DesignPrintArea {
+    x: number
+    y: number
+    width: number
+    height: number
+}
+
+/** "Plantilla para diseñar": the photo of the blank product in one garment color. */
+export interface DesignTemplateColor {
+    id: string
+    /** "Negro", as the customer reads it. */
+    name: string
+    /** `#RRGGBB`: the swatch. */
+    hex: string
+    imageUrl: string
+    /** Pixel size of the photo. */
+    width: number
+    height: number
+    printArea: DesignPrintArea
+}
+
+/** The template photos the design editor draws on: one per garment color, same print size. */
+export interface CategoryDesignTemplate {
+    printWidthCm: number
+    printHeightCm: number
+    /** In the admin's order; the first one is the default. Never empty. */
+    colors: DesignTemplateColor[]
+}
+
 export interface Category {
     slug: CategorySlug
     name: string
@@ -48,6 +78,12 @@ export interface Category {
     description: string
     colorHex: string
     productCount: number
+    /** Personalizable products of this category offer "Diseñar con mi imagen". */
+    designEnabled: boolean
+    /** The template photos; null means the generated illustration (when `designEnabled`). */
+    designTemplate: CategoryDesignTemplate | null
+    /** Effective print size in cm; null when the category is not designable. */
+    designPrintSize: { widthCm: number; heightCm: number } | null
 }
 
 export interface Review {

@@ -37,7 +37,7 @@ export function BrandLogo({ className, withTagline = false }: BrandLogoProps) {
                     {primaryLine}
                 </span>
                 {secondaryLine ? (
-                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-blush-500 uppercase sm:text-xs">
+                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-blush-700 uppercase sm:text-xs">
                         {secondaryLine}
                     </span>
                 ) : null}

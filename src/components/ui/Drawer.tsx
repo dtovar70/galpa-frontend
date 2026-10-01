@@ -143,7 +143,7 @@ export function Drawer({ isOpen, onClose, title, side = 'right', children, foote
                         onClick={onClose}
                         tabIndex={isOpen ? 0 : -1}
                         aria-label="Cerrar"
-                        className="flex size-9 items-center justify-center rounded-full text-ink transition hover:bg-blush-100 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                        className="flex size-11 items-center justify-center rounded-full text-ink transition hover:bg-blush-100 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
                     >
                         <X aria-hidden="true" className="size-5" />
                     </button>

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
-import { PackageSearch } from 'lucide-react'
-import { useLocation, useParams, useSearchParams } from 'react-router'
+import { useEffect, useState, type ReactNode } from 'react'
+import { Clock, Mail, Package, PackageSearch } from 'lucide-react'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { EmptyState } from '@/components/shared/EmptyState'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { CopyButton } from '@/components/shared/CopyButton'
 import { OrderStatusBadge } from '@/components/shared/OrderStatusBadge'
 import { ReceiptDownloadButton } from '@/components/shared/ReceiptDownloadButton'
@@ -10,7 +11,6 @@ import { WhatsAppInlineLink } from '@/components/shared/WhatsAppInlineLink'
 import { WhatsAppNotice } from '@/components/shared/WhatsAppNotice'
 import { Alert, Button, ButtonLink, Card, Skeleton } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
-import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { orderPath, ROUTES } from '@/constants/route.constant'
 import { isApiError } from '@/services/errors'
 import { OrderService } from '@/services/OrderService'
@@ -34,7 +34,7 @@ const pageClass = 'space-y-8 py-10 lg:py-14'
 function StepTitle({ number, children }: { number: number; children: string }) {
     return (
         <h2 className="flex items-center gap-3 font-display text-xl text-ink">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blush-400 text-base text-white">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blush-700 text-base text-white">
                 {number}
             </span>
             {children}
@@ -64,9 +64,21 @@ export function OrderView() {
     const [searchParams] = useSearchParams()
     const token = searchParams.get('t') ?? ''
     const location = useLocation()
+    const navigate = useNavigate()
     const [showCreated, setShowCreated] = useState(
         () => (location.state as { justCreated?: boolean } | null)?.justCreated === true,
     )
+
+    // The browser keeps navigation state across reloads: drop the flag once it is read, so the
+    // "¡Pedido creado!" notice shows right after checkout and never again on this entry.
+    useEffect(() => {
+        if ((location.state as { justCreated?: boolean } | null)?.justCreated) {
+            void navigate(
+                { pathname: location.pathname, search: location.search },
+                { replace: true, state: null },
+            )
+        }
+    }, [location, navigate])
     const { data: order, isPending, isError, error, refetch } = useOrder(code, token)
     const submitPayment = useSubmitPayment(code, token)
     // Status names and messages come from the catalog: wait for it rather than flash codes.
@@ -174,16 +186,47 @@ export function OrderView() {
                 </div>
             </header>
 
-            {showCreated ? (
-                <Alert
-                    tone="success"
-                    onDismiss={() => setShowCreated(false)}
-                    autoDismissMs={NOTICE_DISMISS_MS * 3}
-                >
-                    ¡Pedido creado! Guarda este enlace (o usa “Copiar enlace”): es la única forma de
-                    volver a tu pedido. También lo verás en “Mis pedidos” en este dispositivo.
-                </Alert>
-            ) : null}
+            <ConfirmDialog
+                isOpen={showCreated}
+                title="¡Pedido creado!"
+                confirmLabel="Entendido"
+                confirmVariant="primary"
+                hideCancel
+                onConfirm={() => setShowCreated(false)}
+                onClose={() => setShowCreated(false)}
+            >
+                <ul className="space-y-4 text-sm text-ink-soft">
+                    <CreatedNoticeItem icon={<Mail className="size-5" />}>
+                        Te enviamos un correo a{' '}
+                        <span className="font-semibold break-all text-ink">
+                            {order.customer.email}
+                        </span>{' '}
+                        con el resumen, los datos del Pago Móvil y el enlace para volver a este
+                        pedido. Si no lo ves, revisa spam o promociones.
+                    </CreatedNoticeItem>
+                    {order.canSubmitPayment ? (
+                        <CreatedNoticeItem icon={<Clock className="size-5" />}>
+                            Paga y envía el comprobante antes del{' '}
+                            <span className="font-semibold text-ink">
+                                {formatDateTime(order.paymentDueAt)}
+                            </span>{' '}
+                            {/* The time already ends in "a. m."/"p. m.", so no extra period. */}
+                            Si no llega a tiempo, el pedido expira y los productos apartados vuelven
+                            a estar disponibles.
+                        </CreatedNoticeItem>
+                    ) : null}
+                    <CreatedNoticeItem icon={<Package className="size-5" />}>
+                        En este dispositivo también lo encuentras en{' '}
+                        <Link
+                            to={ROUTES.myOrders}
+                            className="font-semibold text-blush-700 underline underline-offset-2"
+                        >
+                            Mis pedidos
+                        </Link>{' '}
+                        (la cajita junto al carrito, o en el menú).
+                    </CreatedNoticeItem>
+                </ul>
+            </ConfirmDialog>
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
                 <div className="min-w-0 space-y-8">
@@ -274,10 +317,24 @@ export function OrderView() {
                         <h2 className="font-display text-xl text-ink">Seguimiento</h2>
                         <OrderTimeline order={order} />
                     </Card>
-                    <OrderItemsCard order={order} />
+                    <OrderItemsCard order={order} token={token} />
                     <OrderQrCard code={order.code} url={link} />
                 </aside>
             </div>
         </div>
+    )
+}
+
+function CreatedNoticeItem({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+    return (
+        <li className="flex items-start gap-3">
+            <span
+                aria-hidden="true"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blush-100 text-blush-600"
+            >
+                {icon}
+            </span>
+            <p className="pt-1.5">{children}</p>
+        </li>
     )
 }

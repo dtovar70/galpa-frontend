@@ -23,6 +23,8 @@ export interface ConfirmDialogProps {
      * or several buttons. `onConfirm` is then unused.
      */
     actions?: ReactNode
+    /** Informational dialogs with a single "OK" button: no cancel button. */
+    hideCancel?: boolean
     /** `lg` for dialogs that hold a whole form. */
     size?: 'md' | 'lg'
     onConfirm?: () => void
@@ -31,7 +33,7 @@ export interface ConfirmDialogProps {
 
 /**
  * Built on the native `<dialog>`: `showModal()` gives the focus trap, the inert page behind
- * it and Escape-to-close for free. The title and the buttons stay put; only the content in
+ * it and Escape-to-close for free. Inside another modal it stacks on top, like ProofViewer. The title and the buttons stay put; only the content in
  * between scrolls, inside the rounded shell, so the scrollbar never pokes out of its corners.
  */
 export function ConfirmDialog({
@@ -46,6 +48,7 @@ export function ConfirmDialog({
     confirmDisabled = false,
     children,
     actions,
+    hideCancel = false,
     size = 'md',
     onConfirm,
     onClose,
@@ -71,14 +74,21 @@ export function ConfirmDialog({
             aria-labelledby={titleId}
             aria-describedby={description ? descriptionId : undefined}
             onCancel={(event) => {
-                // Escape: keep React as the owner of the open state.
+                // Escape: keep React as the owner of the open state. It may be stacked over
+                // another dialog (the design editor): React would bubble the synthetic event up
+                // to that one's handler, so it stops here (only the top dialog closes).
                 event.preventDefault()
+                event.stopPropagation()
                 requestClose()
             }}
             onClose={(event) => {
                 // Browsers force-close on a repeated Escape; keep the state in sync. Only this
                 // dialog's own event: a nested one (e.g. the proof viewer) is not a reason.
+                event.stopPropagation()
                 if (event.target === event.currentTarget && isOpen) onClose()
+            }}
+            onKeyDown={(event) => {
+                if (event.key === 'Escape') event.stopPropagation()
             }}
             onClick={(event) => {
                 // A click on the element itself (not its content) is a click on the backdrop.
@@ -107,10 +117,12 @@ export function ConfirmDialog({
                         {error ? <Alert>{error}</Alert> : null}
                     </div>
 
-                    <div className="flex shrink-0 flex-col-reverse gap-3 px-6 pb-6 sm:flex-row sm:justify-end">
-                        <Button variant="secondary" onClick={requestClose} disabled={isLoading}>
-                            {cancelLabel}
-                        </Button>
+                    <div className="flex shrink-0 flex-col-reverse gap-3 px-6 pb-6 sm:flex-row sm:flex-wrap-reverse sm:justify-end">
+                        {hideCancel ? null : (
+                            <Button variant="secondary" onClick={requestClose} disabled={isLoading}>
+                                {cancelLabel}
+                            </Button>
+                        )}
                         {actions ?? (
                             <Button
                                 variant={confirmVariant}

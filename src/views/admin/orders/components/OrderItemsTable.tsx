@@ -7,6 +7,7 @@ import { adminProductPath } from '@/constants/route.constant'
 import { formatBolivares, formatRate } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDay } from '@/utils/formatDate'
+import { OrderItemDesign } from '@/views/admin/orders/components/OrderItemDesign'
 
 /** The ordered lines as frozen at checkout, the totals and the BCV rate used. */
 export function OrderItemsTable({ order }: { order: AdminOrder }) {
@@ -16,10 +17,7 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
             <h2 className="font-display text-xl text-ink">Productos</h2>
             <ul className="divide-y divide-line">
                 {order.items.map((item, index) => (
-                    <li
-                        key={`${item.productSlug}-${index}`}
-                        className="flex items-center gap-3 py-3"
-                    >
+                    <li key={item.id} className="flex items-center gap-3 py-3">
                         <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-blush-50">
                             {item.imageUrl ? (
                                 <img
@@ -41,7 +39,7 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                             {item.productId ? (
                                 <Link
                                     to={adminProductPath(item.productId)}
-                                    className="font-semibold break-words text-ink hover:text-blush-600"
+                                    className="font-semibold break-words text-ink hover:text-blush-700"
                                 >
                                     {item.productName}
                                 </Link>
@@ -72,6 +70,13 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                                         className="size-8"
                                     />
                                 </div>
+                            ) : null}
+                            {item.design ? (
+                                <OrderItemDesign
+                                    design={item.design}
+                                    productName={item.productName}
+                                    line={index + 1}
+                                />
                             ) : null}
                         </div>
                         <span className="shrink-0 text-sm font-semibold text-ink">

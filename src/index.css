@@ -12,7 +12,7 @@
     --color-blush-400: #ff8fb8;
     --color-blush-500: #fb6fa5;
     --color-blush-600: #e75f9b;
-    --color-blush-700: #c44a80;
+    --color-blush-700: #c1427b; /* >= 4.5:1 with white, cream and blush-50 */
     --color-blush-800: #9c3a66;
     --color-blush-900: #7a2e50;
 

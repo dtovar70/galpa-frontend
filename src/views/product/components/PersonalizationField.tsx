@@ -8,6 +8,8 @@ export interface PersonalizationFieldProps {
     printText: string
     value: string
     onChange: (value: string) => void
+    /** The line has the customer's own image: the text becomes extra instructions. */
+    withDesign?: boolean
 }
 
 /** Optional text to print on a `personalizable` product, plus a WhatsApp way for photos/logos. */
@@ -16,6 +18,7 @@ export function PersonalizationField({
     printText,
     value,
     onChange,
+    withDesign = false,
 }: PersonalizationFieldProps) {
     return (
         <div className="space-y-2">
@@ -26,7 +29,11 @@ export function PersonalizationField({
                 maxLength={PERSONALIZATION_MAX_LENGTH}
                 showCount
                 placeholder={printText ? `Ej. ${printText}` : 'Ej. Feliz cumpleaños, Ana'}
-                hint="¿Qué texto, nombre o fecha quieres en tu pieza?"
+                hint={
+                    withDesign
+                        ? 'Indicaciones extra para tu diseño: un texto, un nombre o una fecha.'
+                        : '¿Qué texto, nombre o fecha quieres en tu pieza?'
+                }
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
             />

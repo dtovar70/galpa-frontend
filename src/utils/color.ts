@@ -32,3 +32,9 @@ export function mixHex(hex: string, target: string, amount: number): string {
     )
     return `#${channels.map((value) => value.toString(16).padStart(2, '0')).join('')}`.toUpperCase()
 }
+
+/** A dark color (perceived lightness under half), e.g. a black or navy garment. */
+export function isDarkHex(hex: string): boolean {
+    const [r, g, b] = toRgb(hex)
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5
+}

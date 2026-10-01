@@ -1,5 +1,12 @@
 import type { Paginated } from '@/@types/common'
 import type { PaymentContent } from '@/@types/content'
+import type {
+    DesignPlacement,
+    DpiLevel,
+    GarmentColor,
+    TextAlign,
+    TextOutline,
+} from '@/@types/design'
 import type { RateSource } from '@/@types/exchange-rate'
 
 /** Mirrors backend-cups/src/orders/order-status.ts and order.mapper.ts. */
@@ -52,6 +59,76 @@ export interface OrderItem {
     quantity: number
     lineTotalUsd: number
     personalization: string | null
+    /** The customer's own image ("Diseño propio"); null for a regular line. */
+    design: OrderItemDesign | null
+}
+
+export interface OrderItemDesign {
+    id: string
+    /** API path of the preview. Customer: add the order's `?t=` token; admin: the session. */
+    previewPath: string
+    /** The garment color it was made on; null without template colors. */
+    color: GarmentColor | null
+}
+
+export interface AdminDesignImageLayer {
+    type: 'image'
+    /** Position in the design, bottom (0) to top. */
+    index: number
+    /** 1-based among the design's images ("Imagen 2"). */
+    number: number
+    placement: DesignPlacement
+    format: string
+    width: number
+    height: number
+    bytes: number
+    dpi: number
+    dpiLevel: DpiLevel
+    /** API path that downloads the original, named like `downloadName`. */
+    downloadPath: string
+    /** API path that shows the original inline (thumbnail). */
+    viewPath: string
+    /** `MR-000123-linea1-imagen1.jpg`. */
+    downloadName: string
+}
+
+export interface AdminDesignTextLayer {
+    type: 'text'
+    index: number
+    placement: DesignPlacement
+    content: string
+    font: string
+    fontLabel: string
+    color: string
+    outline: TextOutline
+    align: TextAlign
+}
+
+export type AdminDesignLayer = AdminDesignImageLayer | AdminDesignTextLayer
+
+export interface AdminOrderItemDesign extends OrderItemDesign {
+    printSize: { widthCm: number; heightCm: number } | null
+    /** The lowest DPI among the images; null with only text. */
+    dpiEstimate: number | null
+    dpiLevel: DpiLevel | null
+    /** Bottom to top. */
+    layers: AdminDesignLayer[]
+    /** The print-ready PNG; null for designs made before it existed. */
+    artwork: {
+        path: string
+        /** `MR-000123-linea1-arte-final.png`. */
+        downloadName: string
+        width: number
+        height: number
+        bytes: number
+        /** Its print resolution (100–200); null if unknown. */
+        dpi: number | null
+    } | null
+}
+
+export interface AdminOrderItem extends OrderItem {
+    id: string
+    design: AdminOrderItemDesign | null
 }
 
 export interface OrderTotals {
@@ -112,7 +189,13 @@ export interface CreateOrderInput {
     address: string
     notes: string
     deliveryMethod: DeliveryMethod
-    items: { productId: string; variantId?: string; quantity: number; personalization?: string }[]
+    items: {
+        productId: string
+        variantId?: string
+        quantity: number
+        personalization?: string
+        designId?: string
+    }[]
 }
 
 export interface CreatedOrder {
@@ -122,13 +205,17 @@ export interface CreatedOrder {
     order: PublicOrder
 }
 
-/** One problem with one cart line (400 `ORDER_ITEMS_INVALID`). */
+/**
+ * One problem with one cart line: 400 `ORDER_ITEMS_INVALID` (stock, product gone), or a design
+ * the API refused (`kind: 'design'`, 400 `ORDER_DESIGN_INVALID` / 409 `ORDER_DESIGN_USED`).
+ */
 export interface OrderLineProblem {
     index: number
     productId: string
     variantId: string | null
     available: number
     message: string
+    kind?: 'design'
 }
 
 /** Text fields of `POST /orders/:code/payment` (sent as multipart with the `proof` image). */
@@ -205,11 +292,22 @@ export interface StockConflictLine {
     reserved: number
 }
 
+/** A stock conflict line with the stock there is now (`available`) while the conflict is open. */
+export interface LiveStockConflictLine extends StockConflictLine {
+    /** The units this order still misses are more than what is in stock now. */
+    stillShort: boolean
+}
+
 export interface StockConflict {
     detectedAt: string
-    lines: StockConflictLine[]
+    lines: LiveStockConflictLine[]
     resolvedAt: string | null
     resolvedById: string | null
+    /**
+     * Still short with the current stock: confirming the payment needs an acknowledgement.
+     * False once restocked (the missing units are taken on confirmation) or resolved.
+     */
+    stillShort: boolean
 }
 
 export interface OrderRefund {
@@ -245,7 +343,7 @@ export interface AdminOrder {
     receiptAvailable: boolean
     refund: OrderRefund | null
     customer: OrderCustomer
-    items: OrderItem[]
+    items: AdminOrderItem[]
     totals: OrderTotals
     payments: AdminOrderPayment[]
     history: AdminOrderHistoryEntry[]

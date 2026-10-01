@@ -57,7 +57,7 @@ export function ContactInfo() {
                             {channel.href ? (
                                 <a
                                     href={channel.href}
-                                    className="text-sm text-ink-soft transition hover:text-blush-600"
+                                    className="text-sm text-ink-soft transition hover:text-blush-700"
                                 >
                                     {channel.value}
                                 </a>

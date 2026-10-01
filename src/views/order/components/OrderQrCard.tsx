@@ -23,9 +23,10 @@ export function OrderQrCard({ code, url }: OrderQrCardProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const qr = useOrderQr(url)
     const panelId = useId()
     const expanded = isWide || isOpen
+    // Generated (and the QR library downloaded) only once the card is actually open.
+    const qr = useOrderQr(expanded ? url : null)
 
     const download = async () => {
         setIsSaving(true)
@@ -62,7 +63,7 @@ export function OrderQrCard({ code, url }: OrderQrCardProps) {
                         className="-m-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-2xl p-2 text-left transition hover:bg-blush-50 focus-visible:outline-2 focus-visible:outline-blush-400"
                     >
                         {heading}
-                        <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blush-600">
+                        <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-blush-700">
                             {isOpen ? 'Ocultar' : 'Ver QR'}
                             <ChevronDown
                                 aria-hidden="true"

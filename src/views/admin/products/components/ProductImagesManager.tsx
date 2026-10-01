@@ -6,6 +6,7 @@ import type { ProductImage } from '@/@types/product'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Alert, Button, Card, Spinner } from '@/components/ui'
 import { getErrorMessage } from '@/services/errors'
+import { cldSrcSet, cldUrl } from '@/utils/cloudinary'
 import { cn } from '@/utils/cn'
 import { moveItem } from '@/utils/moveItem'
 import {
@@ -218,9 +219,12 @@ export function ProductImagesManager({ product }: ProductImagesManagerProps) {
                             )}
                         >
                             <img
-                                src={image.url}
+                                src={cldUrl(image.url, 480)}
+                                srcSet={cldSrcSet(image.url, [160, 320, 480])}
+                                sizes="(min-width: 640px) 10rem, 45vw"
                                 alt={image.alt ?? `Foto ${index + 1} de ${product.name}`}
                                 loading="lazy"
+                                decoding="async"
                                 draggable={false}
                                 className="aspect-square w-full object-cover"
                             />

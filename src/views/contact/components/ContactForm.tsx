@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PartyPopper, Send } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { MessageCircle, PartyPopper, Send } from 'lucide-react'
+import { Controller, useForm } from 'react-hook-form'
 
-import { Button, Card, Input, Select, Textarea, type SelectOption } from '@/components/ui'
+import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
+import { Alert, Button, Card, Input, Select, Textarea, type SelectOption } from '@/components/ui'
+import { ContactService } from '@/services/ContactService'
+import { getErrorMessage, isApiError } from '@/services/errors'
 import {
+    CONTACT_FIELDS,
     CONTACT_MESSAGE_MAX_LENGTH,
     contactSchema,
     CONTACT_TOPIC_LABELS,
@@ -12,30 +16,74 @@ import {
     type ContactValues,
 } from '@/views/contact/schema/contact.schema'
 import { withCapitalizedWords } from '@/utils/capitalizeWords'
-
-const SUBMIT_DELAY_MS = 1200
+import { whatsappUrl } from '@/utils/content'
+import { useSiteContent } from '@/utils/hooks/useSiteContent'
 
 const TOPIC_OPTIONS: SelectOption[] = CONTACT_TOPICS.map((topic) => ({
     value: topic,
     label: CONTACT_TOPIC_LABELS[topic],
 }))
 
+const DEFAULT_VALUES: ContactValues = {
+    fullName: '',
+    email: '',
+    phone: '',
+    topic: 'personalizado',
+    message: '',
+    website: '',
+}
+
+/** What the WhatsApp fallback pre-fills: who writes and the message they could not send. */
+function whatsappFallbackText(values: ContactValues): string {
+    const name = values.fullName.trim()
+    const intro = name ? `Hola, soy ${name}.` : 'Hola.'
+    return `${intro} ${CONTACT_TOPIC_LABELS[values.topic]}: ${values.message.trim()}`
+}
+
 export function ContactForm() {
+    const { contact } = useSiteContent()
     const [sentToName, setSentToName] = useState<string | null>(null)
+    const [failure, setFailure] = useState<{ message: string; whatsappText: string } | null>(null)
     const {
         register,
         handleSubmit,
+        control,
         reset,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<ContactValues>({
         resolver: zodResolver(contactSchema),
-        defaultValues: { fullName: '', email: '', topic: 'personalizado', message: '' },
+        defaultValues: DEFAULT_VALUES,
     })
 
     const onSubmit = handleSubmit(async (values) => {
-        await new Promise((resolve) => setTimeout(resolve, SUBMIT_DELAY_MS))
+        setFailure(null)
+        try {
+            await ContactService.send(values)
+        } catch (error) {
+            if (isApiError(error, 400) && error.details.length) {
+                let pinned = false
+                for (const detail of error.details) {
+                    const field = CONTACT_FIELDS.find((name) => name === detail.field)
+                    const message = detail.errors[0]
+                    if (field && message) {
+                        setError(field, { type: 'server', message })
+                        pinned = true
+                    }
+                }
+                if (pinned) return
+            }
+            setFailure({
+                message: getErrorMessage(
+                    error,
+                    'No pudimos enviar tu mensaje. Intenta de nuevo en unos minutos.',
+                ),
+                whatsappText: whatsappFallbackText(values),
+            })
+            return
+        }
         setSentToName(values.fullName)
-        reset()
+        reset(DEFAULT_VALUES)
     })
 
     if (sentToName) {
@@ -78,6 +126,20 @@ export function ContactForm() {
                         error={errors.email?.message}
                         {...register('email')}
                     />
+                    <Controller
+                        control={control}
+                        name="phone"
+                        render={({ field }) => (
+                            <MobilePhoneField
+                                label="WhatsApp"
+                                optional
+                                autoComplete="tel-national"
+                                hint="Si lo dejas, te podemos responder por WhatsApp."
+                                error={errors.phone?.message}
+                                {...field}
+                            />
+                        )}
+                    />
                     <Select
                         label="¿Sobre qué quieres hablar?"
                         options={TOPIC_OPTIONS}
@@ -92,7 +154,40 @@ export function ContactForm() {
                         maxLength={CONTACT_MESSAGE_MAX_LENGTH}
                         {...register('message')}
                     />
+
+                    {/* Honeypot: hidden from people and screen readers; bots fill it. */}
+                    <div
+                        aria-hidden="true"
+                        className="absolute left-[-9999px] size-px overflow-hidden"
+                    >
+                        <label>
+                            Sitio web
+                            <input
+                                type="text"
+                                tabIndex={-1}
+                                autoComplete="off"
+                                {...register('website')}
+                            />
+                        </label>
+                    </div>
                 </fieldset>
+
+                {failure ? (
+                    <Alert tone="error" onDismiss={() => setFailure(null)}>
+                        <p>{failure.message}</p>
+                        {contact.whatsapp ? (
+                            <a
+                                href={whatsappUrl(contact.whatsapp, failure.whatsappText)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-2 inline-flex items-center gap-1 rounded-sm font-semibold text-blush-700 underline underline-offset-2 hover:text-blush-800 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-2"
+                            >
+                                <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
+                                Enviar este mensaje por WhatsApp
+                            </a>
+                        ) : null}
+                    </Alert>
+                ) : null}
 
                 <Button
                     type="submit"

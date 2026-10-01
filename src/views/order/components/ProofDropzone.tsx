@@ -9,6 +9,7 @@ import {
 import { ProofViewer } from '@/components/shared/ProofViewer'
 import { OptionalMark } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import { compressProof } from '@/utils/imageResize'
 import { proofProblem } from '@/views/order/schema/payment.schema'
 
 /** "850 KB" / "1,4 MB"; small screenshots no longer read "0 MB". */
@@ -30,6 +31,7 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
     const inputRef = useRef<HTMLInputElement>(null)
     const [isOver, setIsOver] = useState(false)
     const [localError, setLocalError] = useState<string | null>(null)
+    const [isPreparing, setIsPreparing] = useState(false)
     const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
 
     // Frees the previous preview when the file changes or the form goes away.
@@ -40,17 +42,30 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
         [preview],
     )
 
-    const choose = (candidate: File | undefined) => {
+    const choose = async (candidate: File | undefined) => {
         if (!candidate) return
-        const problem = proofProblem(candidate)
-        setLocalError(problem)
-        if (!problem) onChange(candidate)
+        // The type is checked first; the weight after shrinking (a 6 MB screenshot is fine).
+        const typeProblem = proofProblem(candidate, { ignoreSize: true })
+        if (typeProblem) {
+            setLocalError(typeProblem)
+            return
+        }
+        setLocalError(null)
+        setIsPreparing(true)
+        try {
+            const compressed = await compressProof(candidate)
+            const problem = proofProblem(compressed)
+            setLocalError(problem)
+            if (!problem) onChange(compressed)
+        } finally {
+            setIsPreparing(false)
+        }
     }
 
     const onDrop = (event: DragEvent<HTMLLabelElement>) => {
         event.preventDefault()
         setIsOver(false)
-        if (!disabled) choose(event.dataTransfer.files[0])
+        if (!disabled && !isPreparing) void choose(event.dataTransfer.files[0])
     }
 
     const message = localError ?? error
@@ -78,7 +93,7 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
                             if (inputRef.current) inputRef.current.value = ''
                         }}
                         aria-label="Quitar la captura"
-                        className="flex size-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700"
+                        className="flex size-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-blush-100 hover:text-blush-700"
                     >
                         <X aria-hidden="true" className="size-4" />
                     </button>
@@ -98,12 +113,15 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
                             ? 'border-blush-400 bg-blush-50'
                             : 'border-line bg-white hover:border-blush-200',
                         message && 'border-blush-500',
-                        disabled && 'cursor-not-allowed opacity-60',
+                        (disabled || isPreparing) && 'cursor-not-allowed opacity-60',
                     )}
+                    aria-busy={isPreparing || undefined}
                 >
                     <ImageUp aria-hidden="true" className="size-7 text-blush-500" />
                     <span className="text-sm font-semibold text-ink">
-                        Arrastra la captura aquí o toca para elegirla
+                        {isPreparing
+                            ? 'Preparando tu captura…'
+                            : 'Arrastra la captura aquí o toca para elegirla'}
                     </span>
                     <span className={FIELD_HINT_CLASS}>JPG, PNG o WEBP, hasta 5 MB</span>
                 </label>
@@ -115,9 +133,9 @@ export function ProofDropzone({ file, onChange, error, disabled = false }: Proof
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 className="sr-only"
-                disabled={disabled}
+                disabled={disabled || isPreparing}
                 aria-describedby={message ? `${inputId}-error` : undefined}
-                onChange={(event) => choose(event.target.files?.[0])}
+                onChange={(event) => void choose(event.target.files?.[0])}
             />
 
             {message ? (

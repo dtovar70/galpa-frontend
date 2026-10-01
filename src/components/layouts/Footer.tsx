@@ -20,7 +20,7 @@ const HELP_LINKS = [
     { label: 'Consultar pedido', to: ROUTES.orderLookup },
 ]
 
-const linkClass = 'text-sm text-ink-soft transition hover:text-blush-600'
+const linkClass = 'text-sm text-ink-soft transition hover:text-blush-700'
 
 export function Footer() {
     const productLinks = [...useCategoryLinks(appConfig.categoryLinkLimits.footer), CATALOG_LINK]

@@ -1,3 +1,4 @@
+import type { CartAvailability } from '@/@types/cart'
 import type { Paginated, ProductQueryParams } from '@/@types/common'
 import type { Category, Product } from '@/@types/product'
 import { apiClient } from '@/services/ApiClient'
@@ -47,6 +48,19 @@ function getRelatedProducts(slug: string, limit = 4): Promise<Product[]> {
     )
 }
 
+/** Live stock of cart lines, in the order given (at most 50 lines per call). */
+async function getCartAvailability(
+    items: readonly { productId: string; variantId?: string }[],
+    signal?: AbortSignal,
+): Promise<CartAvailability[]> {
+    const response = await apiClient.post<{ items: CartAvailability[] }>(
+        '/products/availability',
+        { items },
+        { signal },
+    )
+    return response.items
+}
+
 function getCategories(): Promise<Category[]> {
     return apiClient.get<Category[]>('/categories')
 }
@@ -59,6 +73,7 @@ export const ProductService = {
     getProductBySlug,
     getFeaturedProducts,
     getRelatedProducts,
+    getCartAvailability,
     getCategories,
 } as const
 

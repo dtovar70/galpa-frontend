@@ -1,21 +1,26 @@
 import { ShoppingBag, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 
+import { CartLineStockNotice } from '@/components/shared/CartLineStockNotice'
 import { CartPersonalization } from '@/components/shared/CartPersonalization'
 import { ClearCartButton } from '@/components/shared/ClearCartButton'
 import { FreeShippingProgress } from '@/components/shared/FreeShippingProgress'
-import { ProductMedia } from '@/components/shared/ProductMedia'
+import { CartLineMedia } from '@/components/shared/CartLineMedia'
+import { DesignBadge, GarmentColorNote } from '@/components/shared/DesignBadge'
 import { Button, ButtonLink, Drawer, QuantityStepper } from '@/components/ui'
 import { MAX_LINE_QUANTITY, useCartActions, useCartItems, useCartSubtotal } from '@/store/cartStore'
 import { productPath, ROUTES } from '@/constants/route.constant'
 import { useCartDrawer } from '@/store/uiStore'
 import { formatCurrency } from '@/utils/formatCurrency'
+import { CART_STOCK_BLOCKED_MESSAGE } from '@/utils/cartAvailability'
+import { useCartAvailability } from '@/utils/hooks/useCartAvailability'
 
 export function CartDrawer() {
     const { isOpen, close } = useCartDrawer()
     const items = useCartItems()
     const subtotal = useCartSubtotal()
     const { updateQuantity, removeItem } = useCartActions()
+    const availability = useCartAvailability(items, isOpen)
 
     return (
         <Drawer
@@ -33,9 +38,23 @@ export function CartDrawer() {
                             </span>
                         </div>
                         <div className="grid gap-2">
-                            <ButtonLink to={ROUTES.checkout} onClick={close} fullWidth>
-                                Ir al checkout
-                            </ButtonLink>
+                            {availability.hasIssues ? (
+                                <>
+                                    <p
+                                        role="status"
+                                        className="text-xs font-semibold text-blush-700"
+                                    >
+                                        {CART_STOCK_BLOCKED_MESSAGE}
+                                    </p>
+                                    <Button fullWidth disabled>
+                                        Ir al checkout
+                                    </Button>
+                                </>
+                            ) : (
+                                <ButtonLink to={ROUTES.checkout} onClick={close} fullWidth>
+                                    Ir al checkout
+                                </ButtonLink>
+                            )}
                             <ButtonLink
                                 to={ROUTES.cart}
                                 onClick={close}
@@ -75,55 +94,69 @@ export function CartDrawer() {
                     ) : null}
 
                     <ul className="divide-y divide-line">
-                        {items.map((item) => (
-                            <li key={item.lineId} className="flex gap-3 py-4">
-                                <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white p-1.5">
-                                    <ProductMedia
-                                        category={item.category}
-                                        color={item.colorHex}
-                                        printText={item.printText}
-                                        image={item.imageUrl ? { url: item.imageUrl } : undefined}
-                                        fallbackAlt={item.name}
-                                        size="sm"
-                                    />
-                                </div>
-
-                                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                                    <Link
-                                        to={productPath(item.slug)}
-                                        onClick={close}
-                                        className="font-display text-sm leading-snug text-ink"
-                                    >
-                                        {item.name}
-                                    </Link>
-                                    <p className="text-xs text-ink-soft">{item.variantLabel}</p>
-                                    <CartPersonalization item={item} size="sm" editable={false} />
-
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <QuantityStepper
-                                            value={item.quantity}
-                                            max={MAX_LINE_QUANTITY}
-                                            onChange={(quantity) =>
-                                                updateQuantity(item.lineId, quantity)
-                                            }
-                                        />
-                                        <span className="text-sm font-semibold text-ink">
-                                            {formatCurrency(item.unitPrice * item.quantity)}
-                                        </span>
+                        {items.map((item) => {
+                            const stock = availability.lines.get(item.lineId)
+                            const max = stock?.max ?? MAX_LINE_QUANTITY
+                            return (
+                                <li key={item.lineId} className="flex gap-3 py-4">
+                                    <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white p-1.5">
+                                        <CartLineMedia item={item} size="sm" />
                                     </div>
-                                </div>
 
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    aria-label={`Quitar ${item.name}${item.personalization ? ` (${item.personalization})` : ''} del carrito`}
-                                    onClick={() => removeItem(item.lineId)}
-                                    className="size-9 shrink-0 self-start px-0 text-ink-soft"
-                                >
-                                    <Trash2 aria-hidden="true" className="size-4" />
-                                </Button>
-                            </li>
-                        ))}
+                                    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                                        <Link
+                                            to={productPath(item.slug)}
+                                            onClick={close}
+                                            className="font-display text-sm leading-snug text-ink"
+                                        >
+                                            {item.name}
+                                        </Link>
+                                        <p className="text-xs text-ink-soft">{item.variantLabel}</p>
+                                        {item.design ? <DesignBadge /> : null}
+                                        {item.design?.color ? (
+                                            <GarmentColorNote color={item.design.color} />
+                                        ) : null}
+                                        <CartPersonalization
+                                            item={item}
+                                            size="sm"
+                                            editable={false}
+                                        />
+
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <QuantityStepper
+                                                value={item.quantity}
+                                                max={Math.max(max, 1)}
+                                                disabled={max === 0 && item.quantity <= 1}
+                                                onChange={(quantity) =>
+                                                    updateQuantity(item.lineId, quantity, max)
+                                                }
+                                            />
+                                            <span className="text-sm font-semibold text-ink">
+                                                {formatCurrency(item.unitPrice * item.quantity)}
+                                            </span>
+                                        </div>
+                                        {stock?.issue ? (
+                                            <CartLineStockNotice
+                                                issue={stock.issue}
+                                                onAdjust={(quantity) =>
+                                                    updateQuantity(item.lineId, quantity)
+                                                }
+                                            />
+                                        ) : null}
+                                    </div>
+
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        aria-label={`Quitar ${item.name}${item.personalization ? ` (${item.personalization})` : ''} del carrito`}
+                                        onClick={() => removeItem(item.lineId)}
+                                        className="size-11 shrink-0 self-start px-0 text-ink-soft"
+                                    >
+                                        <Trash2 aria-hidden="true" className="size-4" />
+                                    </Button>
+                                </li>
+                            )
+                        })}
                     </ul>
                 </>
             )}

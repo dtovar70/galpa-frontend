@@ -21,6 +21,11 @@ const mobileLinkVariants = cva(
     },
 )
 
+const ORDER_LINKS = [
+    { label: 'Mis pedidos', to: ROUTES.myOrders },
+    { label: 'Consultar un pedido', to: ROUTES.orderLookup },
+] as const
+
 export function MobileMenu() {
     const { isOpen, close } = useMobileMenu()
     const navLinks = useNavLinks()
@@ -34,6 +39,23 @@ export function MobileMenu() {
                 <nav aria-label="Navegación móvil">
                     <ul className="space-y-1">
                         {navLinks.map((link) => (
+                            <li key={link.to}>
+                                <NavLink
+                                    to={link.to}
+                                    end
+                                    onClick={close}
+                                    className={({ isActive }) => mobileLinkVariants({ isActive })}
+                                >
+                                    {link.label}
+                                </NavLink>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+
+                <nav aria-label="Tus pedidos" className="border-t border-line pt-4">
+                    <ul className="space-y-1">
+                        {ORDER_LINKS.map((link) => (
                             <li key={link.to}>
                                 <NavLink
                                     to={link.to}

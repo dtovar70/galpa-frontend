@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/field.styles'
 import { OptionalMark } from '@/components/ui/OptionalMark'
 import { cn } from '@/utils/cn'
+import { useMediaQuery } from '@/utils/hooks/useMediaQuery'
 
 /**
  * React installs its own `value` setter on every <select> node and remembers the last value
@@ -91,6 +92,10 @@ export interface SelectProps extends Omit<ComponentPropsWithRef<'select'>, 'id'>
  * A real <select> stays mounted behind it, holding the value and the forwarded ref, so
  * `register()` and `event.target.value` keep working untouched at every call site — the
  * custom UI only drives that element and never becomes the source of truth.
+ *
+ * On touch screens (`pointer: coarse`) that real <select> is laid invisibly over the trigger
+ * and takes the taps itself: the phone's own picker is bigger, scrolls better and never ends
+ * up under the on-screen keyboard. The trigger then only paints the chosen value.
  */
 export function Select({
     label,
@@ -126,6 +131,8 @@ export function Select({
     })
 
     const isDisabled = rest.disabled === true
+    const isTouch = useMediaQuery('(pointer: coarse)')
+    const describedBy = error ? errorId : hint ? hintId : undefined
     const selectedOption = options.find((option) => option.value === selectedValue)
 
     const enabledBounds = useMemo(() => {
@@ -340,10 +347,26 @@ export function Select({
                  */}
                 <select
                     ref={attachSelect}
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    className="pointer-events-none absolute bottom-0 left-4 size-0 opacity-0"
                     {...rest}
+                    onChange={(event) => {
+                        setSelectedValue(event.target.value)
+                        rest.onChange?.(event)
+                    }}
+                    {...(isTouch
+                        ? {
+                              'aria-labelledby': labelId,
+                              'aria-describedby': describedBy,
+                              'aria-invalid': error ? true : undefined,
+                              // 16px text: iOS zooms into smaller focused fields.
+                              className:
+                                  'peer absolute inset-0 z-10 size-full cursor-pointer appearance-none rounded-full text-base opacity-0 disabled:cursor-not-allowed',
+                          }
+                        : {
+                              tabIndex: -1,
+                              'aria-hidden': true,
+                              className:
+                                  'pointer-events-none absolute bottom-0 left-4 size-0 opacity-0',
+                          })}
                 >
                     {placeholder ? (
                         <option value="" hidden>
@@ -360,6 +383,9 @@ export function Select({
                 <button
                     ref={triggerRef}
                     type="button"
+                    // On touch screens the native <select> above takes focus and taps.
+                    tabIndex={isTouch ? -1 : undefined}
+                    aria-hidden={isTouch || undefined}
                     role="combobox"
                     disabled={rest.disabled}
                     aria-labelledby={labelId}
@@ -371,7 +397,7 @@ export function Select({
                     aria-activedescendant={
                         isOpen && activeIndex >= 0 ? `${fieldId}-option-${activeIndex}` : undefined
                     }
-                    aria-describedby={error ? errorId : hint ? hintId : undefined}
+                    aria-describedby={describedBy}
                     onClick={() => (isOpen ? closeList() : openList())}
                     onKeyDown={onTriggerKeyDown}
                     className={cn(
@@ -379,6 +405,8 @@ export function Select({
                         'flex h-11 items-center justify-between gap-3 rounded-full px-4 text-left outline-none',
                         'enabled:hover:border-blush-200',
                         isOpen && 'border-blush-400 ring-4 ring-blush-200/70',
+                        isTouch &&
+                            'pointer-events-none peer-focus-visible:border-blush-400 peer-focus-visible:ring-4 peer-focus-visible:ring-blush-200/70',
                         error && FIELD_ERROR_CLASS,
                         className,
                     )}

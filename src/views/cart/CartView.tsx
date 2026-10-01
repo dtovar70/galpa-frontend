@@ -4,13 +4,15 @@ import { ClearCartButton } from '@/components/shared/ClearCartButton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { BsApproximation } from '@/components/shared/BsApproximation'
 import { FreeShippingProgress } from '@/components/shared/FreeShippingProgress'
-import { ButtonLink, Card } from '@/components/ui'
+import { Button, ButtonLink, Card } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
 import { ROUTES } from '@/constants/route.constant'
 import { useCartItems, useCartSubtotal } from '@/store/cartStore'
+import { CART_STOCK_BLOCKED_MESSAGE } from '@/utils/cartAvailability'
 import { cn } from '@/utils/cn'
 import { shippingCost } from '@/utils/content'
 import { formatCurrency } from '@/utils/formatCurrency'
+import { useCartAvailability } from '@/utils/hooks/useCartAvailability'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 import { CartLine } from '@/views/cart/components/CartLine'
 
@@ -18,6 +20,7 @@ export function CartView() {
     const items = useCartItems()
     const subtotal = useCartSubtotal()
     const content = useSiteContent()
+    const availability = useCartAvailability(items)
     const shipping = shippingCost(subtotal, content.shipping)
     const total = subtotal + shipping
 
@@ -49,7 +52,11 @@ export function CartView() {
                         <Card padding="none" className="px-6">
                             <ul className="divide-y divide-line">
                                 {items.map((item) => (
-                                    <CartLine key={item.lineId} item={item} />
+                                    <CartLine
+                                        key={item.lineId}
+                                        item={item}
+                                        stock={availability.lines.get(item.lineId)}
+                                    />
                                 ))}
                             </ul>
                         </Card>
@@ -88,9 +95,23 @@ export function CartView() {
                         <BsApproximation usd={total} />
 
                         <div className="grid gap-2">
-                            <ButtonLink to={ROUTES.checkout} fullWidth>
-                                Ir al checkout
-                            </ButtonLink>
+                            {availability.hasIssues ? (
+                                <>
+                                    <p
+                                        role="status"
+                                        className="text-sm font-semibold text-blush-700"
+                                    >
+                                        {CART_STOCK_BLOCKED_MESSAGE}
+                                    </p>
+                                    <Button fullWidth disabled>
+                                        Ir al checkout
+                                    </Button>
+                                </>
+                            ) : (
+                                <ButtonLink to={ROUTES.checkout} fullWidth>
+                                    Ir al checkout
+                                </ButtonLink>
+                            )}
                             <ButtonLink to={ROUTES.catalog} variant="secondary" fullWidth>
                                 Seguir comprando
                             </ButtonLink>

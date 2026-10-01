@@ -18,7 +18,7 @@ export function FreeShippingProgress({ subtotal, className }: FreeShippingProgre
         <div className={cn('space-y-2', className)}>
             <p className="text-sm text-ink-soft">
                 {remaining === 0 ? (
-                    <span className="font-semibold text-blush-600">
+                    <span className="font-semibold text-blush-700">
                         ¡Listo! Tu envío va por nuestra cuenta.
                     </span>
                 ) : (

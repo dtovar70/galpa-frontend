@@ -180,7 +180,7 @@ export function AdminLoginView() {
                     <p className="-mt-2 text-right text-sm">
                         <Link
                             to={ADMIN_ROUTES.recover}
-                            className="font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400"
+                            className="font-semibold text-blush-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400"
                         >
                             ¿Olvidaste tu contraseña?
                         </Link>

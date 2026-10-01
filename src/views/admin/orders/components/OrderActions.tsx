@@ -12,13 +12,14 @@ import { Alert, Button, Textarea, type ButtonProps } from '@/components/ui'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { formatBolivares } from '@/utils/formatBolivares'
 import { useTransitionOrder } from '@/views/admin/hooks/useAdminOrders'
-import { CheckboxField } from '@/views/admin/orders/components/CheckboxField'
+import { CheckboxField } from '@/components/shared/CheckboxField'
 import { ManualPaymentAction } from '@/views/admin/orders/components/ManualPaymentAction'
 import { MarkRefundAction } from '@/views/admin/orders/components/MarkRefundAction'
 import { RefundChoice } from '@/views/admin/orders/components/RefundChoice'
 import { describeStockLine } from '@/views/admin/orders/utils/stockConflict'
 
 const STOCK_INSUFFICIENT = 'STOCK_INSUFFICIENT'
+const STOCK_CONFLICT_UNACKNOWLEDGED = 'STOCK_CONFLICT_UNACKNOWLEDGED'
 
 interface ActionCopy {
     /** Omitted when the button is simply the target status's name (from the status catalog). */
@@ -147,7 +148,21 @@ export function OrderActions({ order }: { order: AdminOrder }) {
     const copy = pending ? ACTIONS[pending.to] : undefined
     const openConflict =
         order.stockConflict && !order.stockConflict.resolvedAt ? order.stockConflict : null
-    const needsAcknowledgement = pending?.to === 'PAGO_VERIFICADO' && openConflict !== null
+    const verifying = pending?.to === 'PAGO_VERIFICADO'
+    // The stock ran out again after this page loaded: the server answers with the lines.
+    const lateShortage =
+        verifying &&
+        isApiError(transition.error, 400) &&
+        transition.error.code === STOCK_CONFLICT_UNACKNOWLEDGED &&
+        Array.isArray(transition.error.payload.lines)
+            ? transition.error.payload.lines.filter(isStockLine)
+            : null
+    // With the current stock: a restocked conflict is taken on confirmation, nothing to accept.
+    const shortLines =
+        lateShortage ??
+        (openConflict?.stillShort ? openConflict.lines.filter((line) => line.stillShort) : null)
+    const needsAcknowledgement = verifying && shortLines !== null
+    const restocked = verifying && openConflict !== null && !needsAcknowledgement
     const asksRefund =
         pending?.to === 'CANCELADO' &&
         order.payments.some(
@@ -197,7 +212,9 @@ export function OrderActions({ order }: { order: AdminOrder }) {
     }
 
     const error =
-        transition.isError && !missingStock ? getErrorMessage(transition.error) : undefined
+        transition.isError && !missingStock && !lateShortage
+            ? getErrorMessage(transition.error)
+            : undefined
 
     return (
         <>
@@ -237,11 +254,18 @@ export function OrderActions({ order }: { order: AdminOrder }) {
                 onConfirm={confirm}
                 onClose={() => setPending(null)}
             >
-                {needsAcknowledgement && openConflict ? (
+                {restocked ? (
+                    <Alert tone="info">
+                        Ya hay stock para este pedido: al confirmar el pago se aparta
+                        automáticamente.
+                    </Alert>
+                ) : null}
+
+                {needsAcknowledgement && shortLines ? (
                     <div className="space-y-3">
                         <Alert>
                             <span className="font-semibold">Stock insuficiente:</span>
-                            <StockLines lines={openConflict.lines} />
+                            <StockLines lines={shortLines} />
                             <span className="mt-1 block font-normal">
                                 Al confirmar se descuenta lo que haya disponible (nunca por debajo
                                 de 0) y lo que falte queda anotado en el historial.

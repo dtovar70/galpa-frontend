@@ -25,7 +25,15 @@ export function paymentFormData(input: SubmitPaymentInput): FormData {
 
 /** Guest checkout and the customer's private order page (`?t=` token, no account). */
 export const OrderService = {
-    create: (input: CreateOrderInput) => apiClient.post<CreatedOrder>('/orders', input),
+    /**
+     * `idempotencyKey` is one per checkout attempt: a retry after a timeout or a dropped
+     * connection sends the same key, so the API answers with the order it already created.
+     */
+    create: (input: CreateOrderInput, idempotencyKey: string) =>
+        apiClient.post<CreatedOrder>('/orders', input, {
+            headers: { 'Idempotency-Key': idempotencyKey },
+            timeoutMs: 30_000,
+        }),
 
     get: (code: string, token: string, signal?: AbortSignal) =>
         apiClient.get<PublicOrder>(orderPath(code), { query: { t: token }, signal }),

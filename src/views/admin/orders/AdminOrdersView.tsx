@@ -509,7 +509,7 @@ export function AdminOrdersView() {
                                                 <td className={cellClass}>
                                                     <Link
                                                         to={adminOrderPath(order.code)}
-                                                        className="font-display text-base text-ink hover:text-blush-600"
+                                                        className="font-display text-base text-ink hover:text-blush-700"
                                                     >
                                                         {order.code}
                                                     </Link>

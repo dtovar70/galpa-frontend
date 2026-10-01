@@ -161,7 +161,7 @@ function RailTip({ title, accent, shortcut, detail }: RailTipProps) {
             <span className="flex items-center gap-1.5">
                 <span className="font-display font-semibold">{title}</span>
                 {accent ? (
-                    <span className="font-display font-semibold text-blush-600">· {accent}</span>
+                    <span className="font-display font-semibold text-blush-700">· {accent}</span>
                 ) : null}
                 {shortcut ? (
                     <kbd className="rounded-md border border-line bg-cream px-1.5 py-0.5 font-sans text-[11px] font-semibold text-ink-soft">
@@ -203,7 +203,7 @@ function AdminBrand({ compact = false }: { compact?: boolean }) {
                     <span className="font-display text-lg font-semibold tracking-tight text-ink">
                         {brandLines(general.brandName)[0]}
                     </span>
-                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-blush-500 uppercase">
+                    <span className="text-[0.65rem] font-bold tracking-[0.22em] text-blush-700 uppercase">
                         Panel
                     </span>
                 </span>
@@ -309,7 +309,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                                         {isCollapsed && count > 0 ? (
                                             <span
                                                 aria-hidden="true"
-                                                className="absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blush-500 px-1 text-[10px] leading-none font-bold text-white tabular-nums ring-2 ring-cream"
+                                                className="absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blush-700 px-1 text-[10px] leading-none font-bold text-white tabular-nums ring-2 ring-cream"
                                             >
                                                 {count > 99 ? '99+' : count}
                                             </span>
@@ -322,7 +322,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                                                 <>
                                                     <span
                                                         aria-hidden="true"
-                                                        className="flex min-w-6 items-center justify-center rounded-full bg-blush-500 px-1.5 text-xs font-bold text-white tabular-nums"
+                                                        className="flex min-w-6 items-center justify-center rounded-full bg-blush-700 px-1.5 text-xs font-bold text-white tabular-nums"
                                                     >
                                                         {count}
                                                     </span>
@@ -395,11 +395,11 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
             title={user.name}
             detail={
                 <>
-                    <span className="text-[0.65rem] font-bold tracking-[0.18em] text-blush-500 uppercase">
+                    <span className="text-[0.65rem] font-bold tracking-[0.18em] text-blush-700 uppercase">
                         {roleLabel}
                     </span>
                     <span>{user.email}</span>
-                    <span className="font-semibold text-blush-600">
+                    <span className="font-semibold text-blush-700">
                         Mi cuenta: datos, contraseña y permisos
                     </span>
                 </>
@@ -599,7 +599,7 @@ export function AdminLayout() {
                     {pending > 0 ? (
                         <span
                             aria-hidden="true"
-                            className="absolute top-0.5 right-0.5 flex min-w-5 items-center justify-center rounded-full bg-blush-500 px-1 text-[11px] font-bold text-white tabular-nums"
+                            className="absolute top-0.5 right-0.5 flex min-w-5 items-center justify-center rounded-full bg-blush-700 px-1 text-[11px] font-bold text-white tabular-nums"
                         >
                             {pending}
                         </span>

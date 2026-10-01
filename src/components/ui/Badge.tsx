@@ -8,12 +8,12 @@ const badgeVariants = cva(
     {
         variants: {
             tone: {
-                blush: 'bg-blush-100 text-blush-700',
+                blush: 'bg-blush-100 text-blush-800',
                 sky: 'bg-sky-100 text-sky-700',
                 mint: 'bg-mint-200 text-ink',
                 butter: 'bg-butter-200 text-ink',
                 lilac: 'bg-lilac-200 text-ink',
-                solid: 'bg-blush-400 text-white',
+                solid: 'bg-blush-700 text-white',
                 neutral: 'bg-line text-ink-soft',
             },
             size: {

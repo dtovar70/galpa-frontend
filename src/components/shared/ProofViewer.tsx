@@ -11,6 +11,8 @@ export interface ProofViewerProps {
     src: string
     /** e.g. "Captura del pago ref. 0012345678". */
     title: string
+    /** Caption over the thumbnail. */
+    thumbLabel?: string
 }
 
 /**
@@ -22,7 +24,7 @@ export interface ProofViewerProps {
  * propagates the synthetic `cancel`/`close` events up the component tree, so they stop here
  * and never close the dialog underneath.
  */
-export function ProofViewer({ src, title }: ProofViewerProps) {
+export function ProofViewer({ src, title, thumbLabel = 'Ver captura' }: ProofViewerProps) {
     const dialogRef = useRef<HTMLDialogElement>(null)
     const [isOpen, setIsOpen] = useState(false)
     const [zoomed, setZoomed] = useState(false)
@@ -65,7 +67,7 @@ export function ProofViewer({ src, title }: ProofViewerProps) {
                     className="size-full object-cover transition group-hover:scale-105"
                 />
                 <span className="absolute inset-x-0 bottom-0 bg-ink/60 py-0.5 text-[11px] font-semibold text-white">
-                    Ver captura
+                    {thumbLabel}
                 </span>
             </button>
 

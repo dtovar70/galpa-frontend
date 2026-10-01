@@ -325,7 +325,7 @@ export function AdminProductsView() {
                                                         <Link
                                                             to={adminProductPath(product.id)}
                                                             state={editState}
-                                                            className="line-clamp-2 font-display text-base leading-snug break-words text-ink hover:text-blush-600"
+                                                            className="line-clamp-2 font-display text-base leading-snug break-words text-ink hover:text-blush-700"
                                                         >
                                                             {product.name}
                                                         </Link>

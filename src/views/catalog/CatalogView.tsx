@@ -1,11 +1,13 @@
-import { PackageOpen, SearchX, Tags, X } from 'lucide-react'
+import { useState } from 'react'
+import { PackageOpen, SearchX, SlidersHorizontal, Tags, X } from 'lucide-react'
 
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ProductGrid } from '@/components/shared/ProductGrid'
-import { Button, ButtonLink, Card } from '@/components/ui'
+import { Button, ButtonLink, Card, Drawer } from '@/components/ui'
 import { CONTAINER } from '@/constants/layout.constant'
 import { ROUTES } from '@/constants/route.constant'
 import { cn } from '@/utils/cn'
+import { useMediaQuery } from '@/utils/hooks/useMediaQuery'
 import { CatalogFilters } from '@/views/catalog/components/CatalogFilters'
 import { CatalogPagination } from '@/views/catalog/components/CatalogPagination'
 import { CatalogToolbar } from '@/views/catalog/components/CatalogToolbar'
@@ -17,6 +19,13 @@ export function CatalogView() {
     const catalog = useCatalogFilters()
     const { filters } = catalog
     const { data: categories } = useCategories()
+    // Phones and tablets get the filters in a drawer; the side card only fits from `lg`.
+    const isDesktop = useMediaQuery('(min-width: 64rem)')
+    const [filtersOpen, setFiltersOpen] = useState(false)
+    const activeFilterCount =
+        (filters.category !== undefined ? 1 : 0) +
+        (filters.priceBracket !== 'all' ? 1 : 0) +
+        filters.tags.length
 
     const activeCategory = (categories ?? []).find((category) => category.slug === filters.category)
     /** A deleted category, or a mistyped link: known only once the categories have loaded. */
@@ -27,13 +36,25 @@ export function CatalogView() {
         { enabled: !isUnknownCategory },
     )
     const products = data?.items ?? []
+    const closeFilters = () => setFiltersOpen(false)
     const hasNoResults = !isPending && !isError && products.length === 0
+
+    const filterPanel = (
+        <CatalogFilters
+            filters={filters}
+            isFiltered={catalog.isFiltered}
+            onCategoryChange={catalog.setCategory}
+            onPriceBracketChange={catalog.setPriceBracket}
+            onTagToggle={catalog.toggleTag}
+            onClear={catalog.clearFilters}
+        />
+    )
 
     if (isUnknownCategory) {
         return (
             <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
                 <header className="space-y-3">
-                    <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-500 uppercase">
+                    <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
                         Catálogo
                     </p>
                     <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
@@ -53,7 +74,7 @@ export function CatalogView() {
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
             <header className="space-y-3">
-                <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-500 uppercase">
+                <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
                     Catálogo
                 </p>
                 <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
@@ -73,7 +94,8 @@ export function CatalogView() {
                                 type="button"
                                 onClick={() => catalog.setSearch('')}
                                 aria-label="Quitar la búsqueda"
-                                className="rounded-full"
+                                // A 44px hit area around the small icon, without a bigger chip.
+                                className="relative rounded-full after:absolute after:-inset-[15px] after:content-['']"
                             >
                                 <X aria-hidden="true" className="size-3.5" />
                             </button>
@@ -83,20 +105,50 @@ export function CatalogView() {
             </header>
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
-                <aside aria-label="Filtros del catálogo" className="h-fit lg:sticky lg:top-28">
-                    <Card padding="lg">
-                        <CatalogFilters
-                            filters={filters}
-                            isFiltered={catalog.isFiltered}
-                            onCategoryChange={catalog.setCategory}
-                            onPriceBracketChange={catalog.setPriceBracket}
-                            onTagToggle={catalog.toggleTag}
-                            onClear={catalog.clearFilters}
-                        />
-                    </Card>
-                </aside>
+                {isDesktop ? (
+                    <aside aria-label="Filtros del catálogo" className="h-fit lg:sticky lg:top-28">
+                        <Card padding="lg">{filterPanel}</Card>
+                    </aside>
+                ) : (
+                    <Drawer
+                        isOpen={filtersOpen}
+                        onClose={closeFilters}
+                        title="Filtros"
+                        side="left"
+                        footer={
+                            <Button fullWidth onClick={closeFilters}>
+                                {data && !isPlaceholderData
+                                    ? `Ver ${data.total} ${data.total === 1 ? 'producto' : 'productos'}`
+                                    : 'Ver productos'}
+                            </Button>
+                        }
+                    >
+                        {filterPanel}
+                    </Drawer>
+                )}
 
                 <section aria-label="Resultados" className="space-y-6">
+                    {isDesktop ? null : (
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => setFiltersOpen(true)}
+                            aria-haspopup="dialog"
+                            leadingIcon={
+                                <SlidersHorizontal aria-hidden="true" className="size-4" />
+                            }
+                        >
+                            Filtros
+                            {activeFilterCount > 0 ? (
+                                <span className="flex min-w-6 items-center justify-center rounded-full bg-blush-700 px-1.5 text-xs font-bold text-white tabular-nums">
+                                    <span className="sr-only">(</span>
+                                    {activeFilterCount}
+                                    <span className="sr-only"> activos)</span>
+                                </span>
+                            ) : null}
+                        </Button>
+                    )}
+
                     <CatalogToolbar
                         total={data?.total ?? 0}
                         sort={filters.sort}

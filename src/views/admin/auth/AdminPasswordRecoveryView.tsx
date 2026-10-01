@@ -27,7 +27,7 @@ const NO_CODE_NOTE =
     '¿No te llegó? Revisa también la carpeta de spam, o pídele a un administrador que restablezca tu contraseña desde Usuarios.'
 
 const linkClass =
-    'font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
+    'font-semibold text-blush-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
 
 function BackToLogin() {
     return (

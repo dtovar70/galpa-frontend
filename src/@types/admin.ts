@@ -1,5 +1,12 @@
 import type { ContentSection, SiteContent } from '@/@types/content'
-import type { Category, CategorySlug, Product, ProductTag } from '@/@types/product'
+import type {
+    Category,
+    CategorySlug,
+    DesignPrintArea,
+    DesignTemplateColor,
+    Product,
+    ProductTag,
+} from '@/@types/product'
 
 export type UserRole = 'ADMIN' | 'EDITOR'
 
@@ -83,6 +90,44 @@ export interface AdminCategory extends Category {
     sortOrder: number
     /** Products of any visibility; a category can only be deleted when this is 0. */
     totalProductCount: number
+    /** Products tagged "personalizable" (hidden ones included): they use the design template. */
+    personalizableProductCount: number
+    designTemplateSettings: AdminDesignTemplateSettings
+}
+
+/** What is set so far of the category's design template (any field may still be missing). */
+export interface AdminDesignTemplateSettings {
+    /** Every garment color, in order. */
+    colors: DesignTemplateColor[]
+    /** How many colors a category may have. */
+    maxColors: number
+    printWidthCm: number | null
+    printHeightCm: number | null
+    /** The category has a generated illustration, used while there is no photo. */
+    hasIllustration: boolean
+    /** The editor is turned off for this category (keychains): photos are kept but unused. */
+    designDisabled: boolean
+}
+
+/** Body of `PATCH /admin/categories/:slug/design-template`: the print size of every color. */
+export interface DesignTemplateInput {
+    printWidthCm: number
+    printHeightCm: number
+}
+
+/** `POST /admin/categories/:slug/design-template/colors` (multipart, with the photo). */
+export interface TemplateColorCreateInput {
+    colorName: string
+    /** `#RRGGBB`. */
+    colorHex: string
+    file: File
+}
+
+/** Body of `PATCH /admin/categories/:slug/design-template/colors/:colorId`. */
+export interface TemplateColorInput {
+    colorName?: string
+    colorHex?: string
+    printArea?: DesignPrintArea
 }
 
 /** Body of `POST /admin/categories`. Without `slug` the API derives it from the name. */

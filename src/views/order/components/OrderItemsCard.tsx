@@ -1,15 +1,22 @@
 import type { OrderStatus, PublicOrder } from '@/@types/order'
+import { DesignBadge, GarmentColorNote } from '@/components/shared/DesignBadge'
+import { ProofViewer } from '@/components/shared/ProofViewer'
 import { WhatsAppInlineLink } from '@/components/shared/WhatsAppInlineLink'
 import { Card } from '@/components/ui'
 import { DELIVERY_METHOD_LABELS } from '@/constants/order.constant'
+import { cldSrcSet, cldUrl } from '@/utils/cloudinary'
 import { formatBolivares } from '@/utils/formatBolivares'
+import { DesignService } from '@/services/DesignService'
 import { formatCurrency } from '@/utils/formatCurrency'
 
 /** Past these the pieces are made (or the order is closed): no more personalization notes. */
 const FINISHED: readonly OrderStatus[] = ['ENVIADO', 'ENTREGADO', 'CANCELADO', 'EXPIRADO']
 
-/** What was ordered, as frozen when the order was placed, and the totals. */
-export function OrderItemsCard({ order }: { order: PublicOrder }) {
+/**
+ * What was ordered, as frozen when the order was placed, and the totals. Lines with the
+ * customer's own image show its preview (opened with the order's private token).
+ */
+export function OrderItemsCard({ order, token }: { order: PublicOrder; token: string }) {
     const { totals } = order
     return (
         <Card tone="cream" padding="lg" className="space-y-5">
@@ -17,27 +24,42 @@ export function OrderItemsCard({ order }: { order: PublicOrder }) {
             <ul className="space-y-3">
                 {order.items.map((item, index) => (
                     <li key={`${item.productSlug}-${index}`} className="flex items-center gap-3">
-                        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white">
-                            {item.imageUrl ? (
-                                <img
-                                    src={item.imageUrl}
-                                    alt=""
-                                    className="size-full object-cover"
-                                    loading="lazy"
-                                />
-                            ) : (
-                                <span
-                                    aria-hidden="true"
-                                    className="font-display text-lg text-blush-400"
-                                >
-                                    {item.productName.charAt(0)}
-                                </span>
-                            )}
-                        </div>
+                        {item.design ? (
+                            <ProofViewer
+                                src={`${DesignService.url(item.design.previewPath)}?t=${encodeURIComponent(token)}`}
+                                title={`Tu diseño para ${item.productName}`}
+                                thumbLabel="Ver diseño"
+                            />
+                        ) : (
+                            <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white">
+                                {item.imageUrl ? (
+                                    <img
+                                        src={cldUrl(item.imageUrl, 96)}
+                                        srcSet={cldSrcSet(item.imageUrl, [48, 96, 144])}
+                                        sizes="48px"
+                                        alt=""
+                                        className="size-full object-cover"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                ) : (
+                                    <span
+                                        aria-hidden="true"
+                                        className="font-display text-lg text-blush-400"
+                                    >
+                                        {item.productName.charAt(0)}
+                                    </span>
+                                )}
+                            </div>
+                        )}
                         <div className="min-w-0 flex-1">
                             <p className="font-display text-sm leading-snug break-words text-ink">
                                 {item.productName}
                             </p>
+                            {item.design ? <DesignBadge className="my-0.5" /> : null}
+                            {item.design?.color ? (
+                                <GarmentColorNote color={item.design.color} className="mb-0.5" />
+                            ) : null}
                             <p className="text-xs text-ink-soft">
                                 {[item.variantLabel, `${item.quantity} u.`]
                                     .filter(Boolean)

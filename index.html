@@ -4,6 +4,8 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
 
         <title>Manada Russo Creativa — Sublimación hecha con amor</title>
         <meta
@@ -12,15 +14,51 @@
         />
         <meta name="theme-color" content="#FFF9FB" />
 
+        <!-- Link previews (WhatsApp, Instagram, Facebook, X). -->
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="es_VE" />
+        <meta property="og:site_name" content="Manada Russo Creativa" />
+        <meta property="og:title" content="Manada Russo Creativa — Sublimación hecha con amor" />
+        <meta
+            property="og:description"
+            content="Tazas, franelas y llaveros personalizados con sublimación. Diseños 100% a tu medida, hechos a mano en Venezuela."
+        />
+        <meta property="og:image" content="/img/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Logo de Manada Russo Creativa" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Manada Russo Creativa — Sublimación hecha con amor" />
+        <meta
+            name="twitter:description"
+            content="Tazas, franelas y llaveros personalizados con sublimación. Diseños 100% a tu medida, hechos a mano en Venezuela."
+        />
+        <meta name="twitter:image" content="/img/og-image.png" />
+
         <!-- The brand mark is the first thing both the loader and the header paint. -->
         <link rel="preload" as="image" href="/img/logo-mark.webp" type="image/webp" />
 
+        <!--
+          Fonts load without blocking the first paint: the system font shows right away and
+          `display=swap` switches to the brand fonts once they arrive.
+        -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            rel="stylesheet"
+            rel="preload"
+            as="style"
             href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+            onload="
+                this.onload = null
+                this.rel = 'stylesheet'
+            "
         />
+        <noscript>
+            <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+            />
+        </noscript>
     </head>
     <body>
         <div id="root"></div>

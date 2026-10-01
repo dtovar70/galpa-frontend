@@ -65,7 +65,7 @@ function UserIdentity({ user, isSelf }: { user: AdminUser; isSelf: boolean }) {
                 <p className="font-display text-base leading-snug break-words text-ink">
                     {user.name}
                     {isSelf ? (
-                        <span className="ml-1.5 font-sans text-xs font-semibold text-blush-600">
+                        <span className="ml-1.5 font-sans text-xs font-semibold text-blush-700">
                             (tú)
                         </span>
                     ) : null}

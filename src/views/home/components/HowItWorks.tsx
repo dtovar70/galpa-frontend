@@ -22,7 +22,7 @@ export function HowItWorks() {
                     {home.steps.map((step, index) => (
                         <li key={index} className="h-full">
                             <Card className="flex h-full flex-col gap-3">
-                                <span className="flex size-12 items-center justify-center rounded-full bg-blush-400 font-display text-xl font-semibold text-white">
+                                <span className="flex size-12 items-center justify-center rounded-full bg-blush-700 font-display text-xl font-semibold text-white">
                                     {index + 1}
                                 </span>
                                 <h3 className="font-display text-xl text-ink">{step.title}</h3>

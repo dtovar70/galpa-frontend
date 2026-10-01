@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { MailCheck, Search } from 'lucide-react'
+import { Mail, MailCheck, MessageCircle, Package, Search } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 
@@ -21,7 +21,7 @@ import {
 const LOOKUP_SENT_MESSAGE = 'Si los datos coinciden, te enviamos un enlace a tu correo.'
 
 const linkClass =
-    'font-semibold text-blush-600 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
+    'font-semibold text-blush-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-blush-400'
 
 /**
  * "Consultar mi pedido" (`/consultar-pedido`): the order code and the checkout email. When they
@@ -63,8 +63,17 @@ export function OrderLookupView() {
     }
 
     return (
-        <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
-            <div className="space-y-2">
+        // Phones: heading, form, help. Wide screens: heading and help on the left, form on the right.
+        <div
+            className={cn(
+                CONTAINER,
+                'grid grid-cols-1 gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-x-16 lg:py-16',
+            )}
+        >
+            <div className="space-y-3 lg:col-start-1">
+                <p className="font-display text-sm font-semibold tracking-[0.2em] text-blush-700 uppercase">
+                    Tus pedidos
+                </p>
                 <h1 className="font-display text-4xl tracking-tight text-ink uppercase sm:text-5xl">
                     Consulta tu <span className="text-blush-500">pedido</span>
                 </h1>
@@ -75,7 +84,7 @@ export function OrderLookupView() {
                 </p>
             </div>
 
-            <div className="max-w-xl">
+            <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
                 {sentTo ? (
                     <Card padding="lg" className="space-y-4 text-center">
                         <span
@@ -143,17 +152,52 @@ export function OrderLookupView() {
                             >
                                 Enviarme el enlace
                             </Button>
-                            <p className="text-sm text-ink-soft">
-                                ¿Hiciste el pedido desde este dispositivo? Míralo en{' '}
-                                <Link to={ROUTES.myOrders} className={linkClass}>
-                                    Mis pedidos
-                                </Link>
-                                .
-                            </p>
                         </form>
                     </Card>
                 )}
             </div>
+
+            <section aria-labelledby="lookup-help-title" className="space-y-4 lg:col-start-1">
+                <h2 id="lookup-help-title" className="font-display text-xl text-ink">
+                    ¿Dónde encuentro mi código?
+                </h2>
+                <ul className="space-y-3">
+                    <HelpItem icon={<Mail className="size-5" />}>
+                        En el correo{' '}
+                        <span className="font-semibold text-ink">«Recibimos tu pedido MR-…»</span>{' '}
+                        que te enviamos al comprar. Ese correo también trae el botón «Ver mi
+                        pedido».
+                    </HelpItem>
+                    <HelpItem icon={<Package className="size-5" />}>
+                        Si compraste desde este dispositivo, está en{' '}
+                        <Link to={ROUTES.myOrders} className={linkClass}>
+                            Mis pedidos
+                        </Link>
+                        .
+                    </HelpItem>
+                    <HelpItem icon={<MessageCircle className="size-5" />}>
+                        ¿No lo encuentras? Escríbenos por{' '}
+                        <Link to={ROUTES.contact} className={linkClass}>
+                            Contacto
+                        </Link>{' '}
+                        con tu nombre y te ayudamos.
+                    </HelpItem>
+                </ul>
+            </section>
         </div>
+    )
+}
+
+function HelpItem({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+    return (
+        <li className="flex items-start gap-4 rounded-3xl border border-line bg-white/70 p-4">
+            <span
+                aria-hidden="true"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blush-100 text-blush-600"
+            >
+                {icon}
+            </span>
+            <p className="pt-2 text-sm text-ink-soft">{children}</p>
+        </li>
     )
 }

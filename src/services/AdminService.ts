@@ -4,6 +4,9 @@ import type {
     AdminProductQueryParams,
     CategoryCreateInput,
     CategoryInput,
+    DesignTemplateInput,
+    TemplateColorCreateInput,
+    TemplateColorInput,
     ProductInput,
 } from '@/@types/admin'
 import type { Paginated } from '@/@types/common'
@@ -12,6 +15,14 @@ import { apiClient } from '@/services/ApiClient'
 
 const PRODUCTS = '/admin/products'
 const CATEGORIES = '/admin/categories'
+
+function categoryPath(slug: CategorySlug, suffix = ''): string {
+    return `${CATEGORIES}/${encodeURIComponent(slug)}${suffix}`
+}
+
+function templateColorPath(slug: CategorySlug, colorId: string, suffix = ''): string {
+    return categoryPath(slug, `/design-template/colors/${encodeURIComponent(colorId)}${suffix}`)
+}
 
 function productPath(id: string, suffix = ''): string {
     return `${PRODUCTS}/${encodeURIComponent(id)}${suffix}`
@@ -51,11 +62,37 @@ export const AdminService = {
     createCategory: (input: CategoryCreateInput) =>
         apiClient.post<AdminCategory>(CATEGORIES, input),
     updateCategory: (slug: CategorySlug, input: CategoryInput) =>
-        apiClient.patch<AdminCategory>(`${CATEGORIES}/${encodeURIComponent(slug)}`, input),
+        apiClient.patch<AdminCategory>(categoryPath(slug), input),
     /** `slugs` must list every category exactly once; returns the list in its new order. */
     reorderCategories: (slugs: CategorySlug[]) =>
         apiClient.patch<AdminCategory[]>(`${CATEGORIES}/order`, { slugs }),
     /** Rejected with 409 while the category still has products, hidden ones included. */
-    deleteCategory: (slug: CategorySlug) =>
-        apiClient.delete(`${CATEGORIES}/${encodeURIComponent(slug)}`),
+    deleteCategory: (slug: CategorySlug) => apiClient.delete(categoryPath(slug)),
+
+    /** "Plantilla para diseñar": the print size in cm, shared by every garment color. */
+    updateCategoryTemplate: (slug: CategorySlug, input: DesignTemplateInput) =>
+        apiClient.patch<AdminCategory>(categoryPath(slug, '/design-template'), input),
+    /** Adds a garment color with its photo (at most `maxColors`). */
+    addTemplateColor: (slug: CategorySlug, input: TemplateColorCreateInput) => {
+        const form = new FormData()
+        form.append('colorName', input.colorName)
+        form.append('colorHex', input.colorHex)
+        form.append('file', input.file)
+        return apiClient.post<AdminCategory>(categoryPath(slug, '/design-template/colors'), form)
+    },
+    updateTemplateColor: (slug: CategorySlug, colorId: string, input: TemplateColorInput) =>
+        apiClient.patch<AdminCategory>(templateColorPath(slug, colorId), input),
+    /** Replaces a color's photo; its print area stays. */
+    replaceTemplatePhoto: (slug: CategorySlug, colorId: string, file: File) => {
+        const form = new FormData()
+        form.append('file', file)
+        return apiClient.post<AdminCategory>(templateColorPath(slug, colorId, '/photo'), form)
+    },
+    deleteTemplateColor: (slug: CategorySlug, colorId: string) =>
+        apiClient.delete<AdminCategory>(templateColorPath(slug, colorId)),
+    /** `colorIds` must list every color of the category once; the first is the default. */
+    reorderTemplateColors: (slug: CategorySlug, colorIds: string[]) =>
+        apiClient.patch<AdminCategory>(categoryPath(slug, '/design-template/colors/order'), {
+            colorIds,
+        }),
 } as const

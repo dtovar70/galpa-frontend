@@ -6,6 +6,7 @@ import { ProductIllustration } from '@/components/shared/ProductIllustration'
 import { ProductMedia } from '@/components/shared/ProductMedia'
 import { categorySurface } from '@/components/shared/illustration/artwork'
 import { Sticker } from '@/components/ui'
+import { cldSrcSet, cldUrl } from '@/utils/cloudinary'
 import { cn } from '@/utils/cn'
 import { isVariantSoldOut } from '@/utils/productStock'
 import { useCategory } from '@/views/catalog/hooks/useCategories'
@@ -67,6 +68,8 @@ export function ProductGallery({ product, selectedVariant, onSelectVariant }: Pr
                     fallbackAlt={product.name}
                     size="lg"
                     loading="eager"
+                    fetchPriority="high"
+                    sizes="(min-width: 480px) 24rem, calc(100vw - 6rem)"
                     className="max-w-sm"
                 />
             </div>
@@ -86,7 +89,9 @@ export function ProductGallery({ product, selectedVariant, onSelectVariant }: Pr
                                     })}
                                 >
                                     <img
-                                        src={image.url}
+                                        src={cldUrl(image.url, 160)}
+                                        srcSet={cldSrcSet(image.url, [80, 160, 240])}
+                                        sizes="68px"
                                         alt=""
                                         loading="lazy"
                                         decoding="async"

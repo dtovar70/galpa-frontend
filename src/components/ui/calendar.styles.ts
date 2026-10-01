@@ -30,7 +30,7 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
     day: 'p-0 text-center text-sm',
     day_button:
         'relative mx-auto flex size-9 items-center justify-center rounded-full font-semibold text-ink transition-colors hover:bg-blush-100 hover:text-blush-800 focus-visible:ring-2 focus-visible:ring-blush-400 focus-visible:ring-offset-1 focus-visible:outline-none',
-    today: '[&:not([data-selected])>button]:text-blush-600 [&>button]:after:absolute [&>button]:after:bottom-0.5 [&>button]:after:left-1/2 [&>button]:after:size-1 [&>button]:after:-translate-x-1/2 [&>button]:after:rounded-full [&>button]:after:bg-current',
+    today: '[&:not([data-selected])>button]:text-blush-700 [&>button]:after:absolute [&>button]:after:bottom-0.5 [&>button]:after:left-1/2 [&>button]:after:size-1 [&>button]:after:-translate-x-1/2 [&>button]:after:rounded-full [&>button]:after:bg-current',
     selected: '',
     disabled:
         '[&>button]:cursor-not-allowed [&>button]:text-ink-soft/35 [&>button]:hover:bg-transparent [&>button]:hover:text-ink-soft/35',
@@ -41,4 +41,4 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
 
 /** A picked day on its own: the solid blush dot (also the ends of a range). */
 export const CALENDAR_SELECTED_DAY_CLASS =
-    '[&>button]:bg-blush-500 [&>button]:text-white [&>button]:hover:bg-blush-600 [&>button]:hover:text-white'
+    '[&>button]:bg-blush-700 [&>button]:text-white [&>button]:hover:bg-blush-800 [&>button]:hover:text-white'

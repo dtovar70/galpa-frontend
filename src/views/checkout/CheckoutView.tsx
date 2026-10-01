@@ -17,15 +17,17 @@ import { useExchangeRate } from '@/utils/hooks/useExchangeRate'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 import { rememberOrder } from '@/utils/recentOrders'
 import { CheckoutForm } from '@/views/checkout/components/CheckoutForm'
+import { MobileTotalSummary } from '@/views/checkout/components/MobileTotalSummary'
 import { OrderSummary } from '@/views/checkout/components/OrderSummary'
 import {
     EXCHANGE_RATE_UNAVAILABLE,
-    ORDER_ITEMS_INVALID,
+    IDEMPOTENCY_KEY_REUSED,
     PAYMENT_METHOD_UNAVAILABLE,
     useCreateOrder,
 } from '@/views/checkout/hooks/useCreateOrder'
+import { useIdempotencyKey } from '@/views/checkout/hooks/useIdempotencyKey'
 import type { CheckoutValues, DeliveryMethod } from '@/views/checkout/schema/checkout.schema'
-import { lineProblemsOf } from '@/views/checkout/utils/lineProblems'
+import { isLineProblemsError, lineProblemsOf } from '@/views/checkout/utils/lineProblems'
 
 const RATE_UNAVAILABLE_TEXT =
     'No pudimos obtener la tasa del BCV. Intenta más tarde o contáctanos por WhatsApp.'
@@ -33,11 +35,12 @@ const RATE_UNAVAILABLE_TEXT =
 export function CheckoutView() {
     const items = useCartItems()
     const subtotal = useCartSubtotal()
-    const { clear, updateQuantity, removeItem } = useCartActions()
+    const { clear, updateQuantity, removeItem, removeDesign } = useCartActions()
     const navigate = useNavigate()
     const content = useSiteContent()
     const rate = useExchangeRate()
     const createOrder = useCreateOrder()
+    const idempotency = useIdempotencyKey()
 
     const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('delivery')
     const [problems, setProblems] = useState<OrderLineProblem[]>([])
@@ -58,16 +61,25 @@ export function CheckoutView() {
     const handleConfirm = async (values: CheckoutValues) => {
         setFormError(null)
         setProblems([])
+        const input = {
+            ...values,
+            items: items.map((item) => ({
+                productId: item.productId,
+                variantId: item.variantId || undefined,
+                quantity: item.quantity,
+                personalization: item.personalization || undefined,
+                designId: item.design?.id,
+            })),
+        }
+        // Same order body => same key, so a retry after a timeout never creates a second order;
+        // fixing a field or the cart is a new attempt (the API would answer 409 to the old key).
+        const scope = JSON.stringify(input)
         try {
             const created = await createOrder.mutateAsync({
-                ...values,
-                items: items.map((item) => ({
-                    productId: item.productId,
-                    variantId: item.variantId || undefined,
-                    quantity: item.quantity,
-                    personalization: item.personalization || undefined,
-                })),
+                idempotencyKey: idempotency.keyFor(scope),
+                input,
             })
+            idempotency.discard()
             rememberOrder({
                 code: created.code,
                 token: created.accessToken,
@@ -80,11 +92,15 @@ export function CheckoutView() {
             // After leaving, so the checkout never flashes its "empty cart" state.
             clear()
         } catch (error) {
-            if (isApiError(error, 503) && error.code === EXCHANGE_RATE_UNAVAILABLE) {
+            if (isApiError(error, 409) && error.code === IDEMPOTENCY_KEY_REUSED) {
+                // The key belongs to a different order body: the next try is a new attempt.
+                idempotency.discard()
+                setFormError(error.message)
+            } else if (isApiError(error, 503) && error.code === EXCHANGE_RATE_UNAVAILABLE) {
                 setServerBlock('rate')
             } else if (isApiError(error, 503) && error.code === PAYMENT_METHOD_UNAVAILABLE) {
                 setServerBlock('payment')
-            } else if (isApiError(error, 400) && error.code === ORDER_ITEMS_INVALID) {
+            } else if (isLineProblemsError(error)) {
                 setProblems(lineProblemsOf(error))
                 setFormError(error.message)
             } else {
@@ -101,7 +117,9 @@ export function CheckoutView() {
         for (const problem of problems) {
             const item = items[problem.index]
             if (!item) continue
-            if (problem.available > 0) updateQuantity(item.lineId, problem.available)
+            // A refused design leaves the line without it; the customer can make a new one.
+            if (problem.kind === 'design') removeDesign(item.lineId)
+            else if (problem.available > 0) updateQuantity(item.lineId, problem.available)
             else removeItem(item.lineId)
         }
         setProblems([])
@@ -124,6 +142,12 @@ export function CheckoutView() {
             ) : (
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
                     <div className="min-w-0 space-y-6">
+                        <MobileTotalSummary
+                            items={items}
+                            subtotal={subtotal}
+                            shipping={shipping}
+                            total={total}
+                        />
                         {!paymentReady ? (
                             <WhatsAppNotice title="Por ahora no podemos recibir pedidos en línea">
                                 Estamos terminando de configurar los pagos. Escríbenos por WhatsApp

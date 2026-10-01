@@ -128,7 +128,7 @@ export function OrderGroupTabs({
                                     className={cn(
                                         'min-w-6 rounded-full px-1.5 py-0.5 text-center text-xs font-bold tabular-nums',
                                         isUrgent
-                                            ? 'bg-blush-500 text-white'
+                                            ? 'bg-blush-700 text-white'
                                             : isActive
                                               ? 'bg-white text-blush-700'
                                               : 'bg-line/80 text-ink-soft',

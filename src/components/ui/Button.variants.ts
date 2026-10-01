@@ -10,7 +10,7 @@ export const buttonVariants = cva(
         variants: {
             variant: {
                 primary:
-                    'bg-blush-400 text-white shadow-soft hover:-translate-y-0.5 hover:bg-blush-500',
+                    'bg-blush-700 text-white shadow-soft hover:-translate-y-0.5 hover:bg-blush-800 active:bg-blush-900',
                 secondary:
                     'border-2 border-ink/10 bg-white text-ink hover:-translate-y-0.5 hover:border-ink/20',
                 ghost: 'text-ink hover:bg-blush-50',
@@ -18,10 +18,11 @@ export const buttonVariants = cva(
                 /** WhatsApp green (darkened for white text contrast). */
                 whatsapp:
                     'bg-[#128c7e] text-white shadow-soft hover:-translate-y-0.5 hover:bg-[#0b6f63]',
-                danger: 'bg-blush-700 text-white shadow-soft hover:-translate-y-0.5 hover:bg-blush-800',
+                danger: 'bg-blush-800 text-white shadow-soft hover:-translate-y-0.5 hover:bg-blush-900',
             },
             size: {
-                sm: 'h-9 px-4 text-sm',
+                // Touch screens get a 44px target; mouse users keep the compact size.
+                sm: 'h-9 px-4 text-sm pointer-coarse:h-11',
                 md: 'h-11 px-6 text-base',
                 lg: 'h-14 px-8 text-lg',
             },

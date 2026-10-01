@@ -18,6 +18,9 @@ export const queryKeys = {
         featured: (limit?: number) => [...queryKeys.products.all, 'featured', limit] as const,
         related: (slug: string, limit?: number) =>
             [...queryKeys.products.all, 'related', slug, limit] as const,
+        /** Live stock of the cart lines; `stockKeys` are the sorted "product:variant" keys. */
+        availability: (stockKeys: readonly string[]) =>
+            [...queryKeys.products.all, 'availability', stockKeys] as const,
     },
     categories: {
         all: ['categories'] as const,

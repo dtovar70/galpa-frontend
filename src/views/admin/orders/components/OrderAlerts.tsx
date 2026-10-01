@@ -1,4 +1,4 @@
-import { AlarmClock, PackageX, Undo2 } from 'lucide-react'
+import { AlarmClock, PackageCheck, PackageX, Undo2 } from 'lucide-react'
 
 import type { AdminOrder } from '@/@types/order'
 import { Alert } from '@/components/ui'
@@ -34,7 +34,15 @@ export function OrderAlerts({ order }: { order: AdminOrder }) {
                 </Alert>
             ) : null}
 
-            {conflict ? (
+            {conflict && !conflict.resolvedAt && !conflict.stillShort ? (
+                <Alert tone="info">
+                    <p className="flex items-center gap-1.5 font-semibold">
+                        <PackageCheck aria-hidden="true" className="size-4" />
+                        Ya hay stock para este pedido
+                    </p>
+                    <p className="font-normal">Al confirmar el pago se aparta automáticamente.</p>
+                </Alert>
+            ) : conflict ? (
                 <Alert tone={conflict.resolvedAt ? 'info' : 'error'}>
                     <p className="flex items-center gap-1.5 font-semibold">
                         <PackageX aria-hidden="true" className="size-4" />
@@ -49,7 +57,9 @@ export function OrderAlerts({ order }: { order: AdminOrder }) {
                             >
                                 {conflict.resolvedAt
                                     ? `${stockLineName(line)}: ${missingUnits(line) === 0 ? 'ya está completo' : `faltan ${missingUnits(line)} de ${line.requested}`}`
-                                    : describeStockLine(line)}
+                                    : line.stillShort
+                                      ? describeStockLine(line)
+                                      : `${stockLineName(line)}: ya hay stock`}
                             </li>
                         ))}
                     </ul>

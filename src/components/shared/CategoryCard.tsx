@@ -45,7 +45,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
                     />
                 </div>
 
-                <p className="text-sm font-semibold text-blush-600">{category.tagline}</p>
+                <p className="text-sm font-semibold text-blush-700">{category.tagline}</p>
                 <p className="text-sm text-ink-soft">{category.description}</p>
 
                 <Badge tone="neutral" size="sm" className="mt-auto self-start">

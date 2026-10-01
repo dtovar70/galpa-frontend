@@ -1,3 +1,4 @@
+import type { CartDesign } from '@/@types/design'
 import type { CategorySlug } from '@/@types/product'
 
 /**
@@ -22,6 +23,11 @@ export interface CartItem {
     personalization: string
     /** The product is tagged `personalizable`, so the text can be edited from the cart. */
     personalizable: boolean
+    /**
+     * The customer's own image ("Diseño propio"), uploaded before checkout. Part of the line
+     * identity: two designs of the same product are two lines. Null for regular lines.
+     */
+    design: CartDesign | null
 }
 
 export interface CartLineTotals {
@@ -29,4 +35,16 @@ export interface CartLineTotals {
     itemCount: number
     shipping: number
     total: number
+}
+
+/** Live stock of one cart line (`POST /products/availability`). */
+export interface CartAvailability {
+    productId: string
+    /** Null for a product without variants. */
+    variantId: string | null
+    /** Units left of the variant (or of the product without variants). */
+    stock: number
+    isActive: boolean
+    /** False when the product or its variant was deleted. */
+    exists: boolean
 }

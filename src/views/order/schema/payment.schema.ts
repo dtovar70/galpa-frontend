@@ -49,11 +49,16 @@ export type PaymentFormValues = z.output<typeof paymentSchema>
 
 export const PAYMENT_FIELDS = Object.keys(paymentSchema.shape) as (keyof PaymentFormValues)[]
 
-/** Problem with a chosen screenshot, or null when it can be sent. */
-export function proofProblem(file: File): string | null {
+/**
+ * Problem with a chosen screenshot, or null when it can be sent. `ignoreSize` checks only the
+ * type (the weight is checked again after the screenshot is shrunk in the browser).
+ */
+export function proofProblem(file: File, options: { ignoreSize?: boolean } = {}): string | null {
     if (!(PROOF_TYPES as readonly string[]).includes(file.type)) {
         return 'La captura debe ser una imagen JPG, PNG o WEBP.'
     }
-    if (file.size > MAX_PROOF_BYTES) return 'La captura puede pesar como máximo 5 MB.'
+    if (!options.ignoreSize && file.size > MAX_PROOF_BYTES) {
+        return 'La captura puede pesar como máximo 5 MB.'
+    }
     return null
 }

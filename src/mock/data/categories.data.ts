@@ -1,8 +1,12 @@
 import type { Category } from '@/@types/product'
 import { products } from '@/mock/data/products.data'
 import { PALETTE } from '@/constants/theme.constant'
+import { ILLUSTRATION_TEMPLATES } from '@/constants/design.constant'
 
-type CategorySeed = Omit<Category, 'productCount'>
+type CategorySeed = Omit<
+    Category,
+    'productCount' | 'designEnabled' | 'designTemplate' | 'designPrintSize'
+>
 
 const categorySeeds: CategorySeed[] = [
     {
@@ -34,4 +38,13 @@ const categorySeeds: CategorySeed[] = [
 export const categories: Category[] = categorySeeds.map((seed) => ({
     ...seed,
     productCount: products.filter((product) => product.category === seed.slug).length,
+    // Like the API before any template photo: the illustration templates only.
+    designEnabled: Object.hasOwn(ILLUSTRATION_TEMPLATES, seed.slug),
+    designTemplate: null,
+    designPrintSize: Object.hasOwn(ILLUSTRATION_TEMPLATES, seed.slug)
+        ? {
+              widthCm: ILLUSTRATION_TEMPLATES[seed.slug]!.widthCm,
+              heightCm: ILLUSTRATION_TEMPLATES[seed.slug]!.heightCm,
+          }
+        : null,
 }))

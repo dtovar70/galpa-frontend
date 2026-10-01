@@ -1,7 +1,8 @@
 import type { CartItem } from '@/@types/cart'
 import type { OrderLineProblem } from '@/@types/order'
 import { BsApproximation } from '@/components/shared/BsApproximation'
-import { ProductMedia } from '@/components/shared/ProductMedia'
+import { CartLineMedia } from '@/components/shared/CartLineMedia'
+import { DesignBadge, GarmentColorNote } from '@/components/shared/DesignBadge'
 import { Button, Card } from '@/components/ui'
 import { formatCurrency } from '@/utils/formatCurrency'
 
@@ -37,14 +38,7 @@ export function OrderSummary({
                         <li key={item.lineId} className="space-y-1.5">
                             <div className="flex items-center gap-3">
                                 <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-white p-1.5">
-                                    <ProductMedia
-                                        category={item.category}
-                                        color={item.colorHex}
-                                        printText={item.printText}
-                                        image={item.imageUrl ? { url: item.imageUrl } : undefined}
-                                        fallbackAlt={item.name}
-                                        size="sm"
-                                    />
+                                    <CartLineMedia item={item} size="sm" />
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate font-display text-sm text-ink">
@@ -53,6 +47,13 @@ export function OrderSummary({
                                     <p className="text-xs text-ink-soft">
                                         {item.variantLabel} · {item.quantity} u.
                                     </p>
+                                    {item.design ? <DesignBadge className="mt-1" /> : null}
+                                    {item.design?.color ? (
+                                        <GarmentColorNote
+                                            color={item.design.color}
+                                            className="mt-0.5"
+                                        />
+                                    ) : null}
                                     {item.personalization ? (
                                         <p className="text-xs break-words text-ink">
                                             <span className="text-ink-soft">Personalización:</span>{' '}

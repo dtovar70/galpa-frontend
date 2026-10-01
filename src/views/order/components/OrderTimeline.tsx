@@ -44,7 +44,7 @@ export function OrderTimeline({ order }: { order: PublicOrder }) {
                             className={cn(
                                 'relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 text-xs',
                                 done
-                                    ? 'border-blush-400 bg-blush-400 text-white'
+                                    ? 'border-blush-700 bg-blush-700 text-white'
                                     : 'border-line bg-white text-ink-soft',
                                 current && 'ring-4 ring-blush-200/70',
                             )}

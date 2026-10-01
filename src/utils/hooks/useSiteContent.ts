@@ -13,7 +13,7 @@ import {
 } from '@/utils/content'
 
 /** How long the first render waits for the content before falling back to the defaults. */
-export const SITE_CONTENT_TIMEOUT_MS = 4000
+export const SITE_CONTENT_TIMEOUT_MS = 1500
 
 export const siteContentQueryOptions = queryOptions({
     queryKey: queryKeys.content,
