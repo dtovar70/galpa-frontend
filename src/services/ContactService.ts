@@ -2,7 +2,7 @@ import { apiClient } from '@/services/ApiClient'
 import type { ContactTopic, SpaceType } from '@/views/contact/schema/contact.schema'
 
 export interface ContactMessageInput {
-    fullName: string
+    name: string
     email: string
     /** "0424-1234567"; left out when empty. */
     phone?: string

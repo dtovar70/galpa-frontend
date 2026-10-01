@@ -1,14 +1,11 @@
 import type { PaymentContent } from '@/@types/content'
 import type { PaymentMethod, PublicOrder } from '@/@types/order'
 import { CopyButton } from '@/components/shared/CopyButton'
-import {
-    isBolivarMethod,
-    PAYMENT_METHOD_ICONS,
-    paymentMethodLabel,
-} from '@/constants/payment.constant'
-import { formatBolivares, formatRate, formatVeNumber } from '@/utils/formatBolivares'
+import { PAYMENT_METHOD_ICONS } from '@/constants/payment.constant'
+import { formatRate, formatVeNumber } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDay } from '@/utils/formatDate'
+import { formatAmountDue } from '@/utils/payment'
 
 interface Row {
     label: string
@@ -75,30 +72,24 @@ function accountRows(method: PaymentMethod, payment: PaymentContent): Row[] {
 }
 
 export interface PaymentInstructionsCardProps {
+    /** Carries the store's details of the methods offered now (`payment`) and `amountDue`. */
     order: PublicOrder
-    payment: PaymentContent
 }
 
 /** Where and how much to pay with the order's method, each value one tap from the clipboard. */
-export function PaymentInstructionsCard({ order, payment }: PaymentInstructionsCardProps) {
-    const { totals, paymentMethod: method } = order
+export function PaymentInstructionsCard({ order }: PaymentInstructionsCardProps) {
+    const { totals, paymentMethod: method, amountDue, payment } = order
     const Icon = PAYMENT_METHOD_ICONS[method]
-    const inBolivares = isBolivarMethod(method)
-    const amount: Row = inBolivares
-        ? {
-              label: 'Monto exacto',
-              display: formatBolivares(totals.totalBs),
-              copy: formatVeNumber(totals.totalBs),
-          }
-        : {
-              label: 'Monto exacto',
-              display: formatCurrency(totals.totalUsd),
-              copy: totals.totalUsd.toFixed(2),
-          }
+    const inBolivares = amountDue.currency === 'VES'
+    const amount: Row = {
+        label: 'Monto exacto',
+        display: formatAmountDue(amountDue),
+        copy: inBolivares ? formatVeNumber(amountDue.amount) : amountDue.amount.toFixed(2),
+    }
     const rows = accountRows(method, payment).filter((row) => row.display.trim() !== '')
     const concept: Row = { label: 'Concepto', display: `Pedido ${order.code}`, copy: order.code }
     const everything = [
-        paymentMethodLabel(method),
+        order.paymentMethodLabel,
         ...[...rows, amount, concept].map((row) => `${row.label}: ${row.display}`),
     ].join('\n')
 
@@ -109,7 +100,7 @@ export function PaymentInstructionsCard({ order, payment }: PaymentInstructionsC
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-ink text-brand-400">
                         <Icon aria-hidden="true" className="size-5" />
                     </span>
-                    <p className="text-lg font-bold text-ink">{paymentMethodLabel(method)}</p>
+                    <p className="text-lg font-bold text-ink">{order.paymentMethodLabel}</p>
                 </div>
                 <CopyButton value={everything} label="Copiar todos los datos">
                     Copiar todo

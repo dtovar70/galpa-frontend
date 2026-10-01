@@ -45,7 +45,7 @@ export function PaymentMethodPicker({
                     const Icon = PAYMENT_METHOD_ICONS[method]
                     const isSelected = value === method
                     const amount =
-                        info.currency === 'BS'
+                        info.currency === 'VES'
                             ? rate === null
                                 ? 'En bolívares a tasa BCV'
                                 : `≈ ${formatBolivares(usdToBolivares(total, rate))}`

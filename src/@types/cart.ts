@@ -13,6 +13,7 @@ export interface CartItem {
     category: CategorySlug
     brand: string
     model: string | null
+    /** '' for a product without variants. */
     variantId: string
     variantLabel: string
     /** First product photo at the time it was added; absent when the product has none. */
@@ -36,8 +37,13 @@ export interface CartAvailability {
     productId: string
     /** Null for a product without variants. */
     variantId: string | null
-    /** Units left of the variant (or of the product without variants). */
+    /**
+     * Units left of the variant (or of the product without variants). ON_ORDER lines always
+     * report a nominal 99: they have no stock limit, so it is never shown.
+     */
     stock: number
+    /** The product's current mode (it may have changed since the line was added). */
+    stockMode: StockMode
     isActive: boolean
     /** False when the product or its variant was deleted. */
     exists: boolean

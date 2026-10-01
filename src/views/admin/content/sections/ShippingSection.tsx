@@ -69,9 +69,9 @@ export function ShippingSection(props: SectionFormProps<'shipping'>) {
                 <Textarea
                     label="Texto de despacho"
                     rows={2}
-                    hint="Página de producto: cuándo y cómo salen los pedidos pagados."
+                    hint="Página de producto y preguntas frecuentes ({despacho}): cuándo salen los pedidos pagados."
                     error={errors.dispatchCopy?.message}
-                    maxLength={CONTENT_LIMITS.text}
+                    maxLength={CONTENT_LIMITS.announcement}
                     {...register('dispatchCopy')}
                 />
             </FieldGroup>

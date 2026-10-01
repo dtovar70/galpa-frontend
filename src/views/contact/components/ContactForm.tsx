@@ -102,7 +102,7 @@ export function ContactForm() {
         setFailure(null)
         try {
             await ContactService.send({
-                fullName: values.fullName,
+                name: values.fullName,
                 email: values.email,
                 phone: values.phone,
                 topic: values.topic,
@@ -116,7 +116,9 @@ export function ContactForm() {
             if (isApiError(error, 400) && error.details.length) {
                 let pinned = false
                 for (const detail of error.details) {
-                    const field = CONTACT_FIELDS.find((name) => name === detail.field)
+                    // The API names the full name `name`; the form field is `fullName`.
+                    const apiField = detail.field === 'name' ? 'fullName' : detail.field
+                    const field = CONTACT_FIELDS.find((name) => name === apiField)
                     const message = detail.errors[0]
                     if (field && message) {
                         setError(field, { type: 'server', message })

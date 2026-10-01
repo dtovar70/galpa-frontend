@@ -10,7 +10,7 @@ import type {
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Alert, Button, Textarea, type ButtonProps } from '@/components/ui'
 import { getErrorMessage, isApiError } from '@/services/errors'
-import { formatPaidAmount, formatPaymentDifference, paymentDifference } from '@/utils/payment'
+import { formatPaidAmount, formatPaymentDifference } from '@/utils/payment'
 import { useTransitionOrder } from '@/views/admin/hooks/useAdminOrders'
 import { CheckboxField } from '@/components/shared/CheckboxField'
 import { ManualPaymentAction } from '@/views/admin/orders/components/ManualPaymentAction'
@@ -103,10 +103,9 @@ function description(order: AdminOrder, action: AllowedTransition) {
             return 'Las unidades en stock se toman otra vez del inventario y el cliente tendrá un plazo nuevo para pagar. Los montos siguen siendo los del pedido.'
         case 'PAGO_VERIFICADO': {
             if (!payment) return 'El cliente verá su pago como aprobado.'
-            const difference = paymentDifference(payment)
             const off =
-                difference !== null && difference !== 0
-                    ? ` (diferencia ${formatPaymentDifference(payment.method, difference)})`
+                payment.amountMismatch && payment.amountDifference !== 0
+                    ? ` (diferencia ${formatPaymentDifference(payment.currency, payment.amountDifference)})`
                     : ''
             return `Confirma que recibiste ${formatPaidAmount(payment)} con la referencia ${payment.reference}${off}. El cliente verá su pago como aprobado.`
         }

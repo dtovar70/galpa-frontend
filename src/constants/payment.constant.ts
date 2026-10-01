@@ -13,12 +13,12 @@ export const PAYMENT_METHOD_INFO: Record<PaymentMethod, PaymentMethodInfo> = {
     PAGO_MOVIL: {
         label: 'Pago Móvil',
         description: 'En bolívares, a la tasa BCV del día.',
-        currency: 'BS',
+        currency: 'VES',
     },
     TRANSFERENCIA: {
         label: 'Transferencia bancaria',
         description: 'En bolívares, a la tasa BCV del día.',
-        currency: 'BS',
+        currency: 'VES',
     },
     ZELLE: {
         label: 'Zelle',
@@ -52,5 +52,5 @@ export function paymentMethodLabel(method: PaymentMethod): string {
 }
 
 export function isBolivarMethod(method: PaymentMethod): boolean {
-    return PAYMENT_METHOD_INFO[method].currency === 'BS'
+    return PAYMENT_METHOD_INFO[method].currency === 'VES'
 }

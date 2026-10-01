@@ -65,6 +65,7 @@ export function placeholderValues(content: SiteContent): PlaceholderValues {
     return {
         envioGratis: formatShortMoney(content.shipping.freeThreshold),
         tarifaEnvio: formatShortMoney(content.shipping.flatRate),
+        despacho: content.shipping.dispatchCopy,
         marca: content.general.brandName,
         ciudad: content.contact.city,
     }

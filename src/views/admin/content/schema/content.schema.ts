@@ -3,7 +3,7 @@ import { z } from 'zod'
 import {
     BANK_ACCOUNT_TYPES,
     CONTENT_PLACEHOLDERS,
-    type AboutValueIcon,
+    ABOUT_VALUE_ICONS,
     type ContentPlaceholder,
     type ContentSection,
     type SiteContent,
@@ -48,7 +48,7 @@ export const CONTENT_LIMITS = {
     bankName: 100,
     holderName: 80,
     instructions: 500,
-    payId: 40,
+    payId: 64,
     testimonialQuote: 400,
     testimonialName: 60,
     testimonialProduct: 80,
@@ -68,22 +68,12 @@ export const CONTENT_LIST_SIZES = {
 export const CONTENT_MAX_MONEY = 100_000
 
 export { ID_NUMBER_PATTERN, VE_MOBILE_PATTERN, VE_PHONE_PATTERN } from '@/utils/veFormats'
+export { ABOUT_VALUE_ICONS }
 export const BANK_CODE_PATTERN = /^\d{4}$/
 const ACCOUNT_NUMBER_PATTERN = /^\d{20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PAY_ID_PATTERN = /^[A-Za-z0-9]+$/
+const PAY_ID_PATTERN = /^[A-Za-z0-9]{4,64}$/
 export const SOCIAL_HANDLE_PATTERN = /^(?:[A-Za-z0-9._]{1,30})?$/
-
-export const ABOUT_VALUE_ICONS = [
-    'palette',
-    'heart-handshake',
-    'timer',
-    'leaf',
-    'sparkles',
-    'star',
-    'truck',
-    'shield-check',
-] as const satisfies readonly AboutValueIcon[]
 
 interface TextRules {
     optional?: boolean
@@ -319,7 +309,7 @@ export type ContactFormValues = z.input<typeof contactSchema>
 
 /* ----------------------------------------------------------- Contact page */
 
-export const FAQ_PLACEHOLDERS = ['envioGratis', 'tarifaEnvio'] as const
+export const FAQ_PLACEHOLDERS = ['envioGratis', 'tarifaEnvio', 'despacho'] as const
 
 export const contactPageSchema = z.object({
     badge: text(L.label),
@@ -344,7 +334,7 @@ export const shippingSchema = z.object({
     freeThreshold: money('Escribe el monto para envío gratis'),
     flatRate: money('Escribe la tarifa de envío'),
     freeShippingCopy: text(L.announcement, { placeholders: ['envioGratis'] }),
-    dispatchCopy: text(L.text),
+    dispatchCopy: text(L.announcement),
 })
 export type ShippingFormValues = z.input<typeof shippingSchema>
 
@@ -470,15 +460,12 @@ const binanceSchema = z
         checkField(add, method.enabled, 'payId', method.payId, {
             required: 'Escribe el Binance Pay ID',
             pattern: PAY_ID_PATTERN,
-            message: 'Solo letras y números',
+            message: 'Solo letras y números (4 a 64)',
         })
         checkField(add, false, 'email', method.email, {
             required: '',
             pattern: EMAIL_PATTERN,
             message: 'Escribe un correo válido, por ejemplo pagos@empresa.com',
-        })
-        checkField(add, method.enabled, 'holderName', method.holderName, {
-            required: 'Escribe el nombre del titular',
         })
     })
 

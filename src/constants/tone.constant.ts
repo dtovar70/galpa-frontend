@@ -1,27 +1,24 @@
 import type { BadgeTone } from '@/@types/catalog'
 import type { BadgeVariant } from '@/components/ui/Badge'
 
-/**
- * How each stored status tone (the API's `BADGE_TONES`, kept for compatibility with the status
- * catalog) is painted with the Galpa badge palette.
- */
+/** The badge variant of each stored status tone (the API stores the variant names themselves). */
 export const STATUS_TONE_VARIANTS: Record<BadgeTone, BadgeVariant> = {
-    mint: 'brand',
-    butter: 'warning',
-    sky: 'info',
-    blush: 'danger',
-    lilac: 'outline',
+    brand: 'brand',
+    warning: 'warning',
+    info: 'info',
+    danger: 'danger',
+    outline: 'outline',
     solid: 'solid',
     neutral: 'neutral',
 }
 
 /** Names the admin reads when choosing a status color. */
 export const STATUS_TONE_LABELS: Record<BadgeTone, string> = {
-    mint: 'Verde (aprobado)',
-    butter: 'Ámbar (atención)',
-    sky: 'Celeste (en proceso)',
-    blush: 'Rojo (problema)',
-    lilac: 'Contorno',
+    brand: 'Verde (aprobado)',
+    warning: 'Ámbar (atención)',
+    info: 'Celeste (en proceso)',
+    danger: 'Rojo (problema)',
+    outline: 'Contorno',
     solid: 'Negro',
     neutral: 'Gris',
 }

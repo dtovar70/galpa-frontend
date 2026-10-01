@@ -1,12 +1,18 @@
-import { PAYMENT_METHOD_CONFIGURED, type PaymentContent } from '@/@types/content'
-import type { OrderPayment, OrderTotals, PaymentMethod } from '@/@types/order'
+import { isMethodConfigured, type PaymentContent } from '@/@types/content'
+import type {
+    AmountDue,
+    OrderPayment,
+    OrderTotals,
+    PaymentCurrency,
+    PaymentMethod,
+} from '@/@types/order'
 import { isBolivarMethod, PAYMENT_METHOD_ORDER } from '@/constants/payment.constant'
 import { formatBolivares } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 
 /** Methods the store can take now, in display order. */
 export function configuredPaymentMethods(payment: PaymentContent): PaymentMethod[] {
-    return PAYMENT_METHOD_ORDER.filter((method) => PAYMENT_METHOD_CONFIGURED[method](payment))
+    return PAYMENT_METHOD_ORDER.filter((method) => isMethodConfigured(payment, method))
 }
 
 /**
@@ -39,25 +45,17 @@ export function formatPaidAmount(
     return payment.amountUsd === null ? '—' : formatCurrency(payment.amountUsd)
 }
 
-/**
- * Paid minus expected, in the method's currency; null when either side is missing. A cent of
- * rounding is not a difference.
- */
-export function paymentDifference(
-    payment: Pick<OrderPayment, 'method' | 'amountBs' | 'amountUsd' | 'expectedBs' | 'expectedUsd'>,
-): number | null {
-    const [paid, expected] = isBolivarMethod(payment.method)
-        ? [payment.amountBs, payment.expectedBs]
-        : [payment.amountUsd, payment.expectedUsd]
-    if (paid === null || expected === null) return null
-    const difference = Math.round((paid - expected) * 100) / 100
-    return Math.abs(difference) < 0.01 ? 0 : difference
+/** An amount in a payment currency: "Bs 1.234,50" (VES) or "$120,00" (USD). */
+export function formatMoney(currency: PaymentCurrency, amount: number): string {
+    return currency === 'VES' ? formatBolivares(amount) : formatCurrency(amount)
 }
 
-/** Signed difference in the method's currency: "+Bs 12,00" / "−$5,00". */
-export function formatPaymentDifference(method: PaymentMethod, difference: number): string {
-    const amount = isBolivarMethod(method)
-        ? formatBolivares(Math.abs(difference))
-        : formatCurrency(Math.abs(difference))
-    return `${difference > 0 ? '+' : '−'}${amount}`
+/** What the order's method must pay, as the API computed it (`amountDue`). */
+export function formatAmountDue(amountDue: AmountDue): string {
+    return formatMoney(amountDue.currency, amountDue.amount)
+}
+
+/** Signed difference in the payment's currency: "+Bs 12,00" / "−$5,00". */
+export function formatPaymentDifference(currency: PaymentCurrency, difference: number): string {
+    return `${difference > 0 ? '+' : '−'}${formatMoney(currency, Math.abs(difference))}`
 }

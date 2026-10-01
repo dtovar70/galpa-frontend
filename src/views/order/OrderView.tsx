@@ -15,13 +15,10 @@ import { orderPath, ROUTES } from '@/constants/route.constant'
 import { isApiError } from '@/services/errors'
 import { OrderService } from '@/services/OrderService'
 import { cn } from '@/utils/cn'
-import { PAYMENT_METHOD_CONFIGURED } from '@/@types/content'
-import { isBolivarMethod, paymentMethodLabel } from '@/constants/payment.constant'
+import { isBolivarMethod } from '@/constants/payment.constant'
 import { formatDateTime } from '@/utils/formatDate'
 import { useCountdown } from '@/utils/hooks/useCountdown'
 import { useOrderStatusCatalog } from '@/utils/hooks/useOrderStatusCatalog'
-import { useSiteContent } from '@/utils/hooks/useSiteContent'
-import { configuredPaymentMethods } from '@/utils/payment'
 import { rememberOrder } from '@/utils/recentOrders'
 import { OrderItemsCard } from '@/views/order/components/OrderItemsCard'
 import { OrderQrCard } from '@/views/order/components/OrderQrCard'
@@ -87,7 +84,6 @@ export function OrderView() {
     const { data: order, isPending, isError, error, refetch } = useOrder(code, token)
     const submitPayment = useSubmitPayment(code, token)
     const changeMethod = useChangePaymentMethod(code, token)
-    const { payment: paymentContent } = useSiteContent()
     // Status names and messages come from the catalog: wait for it rather than flash codes.
     const statusCatalog = useOrderStatusCatalog()
     const remaining = useCountdown(order?.paymentDueAt)
@@ -151,10 +147,11 @@ export function OrderView() {
         needsPayment &&
         (order.status === 'EXPIRADO' || (order.status === 'PENDIENTE_PAGO' && remaining === 0))
     const rejection = order.status === 'PAGO_RECHAZADO' ? order.payments[0]?.rejectionReason : null
-    // The store's details for the order's method; missing when it was turned off meanwhile.
-    const methodAvailable = PAYMENT_METHOD_CONFIGURED[order.paymentMethod](paymentContent)
-    const canSwitchMethod = order.status === 'PENDIENTE_PAGO' || order.status === 'PAGO_RECHAZADO'
-    const methodLabel = paymentMethodLabel(order.paymentMethod)
+    // The store's details for the order's method come with the order; the method may have been
+    // turned off meanwhile (then its details come back empty).
+    const methodAvailable = order.availablePaymentMethods.includes(order.paymentMethod)
+    const canSwitchMethod = order.canChangePaymentMethod
+    const methodLabel = order.paymentMethodLabel
     const paymentForm = (
         <Card padding="md">
             <PaymentForm
@@ -277,11 +274,11 @@ export function OrderView() {
                                         </p>
                                     </div>
                                 ) : null}
-                                <PaymentInstructionsCard order={order} payment={paymentContent} />
+                                <PaymentInstructionsCard order={order} />
                                 {canSwitchMethod ? (
                                     <PaymentMethodSwitcher
                                         order={order}
-                                        methods={configuredPaymentMethods(paymentContent)}
+                                        methods={order.availablePaymentMethods}
                                         onChange={(method) => changeMethod.mutateAsync(method)}
                                     />
                                 ) : null}
@@ -331,7 +328,7 @@ export function OrderView() {
                             {canSwitchMethod ? (
                                 <PaymentMethodSwitcher
                                     order={order}
-                                    methods={configuredPaymentMethods(paymentContent)}
+                                    methods={order.availablePaymentMethods}
                                     onChange={(method) => changeMethod.mutateAsync(method)}
                                 />
                             ) : null}

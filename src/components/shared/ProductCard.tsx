@@ -111,10 +111,10 @@ export function ProductCard({ product }: ProductCardProps) {
                             className="min-w-0"
                         />
 
-                        {defaultVariant ? (
+                        {defaultVariant || product.variants.length === 0 ? (
                             <AddToCartButton
                                 product={product}
-                                variantId={defaultVariant.id}
+                                variantId={defaultVariant?.id ?? null}
                                 size="sm"
                                 // Narrow (two-column phone) cards let a long label wrap instead of overflowing.
                                 className="relative z-10 h-auto min-h-9 w-full shrink-0 py-1.5 leading-tight whitespace-normal @[18rem]:w-auto pointer-coarse:min-h-11"

@@ -26,7 +26,8 @@ export const QUOTE_MANUAL_TRANSITIONS: Record<QuoteStatus, readonly QuoteStatus[
     ACEPTADA: ['RECHAZADA'],
     CONVERTIDA: [],
     RECHAZADA: [],
-    VENCIDA: [],
+    // An expired quote goes back to draft to be updated and sent again.
+    VENCIDA: ['BORRADOR'],
 }
 
 /** The quote can still be edited (the API refuses changes in the other statuses). */
@@ -34,9 +35,9 @@ export function isQuoteEditable(status: QuoteStatus): boolean {
     return status === 'BORRADOR' || status === 'ENVIADA'
 }
 
-/** "Convertir en pedido" is offered once the quote was sent. */
+/** "Convertir en pedido" (mirrors the API's CONVERTIBLE_QUOTE_STATUSES). */
 export function isQuoteConvertible(status: QuoteStatus): boolean {
-    return status === 'ENVIADA' || status === 'ACEPTADA'
+    return status === 'BORRADOR' || status === 'ENVIADA' || status === 'ACEPTADA'
 }
 
 /** Days a new quote stays valid by default. */

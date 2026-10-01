@@ -84,7 +84,9 @@ export function ProductDetailView() {
     const isVariablePrice = hasVariablePrice(product)
     const onOrder = isOnOrder(product)
     const stockLeft = stockOf(product, selectedVariant)
-    const inCart = selectedVariant ? cartUnitsOf(cartItems, product.id, selectedVariant.id) : 0
+    // A product without variants is bought as it is; one with variants needs a version.
+    const canAdd = product.variants.length === 0 || selectedVariant !== undefined
+    const inCart = canAdd ? cartUnitsOf(cartItems, product.id, selectedVariant?.id) : 0
     const addable = Math.max(0, Math.min(stockLeft, MAX_LINE_QUANTITY) - inCart)
     const maxQuantity = Math.max(1, addable)
     const safeQuantity = Math.min(quantity, maxQuantity)
@@ -194,10 +196,10 @@ export function ProductDetailView() {
                             onChange={setQuantity}
                         />
 
-                        {selectedVariant ? (
+                        {canAdd ? (
                             <AddToCartButton
                                 product={product}
-                                variantId={selectedVariant.id}
+                                variantId={selectedVariant?.id ?? null}
                                 quantity={safeQuantity}
                                 size="lg"
                                 label="Agregar al carrito"
@@ -231,7 +233,7 @@ export function ProductDetailView() {
                 </div>
             </div>
 
-            {selectedVariant ? (
+            {canAdd ? (
                 <StickyAddToCartBar
                     anchorRef={addRowRef}
                     price={unitPrice}
@@ -239,7 +241,7 @@ export function ProductDetailView() {
                 >
                     <AddToCartButton
                         product={product}
-                        variantId={selectedVariant.id}
+                        variantId={selectedVariant?.id ?? null}
                         quantity={safeQuantity}
                         label="Agregar al carrito"
                         className="px-4"

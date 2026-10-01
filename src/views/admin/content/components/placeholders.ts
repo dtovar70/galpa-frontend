@@ -4,6 +4,7 @@ import type { PlaceholderValues } from '@/utils/content'
 const DESCRIPTIONS: Record<ContentPlaceholder, string> = {
     envioGratis: 'el monto para envío gratis',
     tarifaEnvio: 'la tarifa de envío',
+    despacho: 'el texto de despacho',
     categorias: 'la cantidad de categorías en palabras',
     marca: 'el nombre de la marca',
     ciudad: 'la ciudad',

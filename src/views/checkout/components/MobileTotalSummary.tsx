@@ -54,7 +54,9 @@ export function MobileTotalSummary({
                             <span className="min-w-0 text-ink">
                                 <span className="block truncate font-semibold">{item.name}</span>
                                 <span className="text-xs text-ink-soft">
-                                    {item.variantLabel} · {item.quantity} u.
+                                    {[item.variantLabel, `${item.quantity} u.`]
+                                        .filter(Boolean)
+                                        .join(' · ')}
                                 </span>
                             </span>
                             <span className="shrink-0 font-semibold text-ink">

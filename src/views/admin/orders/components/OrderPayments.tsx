@@ -8,7 +8,7 @@ import { cn } from '@/utils/cn'
 import { formatBolivares } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDateTime, formatDay } from '@/utils/formatDate'
-import { formatPaidAmount, formatPaymentDifference, paymentDifference } from '@/utils/payment'
+import { formatPaidAmount, formatPaymentDifference } from '@/utils/payment'
 import { PaymentFlagBadges } from '@/views/admin/orders/components/PaymentFlagBadges'
 
 const STATUS: Record<PaymentStatus, { label: string; tone: BadgeVariant }> = {
@@ -68,8 +68,7 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
                 <ul className="space-y-3">
                     {order.payments.map((payment) => {
                         const status = STATUS[payment.status]
-                        const difference = paymentDifference(payment)
-                        const amountOff = difference !== null && difference !== 0
+                        const amountOff = payment.amountMismatch && payment.amountDifference !== 0
                         return (
                             <li
                                 key={payment.id}
@@ -106,7 +105,7 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
                                             {status.label}
                                         </Badge>
                                         <Badge tone="outline" size="sm">
-                                            {paymentMethodLabel(payment.method)}
+                                            {payment.methodLabel}
                                         </Badge>
                                         <PaymentFlagBadges payment={payment} />
                                         {payment.source === 'admin' ? (
@@ -133,7 +132,7 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
                                             <dd className="font-tech font-semibold text-ink">
                                                 {expectedAmount(payment)}
                                                 {amountOff
-                                                    ? ` (${formatPaymentDifference(payment.method, difference)})`
+                                                    ? ` (${formatPaymentDifference(payment.currency, payment.amountDifference)})`
                                                     : ''}
                                             </dd>
                                         </div>

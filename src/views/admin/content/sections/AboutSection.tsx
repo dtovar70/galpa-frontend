@@ -118,7 +118,7 @@ export function AboutSection(props: SectionFormProps<'about'>) {
                     itemName={(position) => `Valor ${position}`}
                     onMove={values.move}
                     onRemove={values.remove}
-                    onAdd={() => values.append({ icon: 'sparkles', title: '', description: '' })}
+                    onAdd={() => values.append({ icon: 'star', title: '', description: '' })}
                     addLabel="Agregar valor"
                     minItems={CONTENT_LIST_SIZES.values.min}
                     maxItems={CONTENT_LIST_SIZES.values.max}

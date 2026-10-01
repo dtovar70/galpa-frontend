@@ -17,10 +17,13 @@ const skeletonVariants = cva('animate-pulse bg-line motion-reduce:animate-none',
 })
 
 export interface SkeletonProps
-    extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof skeletonVariants> {}
+    extends HTMLAttributes<HTMLElement>, VariantProps<typeof skeletonVariants> {
+    /** `span` for a placeholder inside text (a `<div>` is not allowed inside a `<p>`). */
+    as?: 'div' | 'span'
+}
 
-export function Skeleton({ shape, className, ...rest }: SkeletonProps) {
+export function Skeleton({ shape, className, as: Tag = 'div', ...rest }: SkeletonProps) {
     return (
-        <div aria-hidden="true" className={cn(skeletonVariants({ shape }), className)} {...rest} />
+        <Tag aria-hidden="true" className={cn(skeletonVariants({ shape }), className)} {...rest} />
     )
 }

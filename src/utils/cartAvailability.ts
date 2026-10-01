@@ -54,7 +54,8 @@ export function lineStock(
     const live = availability?.get(key)
     if (!live) return { max: fallbackMax, issue: null }
     if (!live.exists || !live.isActive) return { max: 0, issue: { kind: 'unavailable' } }
-    if (item.stockMode === 'ON_ORDER') return { max: fallbackMax, issue: null }
+    // The live mode wins over the cart's snapshot: on-order stock (a nominal 99) is never shown.
+    if (live.stockMode === 'ON_ORDER') return { max: fallbackMax, issue: null }
 
     const stock = Math.max(0, live.stock)
     if (stock === 0) return { max: 0, issue: { kind: 'soldOut' } }

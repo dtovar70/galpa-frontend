@@ -8,11 +8,12 @@ import {
     TEXT_INPUT_MAX_MESSAGE as MAX_TEXT_MESSAGE,
 } from '@/constants/ui.constant'
 import { caracasToday, toCalendarDay } from '@/utils/calendarDay'
-import { idNumberSchema } from '@/utils/veFormats'
+import { idNumberSchema, VE_PHONE_PATTERN } from '@/utils/veFormats'
 
 export const QUOTE_MAX_ITEMS = 50
 export const QUOTE_NOTES_MAX_LENGTH = 1000
 export const QUOTE_TERMS_MAX_LENGTH = 2000
+export const QUOTE_DESCRIPTION_MAX_LENGTH = 300
 const MAX_AMOUNT = 99_999_999.99
 const MAX_QUANTITY = 9999
 
@@ -37,15 +38,23 @@ export const quoteFormSchema = z
             .trim()
             .min(3, 'Escribe el nombre del cliente')
             .max(MAX_TEXT, MAX_TEXT_MESSAGE),
+        // Optional, like the API: the email is needed to send the PDF, a mobile number to
+        // share it by WhatsApp.
         customerEmail: z
             .string()
             .trim()
             .max(MAX_TEXT, MAX_TEXT_MESSAGE)
-            .pipe(z.email('Escribe un correo válido, por ejemplo cliente@correo.com')),
+            .refine(
+                (value) => value === '' || z.email().safeParse(value).success,
+                'Escribe un correo válido, por ejemplo cliente@correo.com',
+            ),
         customerPhone: z
             .string()
             .trim()
-            .regex(/^\+?[\d\s()-]{7,20}$/, 'Escribe un teléfono válido, por ejemplo 0414-1234567'),
+            .refine(
+                (value) => value === '' || VE_PHONE_PATTERN.test(value),
+                'Escribe un teléfono válido, por ejemplo 0414-1234567',
+            ),
         customerIdNumber: idNumberSchema({ optional: true }),
         customerCompany: z.string().trim().max(MAX_TEXT, MAX_TEXT_MESSAGE),
         validUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Elige hasta cuándo es válida'),
@@ -62,11 +71,16 @@ export const quoteFormSchema = z
             .array(
                 z.object({
                     productId: z.string().nullable(),
+                    /** The chosen version when the product has variants. */
+                    variantId: z.string().nullable(),
                     description: z
                         .string()
                         .trim()
                         .min(1, 'Describe el producto o servicio')
-                        .max(200, 'Máximo 200 caracteres'),
+                        .max(
+                            QUOTE_DESCRIPTION_MAX_LENGTH,
+                            `Máximo ${QUOTE_DESCRIPTION_MAX_LENGTH} caracteres`,
+                        ),
                     brand: z.string().trim().max(60, 'Máximo 60 caracteres'),
                     model: z.string().trim().max(80, 'Máximo 80 caracteres'),
                     quantity: z
@@ -136,8 +150,8 @@ export function emptyQuoteForm(): QuoteFormValues {
 export function toQuoteFormValues(quote: Quote): QuoteFormValues {
     return {
         customerName: quote.customerName,
-        customerEmail: quote.customerEmail,
-        customerPhone: quote.customerPhone,
+        customerEmail: quote.customerEmail ?? '',
+        customerPhone: quote.customerPhone ?? '',
         customerIdNumber: quote.customerIdNumber ?? '',
         customerCompany: quote.customerCompany ?? '',
         validUntil: quote.validUntil,
@@ -148,6 +162,7 @@ export function toQuoteFormValues(quote: Quote): QuoteFormValues {
             .sort((a, b) => a.sortOrder - b.sortOrder)
             .map((item) => ({
                 productId: item.productId,
+                variantId: item.variantId,
                 description: item.description,
                 brand: item.brand ?? '',
                 model: item.model ?? '',
@@ -160,16 +175,17 @@ export function toQuoteFormValues(quote: Quote): QuoteFormValues {
 export function toQuoteInput(values: QuoteFormValues): QuoteInput {
     return {
         customerName: values.customerName,
-        customerEmail: values.customerEmail,
-        customerPhone: values.customerPhone,
+        customerEmail: values.customerEmail || null,
+        customerPhone: values.customerPhone || null,
         customerIdNumber: values.customerIdNumber || null,
         customerCompany: values.customerCompany || null,
-        notes: values.notes || null,
-        terms: values.terms || null,
+        notes: values.notes,
+        terms: values.terms,
         validUntil: values.validUntil,
         discount: values.discount,
         items: values.items.map((item) => ({
             productId: item.productId,
+            variantId: item.productId ? item.variantId : null,
             description: item.description,
             brand: item.brand || null,
             model: item.model || null,

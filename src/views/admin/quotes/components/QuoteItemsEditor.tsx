@@ -8,6 +8,7 @@ import {
 } from 'react-hook-form'
 
 import type { AdminProduct } from '@/@types/admin'
+import type { ProductVariant } from '@/@types/product'
 import { Button, Input } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { formatCurrency } from '@/utils/formatCurrency'
@@ -15,6 +16,7 @@ import { toOptionalNumber } from '@/views/admin/products/schema/product.schema'
 import { QuoteProductPicker } from '@/views/admin/quotes/components/QuoteProductPicker'
 import {
     lineTotal,
+    QUOTE_DESCRIPTION_MAX_LENGTH,
     QUOTE_MAX_ITEMS,
     type QuoteFormValues,
 } from '@/views/admin/quotes/schema/quote.schema'
@@ -35,14 +37,15 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
     const values = useWatch({ control, name: 'items' })
     const isFull = items.fields.length >= QUOTE_MAX_ITEMS
 
-    const addProduct = (product: AdminProduct) =>
+    const addProduct = (product: AdminProduct, variant: ProductVariant | null) =>
         items.append({
             productId: product.id,
-            description: product.name,
+            variantId: variant?.id ?? null,
+            description: variant ? `${product.name} — ${variant.label}` : product.name,
             brand: product.brand,
             model: product.model ?? '',
             quantity: 1,
-            unitPrice: product.price,
+            unitPrice: Math.round((product.price + (variant?.priceDelta ?? 0)) * 100) / 100,
         })
 
     return (
@@ -56,6 +59,7 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
                         onClick={() =>
                             items.append({
                                 productId: null,
+                                variantId: null,
                                 description: '',
                                 brand: '',
                                 model: '',
@@ -146,7 +150,7 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
                                         <Input
                                             label="Descripción"
                                             error={rowErrors?.description?.message}
-                                            maxLength={200}
+                                            maxLength={QUOTE_DESCRIPTION_MAX_LENGTH}
                                             {...register(`items.${index}.description`)}
                                         />
                                     </div>

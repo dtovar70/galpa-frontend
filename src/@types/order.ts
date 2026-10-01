@@ -1,4 +1,5 @@
 import type { Paginated } from '@/@types/common'
+import type { PaymentContent } from '@/@types/content'
 import type { RateSource } from '@/@types/exchange-rate'
 import type { StockMode } from '@/@types/product'
 
@@ -25,7 +26,8 @@ export type DeliveryMethod = 'delivery' | 'pickup'
 export const PAYMENT_METHODS = ['PAGO_MOVIL', 'TRANSFERENCIA', 'ZELLE', 'BINANCE'] as const
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 
-export type PaymentCurrency = 'BS' | 'USD'
+/** Currency a method pays in (mirrors the API): bolívares (`VES`) or dollars. */
+export type PaymentCurrency = 'VES' | 'USD'
 
 export type PaymentStatus = 'PENDIENTE' | 'VERIFICADO' | 'RECHAZADO'
 
@@ -39,6 +41,8 @@ export interface OrderCustomer {
     fullName: string
     email: string
     phone: string
+    /** Cédula or RIF; null when not given. */
+    idNumber: string | null
     city: string
     address: string
     deliveryMethod: DeliveryMethod
@@ -48,7 +52,8 @@ export interface OrderCustomer {
 export interface OrderItem {
     productId: string | null
     productName: string
-    productSlug: string
+    /** Null for a free-text line (from a quote) or a product without a page. */
+    productSlug: string | null
     variantId: string | null
     variantLabel: string | null
     imageUrl: string | null
@@ -66,6 +71,8 @@ export interface AdminOrderItem extends OrderItem {
 
 export interface OrderTotals {
     subtotalUsd: number
+    /** Discount of a quote converted into the order (0 otherwise). */
+    discountUsd: number
     shippingUsd: number
     totalUsd: number
     totalBs: number
@@ -107,6 +114,12 @@ export interface OrderPayment {
     reviewedAt: string | null
 }
 
+/** The amount to pay with the order's method: `totalBs` in VES or `totalUsd` in USD. */
+export interface AmountDue {
+    currency: PaymentCurrency
+    amount: number
+}
+
 export interface OrderHistoryEntry {
     status: OrderStatus
     label: string
@@ -122,18 +135,27 @@ export interface PublicOrder {
     createdAt: string
     paymentDueAt: string
     canSubmitPayment: boolean
+    /** The customer may still switch the payment method (`PATCH .../payment-method`). */
+    canChangePaymentMethod: boolean
     /** The purchase receipt PDF can be downloaded (verified payment, not cancelled). */
     receiptAvailable: boolean
     paymentMethod: PaymentMethod
+    paymentMethodLabel: string
+    amountDue: AmountDue
     /** Some line is sold "bajo pedido": the order may wait for the goods. */
     hasOnOrderItems: boolean
     /** The customer asked for installation advice. */
     wantsInstallation: boolean
-    /** Cédula or RIF, when given at checkout. */
-    customerIdNumber: string | null
     customer: OrderCustomer
     items: OrderItem[]
     totals: OrderTotals
+    /**
+     * Where to pay: the store's payment section, where only the methods offered now keep their
+     * details (the rest come back disabled and empty).
+     */
+    payment: PaymentContent
+    /** The methods offered now, in display order. */
+    availablePaymentMethods: PaymentMethod[]
     payments: OrderPayment[]
     history: OrderHistoryEntry[]
 }
@@ -162,6 +184,8 @@ export interface CreatedOrder {
     /** Returned once: the customer's private link is `/pedido/<code>?t=<accessToken>`. */
     accessToken: string
     order: PublicOrder
+    /** A retried checkout (same `Idempotency-Key`): no new order was created. */
+    replayed: boolean
 }
 
 /** One problem with one cart line: 400 `ORDER_ITEMS_INVALID` (stock, product gone). */
@@ -191,7 +215,18 @@ export interface SubmitPaymentInput {
     proof: File | null
 }
 
-export interface AdminOrderPayment extends OrderPayment {
+/** Review flags of a payment, computed by the API in the method's currency. */
+export interface PaymentFlags {
+    duplicateReference: boolean
+    /** VES for bolívar methods, USD for Zelle and Binance. */
+    currency: PaymentCurrency
+    amountMismatch: boolean
+    /** Paid minus expected, in `currency`; 0 when exact. */
+    amountDifference: number
+}
+
+export interface AdminOrderPayment extends OrderPayment, PaymentFlags {
+    methodLabel: string
     recordedBy: { id: string; name: string } | null
     /** API path of the private screenshot; null when none was sent. */
     proofPath: string | null
@@ -291,9 +326,10 @@ export interface AdminOrder {
     receiptAvailable: boolean
     refund: OrderRefund | null
     paymentMethod: PaymentMethod
+    paymentMethodLabel: string
+    amountDue: AmountDue
     hasOnOrderItems: boolean
     wantsInstallation: boolean
-    customerIdNumber: string | null
     customer: OrderCustomer
     items: AdminOrderItem[]
     totals: OrderTotals
@@ -322,14 +358,15 @@ export interface AdminOrderListItem {
     /** Unresolved: the payment cannot be confirmed without acknowledging it. */
     stockConflict: boolean
     refundStatus: RefundStatus | null
-    latestPayment: {
-        method: PaymentMethod
-        reference: string
-        amountBs: number | null
-        amountUsd: number | null
-        status: PaymentStatus
-        duplicateReference: boolean
-    } | null
+    /** The newest payment proof, if any (`amount` in the method's `currency`). */
+    latestPayment:
+        | (PaymentFlags & {
+              method: PaymentMethod
+              reference: string
+              amount: number | null
+              status: PaymentStatus
+          })
+        | null
 }
 
 export interface AdminOrderList extends Paginated<AdminOrderListItem> {
@@ -354,6 +391,8 @@ export interface AdminOrdersSummary {
     pendingPayment: number
     pendingRefunds: number
     paymentConfigured: boolean
+    /** The methods checkout offers now. */
+    paymentMethods: PaymentMethod[]
     exchangeRate: {
         available: boolean
         isStale: boolean

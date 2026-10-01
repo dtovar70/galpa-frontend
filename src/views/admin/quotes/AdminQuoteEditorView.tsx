@@ -14,8 +14,9 @@ import {
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router'
 
-import type { Quote } from '@/@types/quote'
+import type { Quote, QuoteWhatsAppMessage } from '@/@types/quote'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { CopyButton } from '@/components/shared/CopyButton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { IdNumberField } from '@/components/shared/IdNumberField'
 import { Alert, Button, Card, Input, Skeleton, Textarea } from '@/components/ui'
@@ -24,7 +25,6 @@ import {
     isQuoteConvertible,
     isQuoteEditable,
     QUOTE_MANUAL_TRANSITIONS,
-    QUOTE_STATUS_LABELS,
 } from '@/constants/quote.constant'
 import { ADMIN_ROUTES, adminOrderPath, adminQuotePath } from '@/constants/route.constant'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
@@ -200,8 +200,13 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
             ) : null}
             {quote && !editable && !quote.convertedOrderCode ? (
                 <Alert tone="info" className="mb-6">
-                    Esta cotización está «{QUOTE_STATUS_LABELS[quote.status].toLowerCase()}»: ya no
-                    se puede editar.
+                    Esta cotización está «{quote.statusLabel.toLowerCase()}»: ya no se puede editar.
+                    {quote.statusReason ? (
+                        <>
+                            {' '}
+                            <span className="font-semibold">Motivo:</span> {quote.statusReason}
+                        </>
+                    ) : null}
                 </Alert>
             ) : null}
 
@@ -428,16 +433,25 @@ function QuoteActions({
     onOpen,
 }: QuoteActionsProps) {
     const whatsapp = useQuoteWhatsApp(quote.code)
-    const canSend = isQuoteEditable(quote.status)
+    // Sending by email needs the customer's email (the API answers 400 without it).
+    const canSend = isQuoteEditable(quote.status) && Boolean(quote.customerEmail)
+    // Without a valid mobile number there is no wa.me link: the message is copied by hand.
+    const [manualMessage, setManualMessage] = useState<QuoteWhatsAppMessage | null>(null)
 
     const openWhatsApp = () => {
         onError(null)
+        setManualMessage(null)
         // Opened before the request, inside the click, so popup blockers let it through.
         const target = window.open('', '_blank')
         whatsapp.mutate(undefined, {
-            onSuccess: ({ url }) => {
-                if (target) target.location.href = url
-                else window.location.href = url
+            onSuccess: (message) => {
+                if (!message.url) {
+                    target?.close()
+                    setManualMessage(message)
+                    return
+                }
+                if (target) target.location.href = message.url
+                else window.location.href = message.url
             },
             onError: (error) => {
                 target?.close()
@@ -486,6 +500,30 @@ function QuoteActions({
                 >
                     Enviar por WhatsApp
                 </Button>
+                {manualMessage ? (
+                    <div className="space-y-2 rounded-xl border border-line bg-page p-3 text-sm">
+                        <p className="text-ink-soft">
+                            El cliente no tiene un celular válido para abrir WhatsApp. Copia el
+                            mensaje y envíalo tú.
+                        </p>
+                        <p className="max-h-40 overflow-y-auto text-xs break-words whitespace-pre-line text-ink">
+                            {manualMessage.message}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <CopyButton value={manualMessage.message} label="Copiar el mensaje">
+                                Copiar mensaje
+                            </CopyButton>
+                            <a
+                                href={manualMessage.pdfUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-semibold text-brand-700 underline underline-offset-2"
+                            >
+                                Abrir el PDF
+                            </a>
+                        </div>
+                    </div>
+                ) : null}
                 {QUOTE_MANUAL_TRANSITIONS[quote.status].length > 0 ? (
                     <Button
                         variant="ghost"

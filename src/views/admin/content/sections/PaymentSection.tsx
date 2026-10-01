@@ -280,6 +280,7 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
                 </FieldRow>
                 <Input
                     label="Titular"
+                    optional
                     error={errors.binance?.holderName?.message}
                     {...register('binance.holderName')}
                 />

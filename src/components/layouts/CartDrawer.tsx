@@ -118,7 +118,9 @@ export function CartDrawer() {
                                             {item.name}
                                         </Link>
                                         <p className="text-xs text-ink-soft">
-                                            {item.brand} · {item.variantLabel}
+                                            {[item.brand, item.variantLabel]
+                                                .filter(Boolean)
+                                                .join(' · ')}
                                         </p>
                                         {item.stockMode === 'ON_ORDER' ? (
                                             <OnOrderNote leadTimeDays={item.leadTimeDays} />
@@ -150,7 +152,7 @@ export function CartDrawer() {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        aria-label={`Quitar ${item.name} (${item.variantLabel}) del carrito`}
+                                        aria-label={`Quitar ${item.name}${item.variantLabel ? ` (${item.variantLabel})` : ''} del carrito`}
                                         onClick={() => removeItem(item.lineId)}
                                         className="size-11 shrink-0 self-start px-0 text-ink-soft"
                                     >

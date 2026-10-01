@@ -1,29 +1,20 @@
 import { AlarmClock, AlertTriangle, Copy } from 'lucide-react'
 
-import type { OrderPayment } from '@/@types/order'
+import type { PaymentFlags } from '@/@types/order'
 import { Badge } from '@/components/ui'
 import { cn } from '@/utils/cn'
-import { formatPaymentDifference, paymentDifference } from '@/utils/payment'
+import { formatPaymentDifference } from '@/utils/payment'
 
 export interface PaymentFlagBadgesProps {
-    payment: Pick<
-        OrderPayment,
-        | 'method'
-        | 'duplicateReference'
-        | 'amountBs'
-        | 'amountUsd'
-        | 'expectedBs'
-        | 'expectedUsd'
-        | 'late'
-    >
+    /** The API's review flags; `late` is left out where it does not apply (the orders list). */
+    payment: PaymentFlags & { late?: boolean }
     /** `contents` lets the badges join a surrounding wrapping list instead of their own. */
     className?: string
 }
 
 /** Warnings about a payment proof: late, reference already used elsewhere, amount off. */
 export function PaymentFlagBadges({ payment, className }: PaymentFlagBadgesProps) {
-    const difference = paymentDifference(payment)
-    const amountOff = difference !== null && difference !== 0
+    const amountOff = payment.amountMismatch && payment.amountDifference !== 0
     if (!payment.late && !payment.duplicateReference && !amountOff) return null
 
     return (
@@ -43,7 +34,7 @@ export function PaymentFlagBadges({ payment, className }: PaymentFlagBadgesProps
             {amountOff ? (
                 <Badge tone="warning" size="sm" title="El monto pagado no coincide con el total">
                     <AlertTriangle aria-hidden="true" className="size-3" />
-                    Monto {formatPaymentDifference(payment.method, difference)}
+                    Monto {formatPaymentDifference(payment.currency, payment.amountDifference)}
                 </Badge>
             ) : null}
         </span>

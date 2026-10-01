@@ -57,7 +57,7 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                                     .filter(Boolean)
                                     .join(' · ')}
                             </p>
-                            {item.stockMode === 'ON_ORDER' ? (
+                            {item.productId && item.stockMode === 'ON_ORDER' ? (
                                 <OnOrderNote leadTimeDays={null} className="mt-1" />
                             ) : null}
                         </div>
@@ -72,6 +72,14 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                     <dt className="text-ink-soft">Subtotal</dt>
                     <dd className="font-semibold text-ink">{formatCurrency(totals.subtotalUsd)}</dd>
                 </div>
+                {totals.discountUsd > 0 ? (
+                    <div className="flex justify-between gap-3">
+                        <dt className="text-ink-soft">Descuento</dt>
+                        <dd className="font-semibold text-ink">
+                            −{formatCurrency(totals.discountUsd)}
+                        </dd>
+                    </div>
+                ) : null}
                 <div className="flex justify-between gap-3">
                     <dt className="text-ink-soft">Envío</dt>
                     <dd className="font-semibold text-ink">

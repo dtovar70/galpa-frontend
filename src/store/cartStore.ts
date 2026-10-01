@@ -8,7 +8,8 @@ import { stockOf } from '@/utils/productStock'
 
 interface CartState {
     items: CartItem[]
-    addItem: (product: Product, variantId: string, quantity?: number) => void
+    /** `variantId` is null for a product without variants. */
+    addItem: (product: Product, variantId: string | null, quantity?: number) => void
     removeItem: (lineId: string) => void
     /**
      * Sets a line's quantity; below 1 removes the line. `max` is the live cap of the line (its
@@ -29,7 +30,7 @@ export const MAX_LINE_QUANTITY = 99
 /** v1 of the Galpa cart: lines keyed by product and variant, with their stock mode. */
 const CART_VERSION = 1
 
-/** One line per product and variant. */
+/** One line per product and variant ('' for a product without variants). */
 function buildLineId(productId: string, variantId: string): string {
     return `${productId}:${variantId}`
 }
@@ -39,23 +40,29 @@ function clampQuantity(quantity: number, stock: number): number {
     return Math.max(1, Math.min(Math.trunc(quantity), ceiling))
 }
 
-function createLine(product: Product, variantId: string, quantity: number): CartItem | null {
-    const variant = product.variants.find((candidate) => candidate.id === variantId)
+/** The chosen version, or `undefined` for a product without variants; null when invalid. */
+function findVariant(product: Product, variantId: string | null) {
+    if (product.variants.length === 0) return variantId ? null : undefined
+    return product.variants.find((candidate) => candidate.id === variantId) ?? null
+}
+
+function createLine(product: Product, variantId: string | null, quantity: number): CartItem | null {
+    const variant = findVariant(product, variantId)
     // A sold-out version cannot be added (the server would refuse it at checkout anyway).
-    if (!variant || stockOf(product, variant) <= 0) return null
+    if (variant === null || stockOf(product, variant) <= 0) return null
 
     return {
-        lineId: buildLineId(product.id, variant.id),
+        lineId: buildLineId(product.id, variant?.id ?? ''),
         productId: product.id,
         slug: product.slug,
         name: product.name,
         category: product.category,
         brand: product.brand,
         model: product.model,
-        variantId: variant.id,
-        variantLabel: variant.label,
+        variantId: variant?.id ?? '',
+        variantLabel: variant?.label ?? '',
         imageUrl: product.images.at(0)?.url,
-        unitPrice: product.price + variant.priceDelta,
+        unitPrice: product.price + (variant?.priceDelta ?? 0),
         quantity: clampQuantity(quantity, stockOf(product, variant)),
         stockMode: product.stockMode,
         leadTimeDays: product.leadTimeDays,
@@ -87,8 +94,10 @@ export const useCartStore = create<CartState>()(
                 set((state) => {
                     const line = createLine(product, variantId, quantity)
                     if (!line) return state
-                    const variant = product.variants.find((item) => item.id === variantId)
-                    const cap = Math.min(stockOf(product, variant), MAX_LINE_QUANTITY)
+                    const cap = Math.min(
+                        stockOf(product, findVariant(product, variantId) ?? undefined),
+                        MAX_LINE_QUANTITY,
+                    )
                     const current = state.items.find((item) => item.lineId === line.lineId)
                     if (!current) {
                         return { items: [...state.items, line] }

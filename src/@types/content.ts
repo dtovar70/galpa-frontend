@@ -5,10 +5,12 @@
  * comments that point at each other differ), so the storefront and the API agree on the shape.
  *
  * Text conventions shared by the API and the storefront:
- * - Highlighted words (painted green in headings) are wrapped in asterisks: "Tu *confort*".
+ * - Highlighted words (painted green in headings) are wrapped in asterisks: "Tus *favoritos*".
  * - Placeholders in braces are replaced when rendered, e.g. "{envioGratis}" -> "$35". Each field
  *   accepts only the placeholders listed in `CONTENT_PLACEHOLDERS`.
  */
+
+import { PAYMENT_METHODS, type PaymentMethod } from '@/@types/order'
 
 export const CONTENT_SECTIONS = [
     'general',
@@ -33,7 +35,9 @@ export const CONTENT_PLACEHOLDERS = {
     envioGratis: '{envioGratis}',
     /** Flat shipping rate, as money: "$4". */
     tarifaEnvio: '{tarifaEnvio}',
-    /** Number of categories in words: "Cuatro líneas". */
+    /** Dispatch-time copy of the shipping section. */
+    despacho: '{despacho}',
+    /** Number of categories in words: "Tres formatos". */
     categorias: '{categorias}',
     /** Brand name of the general section. */
     marca: '{marca}',
@@ -45,11 +49,11 @@ export type ContentPlaceholder = keyof typeof CONTENT_PLACEHOLDERS
 
 /** Icons a brand value on the About page can use (lucide icons on the storefront). */
 export const ABOUT_VALUE_ICONS = [
-    'palette',
+    'air-vent',
+    'snowflake',
+    'wrench',
     'heart-handshake',
     'timer',
-    'leaf',
-    'sparkles',
     'star',
     'truck',
     'shield-check',
@@ -149,10 +153,13 @@ export interface AboutContent {
 
 export interface ContactContent {
     email: string
+    /** Venezuelan number, "0412-5550134". Shown as "+58 412 555 0134". */
     phone: string
+    /** Mobile number for wa.me links, "0412-5550134". */
     whatsapp: string
     city: string
     schedule: string
+    /** Handles without "@"; empty hides the link. */
     instagram: string
     tiktok: string
 }
@@ -168,7 +175,7 @@ export interface ContactPageContent {
     intro: string
     faqEyebrow: string
     faqTitle: string
-    /** Accept {envioGratis} and {tarifaEnvio}. */
+    /** Accept {envioGratis}, {tarifaEnvio} and {despacho}. */
     faq: FaqItem[]
 }
 
@@ -179,11 +186,11 @@ export interface ShippingContent {
     flatRate: number
     /** Accepts {envioGratis}. */
     freeShippingCopy: string
-    /** How and when paid orders leave the store ("Despachamos en 24 a 48 horas hábiles"). */
+    /** How long an order takes to leave the store ("Despachamos en 24 a 48 horas hábiles"). */
     dispatchCopy: string
 }
 
-export interface PagoMovilDetails {
+export interface PagoMovilContent {
     enabled: boolean
     /** Four-digit bank code, "0102". */
     bankCode: string
@@ -197,7 +204,7 @@ export interface PagoMovilDetails {
 export const BANK_ACCOUNT_TYPES = ['CORRIENTE', 'AHORRO'] as const
 export type BankAccountType = (typeof BANK_ACCOUNT_TYPES)[number]
 
-export interface TransferDetails {
+export interface TransferContent {
     enabled: boolean
     bankCode: string
     bankName: string
@@ -208,27 +215,29 @@ export interface TransferDetails {
     holderName: string
 }
 
-export interface ZelleDetails {
+export interface ZelleContent {
     enabled: boolean
     email: string
     holderName: string
 }
 
-export interface BinanceDetails {
+export interface BinanceContent {
     enabled: boolean
     /** Binance Pay ID. */
     payId: string
+    /** Optional. */
     email: string
+    /** Optional. */
     holderName: string
 }
 
 export interface PaymentContent {
-    /** General note shown with every method. */
+    /** General notes shown with every method (optional). */
     instructions: string
-    pagoMovil: PagoMovilDetails
-    transfer: TransferDetails
-    zelle: ZelleDetails
-    binance: BinanceDetails
+    pagoMovil: PagoMovilContent
+    transfer: TransferContent
+    zelle: ZelleContent
+    binance: BinanceContent
 }
 
 export interface SiteContent {
@@ -242,16 +251,38 @@ export interface SiteContent {
     payment: PaymentContent
 }
 
-function filled(...values: string[]): boolean {
-    return values.every((value) => value.trim() !== '')
+/** The payment section's key of each method. */
+export const PAYMENT_METHOD_SECTIONS = {
+    PAGO_MOVIL: 'pagoMovil',
+    TRANSFERENCIA: 'transfer',
+    ZELLE: 'zelle',
+    BINANCE: 'binance',
+} as const satisfies Record<PaymentMethod, keyof Omit<PaymentContent, 'instructions'>>
+
+/** Fields a method needs before checkout can offer it. */
+const REQUIRED_PAYMENT_FIELDS: { [M in PaymentMethod]: readonly string[] } = {
+    PAGO_MOVIL: ['bankCode', 'bankName', 'phone', 'idNumber', 'holderName'],
+    TRANSFERENCIA: ['bankCode', 'bankName', 'accountNumber', 'idNumber', 'holderName'],
+    ZELLE: ['email', 'holderName'],
+    BINANCE: ['payId'],
 }
 
-/** A method is offered when it is enabled and every field the customer needs is filled. */
-export const PAYMENT_METHOD_CONFIGURED = {
-    PAGO_MOVIL: ({ pagoMovil: m }: PaymentContent) =>
-        m.enabled && filled(m.bankCode, m.bankName, m.phone, m.idNumber, m.holderName),
-    TRANSFERENCIA: ({ transfer: m }: PaymentContent) =>
-        m.enabled && filled(m.bankCode, m.bankName, m.accountNumber, m.idNumber, m.holderName),
-    ZELLE: ({ zelle: m }: PaymentContent) => m.enabled && filled(m.email, m.holderName),
-    BINANCE: ({ binance: m }: PaymentContent) => m.enabled && filled(m.payId, m.holderName),
-} as const
+/** A method is offered when it is enabled and every required detail is filled in. */
+export function isMethodConfigured(payment: PaymentContent, method: PaymentMethod): boolean {
+    const details = payment[PAYMENT_METHOD_SECTIONS[method]] as unknown as Record<
+        string,
+        unknown
+    > & { enabled: boolean }
+    return (
+        details.enabled === true &&
+        REQUIRED_PAYMENT_FIELDS[method].every((field) => {
+            const value = details[field]
+            return typeof value === 'string' && value.trim() !== ''
+        })
+    )
+}
+
+/** The methods checkout offers, in display order. */
+export function configuredMethods(payment: PaymentContent): PaymentMethod[] {
+    return PAYMENT_METHODS.filter((method) => isMethodConfigured(payment, method))
+}

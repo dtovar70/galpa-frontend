@@ -303,6 +303,9 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                     <div className="grid grid-cols-1 items-start gap-5 @md:grid-cols-2">
                         {isOnOrder ? (
                             <Input
+                                // Distinct keys: the read-only total is controlled, the others
+                                // are not, so React must not reuse one input for another.
+                                key="leadTimeDays"
                                 label="Tiempo de entrega (días)"
                                 optional
                                 hint="Se muestra como «Entrega en ~N días»."
@@ -316,6 +319,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                         ) : variants.fields.length > 0 ? (
                             // With variants the stock is theirs; this is only their sum.
                             <Input
+                                key="stockTotal"
                                 label="Stock"
                                 value={`Total: ${variantsStockTotal(variantValues)}`}
                                 readOnly
@@ -325,6 +329,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             />
                         ) : (
                             <Input
+                                key="stock"
                                 label="Stock"
                                 type="number"
                                 inputMode="numeric"

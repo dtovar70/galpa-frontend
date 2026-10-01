@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
-import { PAYMENT_METHODS, type DeliveryMethod, type PaymentMethod } from '@/@types/order'
+import type { DeliveryMethod, PaymentMethod } from '@/@types/order'
 import type { Quote } from '@/@types/quote'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Input, Select, type SelectOption } from '@/components/ui'
@@ -9,6 +9,8 @@ import { DELIVERY_METHOD_LABELS } from '@/constants/order.constant'
 import { paymentMethodLabel } from '@/constants/payment.constant'
 import { adminOrderPath } from '@/constants/route.constant'
 import { getErrorMessage } from '@/services/errors'
+import { useSiteContent } from '@/utils/hooks/useSiteContent'
+import { configuredPaymentMethods } from '@/utils/payment'
 import { useConvertQuote } from '@/views/admin/hooks/useAdminQuotes'
 
 const DELIVERY_METHODS: readonly DeliveryMethod[] = ['delivery', 'pickup']
@@ -16,11 +18,6 @@ const DELIVERY_METHODS: readonly DeliveryMethod[] = ['delivery', 'pickup']
 const DELIVERY_OPTIONS: SelectOption[] = DELIVERY_METHODS.map((method) => ({
     value: method,
     label: DELIVERY_METHOD_LABELS[method],
-}))
-
-const PAYMENT_OPTIONS: SelectOption[] = PAYMENT_METHODS.map((method) => ({
-    value: method,
-    label: paymentMethodLabel(method),
 }))
 
 export interface QuoteConvertDialogProps {
@@ -37,7 +34,15 @@ export function QuoteConvertDialog({ quote, isOpen, onClose }: QuoteConvertDialo
     const convert = useConvertQuote(quote.code)
     const navigate = useNavigate()
     const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('delivery')
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('PAGO_MOVIL')
+    // Only the methods the store offers now: the API refuses the others.
+    const offered = configuredPaymentMethods(useSiteContent().payment)
+    const paymentOptions: SelectOption[] = offered.map((method) => ({
+        value: method,
+        label: paymentMethodLabel(method),
+    }))
+    const [chosenMethod, setChosenMethod] = useState<PaymentMethod | null>(null)
+    const paymentMethod =
+        chosenMethod && offered.includes(chosenMethod) ? chosenMethod : (offered[0] ?? null)
     const [city, setCity] = useState('')
     const [address, setAddress] = useState('')
     const needsAddress = deliveryMethod === 'delivery'
@@ -65,10 +70,11 @@ export function QuoteConvertDialog({ quote, isOpen, onClose }: QuoteConvertDialo
             }
             confirmLabel="Crear pedido"
             confirmVariant="primary"
-            confirmDisabled={isMissingAddress}
+            confirmDisabled={isMissingAddress || paymentMethod === null}
             isLoading={convert.isPending}
             error={convert.isError ? getErrorMessage(convert.error) : undefined}
             onConfirm={() =>
+                paymentMethod &&
                 convert.mutate(
                     {
                         deliveryMethod,
@@ -100,12 +106,17 @@ export function QuoteConvertDialog({ quote, isOpen, onClose }: QuoteConvertDialo
                 />
                 <Select
                     label="Método de pago"
-                    options={PAYMENT_OPTIONS}
-                    value={paymentMethod}
+                    options={paymentOptions}
+                    value={paymentMethod ?? ''}
+                    placeholder="Sin métodos de pago activos"
+                    hint={
+                        offered.length === 0
+                            ? 'Activa un método en Contenido › Métodos de pago.'
+                            : undefined
+                    }
                     onChange={(event) =>
-                        setPaymentMethod(
-                            PAYMENT_METHODS.find((method) => method === event.target.value) ??
-                                'PAGO_MOVIL',
+                        setChosenMethod(
+                            offered.find((method) => method === event.target.value) ?? null,
                         )
                     }
                 />

@@ -45,16 +45,8 @@ export function OrderListFlags({ order }: { order: AdminOrderListItem }) {
                     Instalación
                 </Badge>
             ) : null}
-            {order.latestPayment?.duplicateReference ? (
-                <PaymentFlagBadges
-                    payment={{
-                        ...order.latestPayment,
-                        expectedBs: null,
-                        expectedUsd: null,
-                        late: false,
-                    }}
-                    className="contents"
-                />
+            {order.latestPayment ? (
+                <PaymentFlagBadges payment={order.latestPayment} className="contents" />
             ) : null}
         </span>
     )

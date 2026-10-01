@@ -1,6 +1,6 @@
 import type { DeepPartial } from 'react-hook-form'
 
-import { PAYMENT_METHOD_CONFIGURED, type PaymentContent } from '@/@types/content'
+import { isMethodConfigured, type PaymentContent } from '@/@types/content'
 import type { PaymentMethod } from '@/@types/order'
 import { DEFAULT_SITE_CONTENT } from '@/configs/content.defaults'
 import {
@@ -63,7 +63,7 @@ export function PaymentPreviewCard({ payment: draft }: PaymentPreviewCardProps) 
             <ul className="grid gap-3 @xl:grid-cols-2">
                 {PAYMENT_METHOD_ORDER.map((method) => {
                     const Icon = PAYMENT_METHOD_ICONS[method]
-                    const isOffered = PAYMENT_METHOD_CONFIGURED[method](payment)
+                    const isOffered = isMethodConfigured(payment, method)
                     return (
                         <li
                             key={method}

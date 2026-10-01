@@ -50,7 +50,9 @@ export function OrderSummary({
                                         {item.name}
                                     </p>
                                     <p className="text-xs text-ink-soft">
-                                        {item.brand} · {item.variantLabel} · {item.quantity} u.
+                                        {[item.brand, item.variantLabel, `${item.quantity} u.`]
+                                            .filter(Boolean)
+                                            .join(' · ')}
                                     </p>
                                     {item.stockMode === 'ON_ORDER' ? (
                                         <OnOrderNote

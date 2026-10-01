@@ -15,7 +15,8 @@ export interface AddToCartButtonProps extends Pick<
     'size' | 'variant' | 'fullWidth' | 'className'
 > {
     product: Product
-    variantId: string
+    /** Null for a product without variants. */
+    variantId: string | null
     quantity?: number
     label?: string
     /** Opening the drawer is the default success feedback; cards can opt out. */
@@ -54,7 +55,8 @@ export function AddToCartButton({
     const stock = stockOf(product, variant)
     const isSoldOut = stock <= 0
     // Every unit left is already in the cart (on-order products have no limit).
-    const isAllInCart = !isSoldOut && cartUnitsOf(cartItems, product.id, variantId) >= stock
+    const isAllInCart =
+        !isSoldOut && cartUnitsOf(cartItems, product.id, variantId ?? undefined) >= stock
 
     return (
         <Button

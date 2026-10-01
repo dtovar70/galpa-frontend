@@ -14,113 +14,108 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         brandName: 'Corporación Galpa 2022 C.A.',
         tagline: '30 años climatizando tus espacios',
         description:
-            'Aires acondicionados residenciales y comerciales, repuestos y accesorios con asesoría técnica personalizada. 30 años de experiencia en climatización.',
-        titleSuffix: 'Aires acondicionados, repuestos y asesoría',
+            'Aires acondicionados residenciales y comerciales, repuestos y accesorios. Te asesoramos para elegir el equipo ideal para tu espacio.',
+        titleSuffix: '30 años climatizando tus espacios',
         metaDescription:
-            'Aires acondicionados residenciales y comerciales, repuestos y accesorios. 30 años de experiencia, asesoría técnica personalizada y equipos en stock o bajo pedido.',
+            'Aires acondicionados split, piso-techo y cassette, repuestos y accesorios de las mejores marcas. Asesoría personalizada, equipos en stock y bajo pedido, envío gratis desde {envioGratis}.',
         searchPlaceholder: 'Buscar equipos, marcas, repuestos…',
     },
     announcements: {
         messages: [
-            '30 años climatizando hogares y negocios',
-            'Asesoría técnica personalizada sin costo',
-            'Pago Móvil, transferencia, Zelle y Binance',
+            'Envío gratis desde {envioGratis}',
+            'Asesoría gratuita para elegir tu equipo',
+            '30 años climatizando tus espacios',
         ],
     },
     home: {
         heroBadge: '30 años de experiencia',
-        heroTitle: 'El clima ideal para tu espacio, *con asesoría experta*',
+        heroTitle: 'El clima ideal para tu *hogar* y tu *negocio*',
         heroSubtitle:
-            'Aires acondicionados residenciales y comerciales, repuestos y accesorios de las mejores marcas. Te ayudamos a elegir el equipo correcto para tu espacio.',
-        heroPrimaryCta: 'Ver catálogo',
-        heroSecondaryCta: 'Solicitar asesoría',
-        heroFeatures: ['Equipos en stock y bajo pedido', 'Asesoría técnica', 'Garantía de fábrica'],
-        categoriesEyebrow: 'Nuestras líneas',
-        categoriesTitle: 'Todo para *climatizar* tu espacio',
+            'Aires acondicionados de las mejores marcas, repuestos originales y accesorios de instalación. Te ayudamos a elegir el equipo correcto para tu espacio.',
+        heroPrimaryCta: 'Ver equipos',
+        heroSecondaryCta: 'Pedir asesoría',
+        heroFeatures: ['Marcas reconocidas', 'Equipos en stock y bajo pedido', 'Asesoría experta'],
+        categoriesEyebrow: 'Lo que ofrecemos',
+        categoriesTitle: 'Todo para *climatizar* tus espacios',
         categoriesDescription:
-            '{categorias} de productos para hogares, oficinas y comercios, con la orientación de técnicos especializados.',
-        featuredEyebrow: 'Destacados',
-        featuredTitle: 'Equipos *más solicitados*',
-        featuredDescription: 'Los modelos que más recomiendan nuestros asesores esta temporada.',
+            '{categorias} pensadas para hogares, oficinas y comercios. Equipos nuevos, repuestos y todo lo necesario para la instalación.',
+        featuredEyebrow: 'Los más vendidos',
+        featuredTitle: 'Equipos *destacados*',
+        featuredDescription: 'Los modelos que más eligen nuestros clientes esta temporada.',
         featuredCta: 'Ver todo el catálogo',
-        stepsEyebrow: 'Por qué elegirnos',
-        stepsTitle: 'Tres décadas de *confianza*',
-        stepsDescription:
-            'Te acompañamos antes, durante y después de la compra, como lo hemos hecho por 30 años.',
+        stepsEyebrow: 'Cómo comprar',
+        stepsTitle: 'Tu equipo en *tres pasos*',
+        stepsDescription: 'Te acompañamos desde la elección hasta la entrega.',
         steps: [
             {
-                title: 'Asesoría personalizada',
+                title: 'Elige o pide asesoría',
                 description:
-                    'Calculamos contigo la capacidad que necesita tu espacio para que compres el equipo justo, ni más ni menos.',
+                    'Filtra por capacidad, voltaje o marca. Si tienes dudas, cuéntanos el tamaño de tu espacio y te recomendamos el equipo ideal.',
             },
             {
-                title: 'Stock inmediato y bajo pedido',
+                title: 'Paga como prefieras',
                 description:
-                    'Equipos disponibles para entrega inmediata y modelos especiales bajo pedido con tiempos claros.',
+                    'Pago Móvil, transferencia, Zelle o Binance. Verificamos tu pago y te mantenemos al tanto por correo y WhatsApp.',
             },
             {
-                title: 'Apoyo en la instalación',
+                title: 'Recibe o retira',
                 description:
-                    'Te orientamos sobre la instalación correcta para que tu equipo rinda y dure lo que debe.',
-            },
-            {
-                title: 'Pagos a tu medida',
-                description:
-                    'Pago Móvil y transferencia en bolívares a tasa BCV, o Zelle y Binance en dólares.',
+                    'Despachamos tu pedido o lo retiras en tienda. Los equipos bajo pedido llegan en el plazo indicado en cada ficha.',
             },
         ],
         testimonialsEyebrow: 'Clientes satisfechos',
         testimonialsTitle: 'Lo que *dicen* de nosotros',
         testimonials: [],
-        ctaBadge: 'Asesoría sin costo',
-        ctaTitle: '¿No sabes qué equipo *necesitas*?',
+        ctaBadge: 'Proyectos comerciales',
+        ctaTitle: '¿Necesitas climatizar un *local* u *oficina*?',
         ctaDescription:
-            'Cuéntanos sobre tu espacio y un asesor te recomendará la mejor opción en capacidad, consumo y presupuesto.',
-        ctaPrimary: 'Hablar con un asesor',
+            'Cuéntanos los metros de tu espacio y te enviamos una cotización a la medida, con equipos, materiales e instalación.',
+        ctaPrimary: 'Solicitar cotización',
         ctaSecondary: 'Conócenos',
     },
     about: {
-        badge: 'Desde hace 30 años',
+        badge: '30 años de experiencia',
         title: 'Tres décadas *climatizando* Venezuela',
         paragraphs: [
-            '{marca} reúne 30 años de experiencia en la distribución de aires acondicionados, repuestos y accesorios. Empezamos como un pequeño equipo técnico y hoy atendemos hogares, oficinas y comercios con la misma dedicación del primer día.',
-            'Desde {ciudad} asesoramos a cada cliente para que elija el equipo correcto: medimos el espacio, revisamos la instalación eléctrica y recomendamos la capacidad adecuada antes de vender.',
+            '{marca} reúne 30 años de experiencia en la venta de aires acondicionados, repuestos y accesorios. Conocemos los equipos por dentro, y por eso podemos recomendarte el que de verdad necesitas.',
+            'Atendemos hogares, oficinas y comercios desde {ciudad}. Trabajamos con marcas reconocidas, mantenemos equipos en stock y conseguimos bajo pedido lo que no tengamos a mano.',
         ],
-        ctaLabel: 'Solicitar asesoría',
-        imageBadge: 'Asesoría técnica',
+        ctaLabel: 'Pide tu asesoría',
+        imageBadge: 'Asesoría personalizada',
         valuesEyebrow: 'Cómo trabajamos',
-        valuesTitle: 'Lo que nos *define*',
-        valuesDescription: 'Cuatro principios que sostienen cada recomendación y cada venta.',
+        valuesTitle: 'Lo que nos *distingue*',
+        valuesDescription: 'Cuatro compromisos que mantenemos con cada cliente.',
         values: [
             {
-                icon: 'shield-check',
-                title: 'Equipos confiables',
-                description: 'Trabajamos con marcas reconocidas y equipos con garantía de fábrica.',
+                icon: 'air-vent',
+                title: 'El equipo correcto',
+                description:
+                    'Calculamos la capacidad según tu espacio para que no gastes de más ni te quedes corto.',
             },
             {
                 icon: 'heart-handshake',
                 title: 'Trato cercano',
                 description:
-                    'Hablas con asesores que conocen los equipos, no con un formulario ni con un bot.',
+                    'Te atiende una persona que conoce los equipos, antes, durante y después de tu compra.',
             },
             {
-                icon: 'timer',
-                title: 'Tiempos claros',
+                icon: 'shield-check',
+                title: 'Garantía real',
                 description:
-                    'Si un equipo es bajo pedido te decimos cuándo llega, y te avisamos en cada paso.',
+                    'Equipos nuevos con garantía del fabricante y respaldo directo de nuestro equipo.',
             },
             {
-                icon: 'truck',
-                title: 'Despacho seguro',
+                icon: 'wrench',
+                title: 'Repuestos a mano',
                 description:
-                    'Entregamos tu equipo protegido y revisado, o lo retiras en nuestra tienda.',
+                    'Capacitores, tarjetas, motores y más para mantener tus equipos funcionando.',
             },
         ],
         statsEyebrow: 'En números',
         statsTitle: 'Nuestra trayectoria en *cifras*',
         stats: [
-            { value: '30+', label: 'años de experiencia' },
-            { value: '+10.000', label: 'equipos instalados' },
+            { value: '30', label: 'años de experiencia' },
+            { value: '+10.000', label: 'equipos vendidos' },
             { value: '+15', label: 'marcas disponibles' },
         ],
     },
@@ -131,40 +126,48 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         city: 'Dirección por configurar',
         schedule: 'Lunes a viernes, 8:00 a.m. – 5:00 p.m.',
         instagram: 'galpa2022',
-        tiktok: '',
+        tiktok: 'galpa2022',
     },
     contactPage: {
-        badge: 'Asesoría sin costo',
-        title: 'Hablemos de *tu espacio*',
-        intro: 'Cuéntanos qué necesitas climatizar y un asesor te responderá con una recomendación de equipo, capacidad y presupuesto.',
+        badge: 'Asesoría sin compromiso',
+        title: 'Cuéntanos qué espacio quieres *climatizar*',
+        intro: 'Tu casa, tu oficina o tu local. Escríbenos con los metros y el uso del espacio y te recomendamos el equipo ideal.',
         faqEyebrow: 'Dudas comunes',
         faqTitle: 'Preguntas *frecuentes*',
         faq: [
             {
-                question: '¿Cómo sé qué capacidad (BTU) necesito?',
-                answer: 'Depende del área, la exposición al sol y cuántas personas usan el espacio. Escríbenos con esos datos y te recomendamos la capacidad exacta.',
+                question: '¿Qué capacidad de aire necesito?',
+                answer: 'Depende de los metros, la orientación y el uso del espacio. Como guía, un cuarto de 12 a 15 m² suele necesitar 12.000 BTU. Escríbenos y te ayudamos a calcularlo.',
+            },
+            {
+                question: '¿Ofrecen instalación?',
+                answer: 'Sí. Al hacer tu pedido puedes indicar que deseas instalación y te contactamos para coordinar la visita y el presupuesto.',
+            },
+            {
+                question: '¿Los equipos tienen garantía?',
+                answer: 'Todos los equipos son nuevos y tienen la garantía del fabricante. Conserva tu comprobante de compra, lo necesitarás para cualquier reclamo.',
             },
             {
                 question: '¿Qué significa «bajo pedido»?',
-                answer: 'Son equipos que traemos especialmente para ti. Te indicamos el tiempo estimado de llegada antes de pagar y te avisamos cuando estén en nuestro almacén.',
+                answer: 'Son productos que pedimos al proveedor cuando haces tu compra. En cada ficha verás el tiempo estimado de llegada y te avisamos apenas estén en nuestro almacén.',
             },
             {
                 question: '¿Qué métodos de pago aceptan?',
-                answer: 'Pago Móvil y transferencia en bolívares a la tasa BCV del día, y Zelle o Binance en dólares.',
+                answer: 'Pago Móvil y transferencia en bolívares a la tasa BCV del día, y Zelle o Binance en dólares. Verificamos tu pago y te confirmamos por correo.',
             },
             {
-                question: '¿Hacen envíos?',
-                answer: 'Sí. Envío gratis desde {envioGratis}; por debajo de ese monto la tarifa es {tarifaEnvio}. También puedes retirar en tienda.',
+                question: '¿Cuándo despachan mi pedido?',
+                answer: '{despacho}, una vez verificado el pago. El envío es gratis desde {envioGratis}; por debajo de ese monto cobramos una tarifa de {tarifaEnvio}.',
             },
         ],
     },
     shipping: {
-        freeThreshold: 500,
-        flatRate: 15,
+        freeThreshold: 300,
+        flatRate: 10,
         freeShippingCopy: 'Envío gratis desde {envioGratis}',
-        dispatchCopy: 'Despachamos en 24 a 48 horas hábiles después de aprobado el pago.',
+        dispatchCopy: 'Despachamos en 24 a 48 horas hábiles',
     },
-    /** Empty until the owner fills the payment details in the admin. */
+    /** Every method starts disabled and empty until the owner fills in its details. */
     payment: {
         instructions: '',
         pagoMovil: {
@@ -184,16 +187,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
             idNumber: '',
             holderName: '',
         },
-        zelle: {
-            enabled: false,
-            email: '',
-            holderName: '',
-        },
-        binance: {
-            enabled: false,
-            payId: '',
-            email: '',
-            holderName: '',
-        },
+        zelle: { enabled: false, email: '', holderName: '' },
+        binance: { enabled: false, payId: '', email: '', holderName: '' },
     },
 }

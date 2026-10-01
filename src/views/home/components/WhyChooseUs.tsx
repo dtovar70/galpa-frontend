@@ -63,7 +63,7 @@ export function WhyChooseUs() {
                             >
                                 {PAYMENT_METHOD_INFO[method].label}
                                 <span className="font-tech text-[11px] font-bold text-ink-muted">
-                                    {PAYMENT_METHOD_INFO[method].currency === 'BS' ? 'Bs' : 'USD'}
+                                    {PAYMENT_METHOD_INFO[method].currency === 'VES' ? 'Bs' : 'USD'}
                                 </span>
                             </li>
                         ))}

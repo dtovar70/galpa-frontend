@@ -3,8 +3,7 @@ import { useId, useState } from 'react'
 import type { AdminOrder } from '@/@types/order'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Button } from '@/components/ui'
-import { paymentMethodLabel } from '@/constants/payment.constant'
-import { formatOrderAmount } from '@/utils/payment'
+import { formatAmountDue } from '@/utils/payment'
 import { useRecordPayment } from '@/views/admin/hooks/useAdminOrders'
 import { PaymentForm } from '@/views/order/components/PaymentForm'
 
@@ -35,8 +34,8 @@ export function ManualPaymentAction({ order }: { order: AdminOrder }) {
                     <>
                         Para un comprobante que el cliente envió por WhatsApp. El pedido pasará a
                         «Comprobante por verificar» y luego lo apruebas como siempre. Método
-                        elegido: {paymentMethodLabel(order.paymentMethod)} ·{' '}
-                        {formatOrderAmount(order.paymentMethod, order.totals)} (fijado al crearlo).
+                        elegido: {order.paymentMethodLabel} · {formatAmountDue(order.amountDue)}{' '}
+                        (fijado al crearlo).
                         {order.status === 'EXPIRADO'
                             ? ' El pedido está expirado: se toma otra vez el stock que haya.'
                             : ''}

@@ -47,7 +47,9 @@ export function CartLine({ item, stock }: CartLineProps) {
                         {item.name}
                     </Link>
                 </h2>
-                <p className="text-sm text-ink-soft">{item.variantLabel}</p>
+                {item.variantLabel ? (
+                    <p className="text-sm text-ink-soft">{item.variantLabel}</p>
+                ) : null}
                 <p className="font-tech text-sm text-ink-soft">
                     {formatCurrency(item.unitPrice)} c/u
                 </p>
@@ -78,7 +80,7 @@ export function CartLine({ item, stock }: CartLineProps) {
                 <Button
                     variant="ghost"
                     size="sm"
-                    aria-label={`Quitar ${item.name} (${item.variantLabel}) del carrito`}
+                    aria-label={`Quitar ${item.name}${item.variantLabel ? ` (${item.variantLabel})` : ''} del carrito`}
                     onClick={() => removeItem(item.lineId)}
                     className="size-11 px-0 text-ink-soft"
                 >
