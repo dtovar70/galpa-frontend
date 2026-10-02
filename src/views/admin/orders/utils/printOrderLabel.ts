@@ -30,7 +30,7 @@ export function orderLabelHtml(label: OrderLabel): string {
 @page { size: 60mm 40mm; margin: 0; }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif; color: #000; }
+body { font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif; color: #000; }
 .label { width: 60mm; height: 40mm; padding: 2.5mm; display: flex; align-items: center; gap: 2mm; background: #fff; overflow: hidden; }
 .qr { width: 31mm; height: 31mm; flex: none; image-rendering: pixelated; }
 .text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.2mm; }

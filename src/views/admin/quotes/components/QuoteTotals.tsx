@@ -22,22 +22,22 @@ export function QuoteTotals({ control, rate, rateLabel }: QuoteTotalsProps) {
         <dl className="space-y-2 text-sm">
             <div className="flex justify-between gap-3">
                 <dt className="text-ink-soft">Subtotal</dt>
-                <dd className="font-tech font-semibold text-ink">{formatCurrency(subtotal)}</dd>
+                <dd className="font-semibold text-ink tabular-nums">{formatCurrency(subtotal)}</dd>
             </div>
             <div className="flex justify-between gap-3">
                 <dt className="text-ink-soft">Descuento</dt>
-                <dd className="font-tech font-semibold text-ink">
+                <dd className="font-semibold text-ink tabular-nums">
                     {discountValue > 0 ? `−${formatCurrency(discountValue)}` : formatCurrency(0)}
                 </dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 border-t border-line pt-3">
                 <dt className="text-base font-bold text-ink">Total</dt>
                 <dd className="text-right">
-                    <span className="block font-tech text-2xl font-bold text-ink">
+                    <span className="block text-2xl font-bold text-ink tabular-nums">
                         {formatCurrency(total)}
                     </span>
                     {rate !== null ? (
-                        <span className="font-tech text-sm font-semibold text-ink-soft">
+                        <span className="text-sm font-semibold text-ink-soft tabular-nums">
                             {formatBolivares(usdToBolivares(total, rate))}
                         </span>
                     ) : null}

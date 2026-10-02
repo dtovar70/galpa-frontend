@@ -32,7 +32,7 @@ export function CartDrawer() {
                         <FreeShippingProgress subtotal={subtotal} />
                         <div className="flex items-baseline justify-between">
                             <span className="text-sm text-ink-soft">Subtotal</span>
-                            <span className="font-tech text-xl font-bold text-ink">
+                            <span className="text-xl font-bold text-ink tabular-nums">
                                 {formatCurrency(subtotal)}
                             </span>
                         </div>
@@ -135,7 +135,7 @@ export function CartDrawer() {
                                                     updateQuantity(item.lineId, quantity, max)
                                                 }
                                             />
-                                            <span className="font-tech text-sm font-semibold text-ink">
+                                            <span className="text-sm font-semibold text-ink tabular-nums">
                                                 {formatCurrency(item.unitPrice * item.quantity)}
                                             </span>
                                         </div>

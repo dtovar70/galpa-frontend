@@ -47,7 +47,7 @@ export function BtuCalculator() {
                             </p>
                             <h2
                                 id="btu-heading"
-                                className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl"
+                                className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl"
                             >
                                 ¿Qué capacidad <span className="text-brand-600">necesitas</span>?
                             </h2>
@@ -117,23 +117,25 @@ export function BtuCalculator() {
 
                     <div
                         aria-live="polite"
-                        className="relative flex flex-col justify-between gap-8 bg-ink p-6 text-white sm:p-10"
+                        className="relative flex flex-col justify-between gap-8 overflow-hidden bg-hero p-6 text-ink sm:p-10"
                     >
                         <div
                             aria-hidden="true"
-                            className="absolute -top-20 -right-20 size-64 rounded-full bg-brand-500/20 blur-3xl"
+                            className="absolute -top-20 -right-20 size-64 rounded-full bg-frost-400/30 blur-3xl"
                         />
                         {result ? (
                             <div className="relative space-y-4">
-                                <p className="text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
+                                <p className="text-xs font-bold tracking-[0.2em] text-ink-muted uppercase">
                                     Capacidad recomendada
                                 </p>
-                                <p className="font-tech text-5xl font-bold tracking-tight text-brand-400 sm:text-6xl">
+                                <p className="text-5xl font-bold tracking-tight text-brand-600 tabular-nums sm:text-6xl">
                                     {formatBtu(result.recommended)}
                                 </p>
-                                <p className="text-sm text-white/70">
+                                <p className="text-sm text-ink-soft">
                                     Estimación:{' '}
-                                    <span className="font-tech">{formatBtu(result.estimate)}</span>{' '}
+                                    <span className="tabular-nums">
+                                        {formatBtu(result.estimate)}
+                                    </span>{' '}
                                     para {areaM2} m².{' '}
                                     {result.exceedsSingleUnit
                                         ? 'Tu espacio probablemente necesite más de un equipo o un sistema comercial: un asesor te ayudará a diseñarlo.'
@@ -141,7 +143,7 @@ export function BtuCalculator() {
                                 </p>
                             </div>
                         ) : (
-                            <p className="relative text-white/70">
+                            <p className="relative text-ink-soft">
                                 Escribe el área de tu espacio para ver la capacidad recomendada.
                             </p>
                         )}
@@ -157,7 +159,7 @@ export function BtuCalculator() {
                                     Ver equipos recomendados
                                 </ButtonLink>
                             ) : null}
-                            <ButtonLink to={ROUTES.contact} variant="outline-light">
+                            <ButtonLink to={ROUTES.contact} variant="secondary">
                                 Hablar con un asesor
                             </ButtonLink>
                         </div>

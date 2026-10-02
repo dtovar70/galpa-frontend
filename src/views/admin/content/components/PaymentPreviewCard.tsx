@@ -75,7 +75,7 @@ export function PaymentPreviewCard({ payment: draft }: PaymentPreviewCardProps) 
                             )}
                         >
                             <div className="flex items-center gap-3">
-                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-ink text-brand-400">
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                                     <Icon aria-hidden="true" className="size-4" />
                                 </span>
                                 <div className="min-w-0">

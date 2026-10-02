@@ -9,7 +9,7 @@ const alertVariants = cva(
     {
         variants: {
             tone: {
-                success: 'border-brand-200 bg-brand-50 text-brand-900',
+                success: 'border-success-200 bg-success-50 text-success-900',
                 error: 'border-danger-200 bg-danger-50 text-danger-800',
                 info: 'border-frost-200 bg-frost-50 text-frost-900',
             },
@@ -23,7 +23,7 @@ const alertVariants = cva(
 type AlertTone = NonNullable<VariantProps<typeof alertVariants>['tone']>
 
 const TONE_DETAILS: Record<AlertTone, { icon: LucideIcon; iconClass: string; barClass: string }> = {
-    success: { icon: CircleCheck, iconClass: 'text-brand-600', barClass: 'bg-brand-500' },
+    success: { icon: CircleCheck, iconClass: 'text-success-600', barClass: 'bg-success-500' },
     error: { icon: CircleAlert, iconClass: 'text-danger-600', barClass: 'bg-danger-400' },
     info: { icon: Info, iconClass: 'text-frost-600', barClass: 'bg-frost-400' },
 }
@@ -61,7 +61,7 @@ export function Alert({
                     type="button"
                     onClick={onDismiss}
                     aria-label="Cerrar mensaje"
-                    className="-my-1 -mr-2 grid size-7 shrink-0 place-items-center rounded-full text-ink-soft transition hover:bg-white/70 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand-400"
+                    className="-my-1 -mr-2 grid size-7 shrink-0 place-items-center rounded-full text-ink-soft transition hover:bg-white/70 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand-500"
                 >
                     <X aria-hidden="true" className="size-4" />
                 </button>

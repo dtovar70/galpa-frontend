@@ -1,12 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Corporación Galpa 2022 C.A.">
-    <rect width="64" height="64" rx="16" fill="#0A0F0D" />
-    <g fill="none" stroke="#10B981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(32 32)">
-        <g><path d="M0 0V-20" /><path d="M-6 -15L0 -10L6 -15" /></g>
-        <g transform="rotate(60)"><path d="M0 0V-20" /><path d="M-6 -15L0 -10L6 -15" /></g>
-        <g transform="rotate(120)"><path d="M0 0V-20" /><path d="M-6 -15L0 -10L6 -15" /></g>
-        <g transform="rotate(180)"><path d="M0 0V-20" /><path d="M-6 -15L0 -10L6 -15" /></g>
-        <g transform="rotate(240)"><path d="M0 0V-20" /><path d="M-6 -15L0 -10L6 -15" /></g>
-        <g transform="rotate(300)"><path d="M0 0V-20" /><path d="M-6 -15L0 -10L6 -15" /></g>
+    <rect width="64" height="64" rx="16" fill="#0B6FB8" />
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="13" width="46" height="19" rx="6" stroke="#FFFFFF" stroke-width="4" />
+        <path d="M17 26H47" stroke="#FFFFFF" stroke-width="3" />
+        <path d="M15 41C19 38 23 44 27 41S35 38 39 41S47 44 49 41" stroke="#BDE3F8" stroke-width="3.5" />
+        <path d="M21 50C24.5 47.5 28 52.5 31.5 50S38.5 47.5 43 50" stroke="#FFFFFF" stroke-width="3.5" />
     </g>
-    <circle cx="32" cy="32" r="4" fill="#38BDF8" />
 </svg>

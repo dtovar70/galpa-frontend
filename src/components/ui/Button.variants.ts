@@ -9,16 +9,16 @@ export const buttonVariants = cva(
     {
         variants: {
             variant: {
-                /** The one green call to action of a screen, with a faint glow. */
+                /** The one blue call to action of a screen, with a faint glow. */
                 primary:
                     'bg-brand-600 text-white shadow-glow hover:-translate-y-0.5 hover:bg-brand-700 active:bg-brand-800',
                 secondary:
                     'border border-line-strong bg-white text-ink hover:-translate-y-0.5 hover:border-ink/30 hover:bg-page',
-                /** Solid black, for strong secondary actions on light backgrounds. */
+                /** Solid navy, for strong secondary actions on light backgrounds. */
                 dark: 'bg-ink text-white hover:-translate-y-0.5 hover:bg-surface-raised',
-                /** On dark bands (hero, footer): a light outline that reads on ink. */
+                /** On the navy band (footer): a light outline that reads on navy. */
                 'outline-light':
-                    'border border-white/25 bg-white/5 text-white hover:-translate-y-0.5 hover:border-brand-400 hover:bg-white/10',
+                    'border border-white/25 bg-white/5 text-white hover:-translate-y-0.5 hover:border-frost-400 hover:bg-white/10',
                 ghost: 'text-ink hover:bg-mist',
                 info: 'border border-frost-200 bg-frost-50 text-frost-800 hover:bg-frost-100',
                 /** WhatsApp green (darkened for white text contrast). */

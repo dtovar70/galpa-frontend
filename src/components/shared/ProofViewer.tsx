@@ -56,7 +56,7 @@ export function ProofViewer({ src, title, thumbLabel = 'Ver captura' }: ProofVie
             <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="group relative size-24 shrink-0 overflow-hidden rounded-2xl border border-line bg-white focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+                className="group relative size-24 shrink-0 overflow-hidden rounded-2xl border border-line bg-white focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
                 aria-label={`Ver ${title.toLowerCase()}`}
             >
                 <img

@@ -16,19 +16,19 @@ export function Hero() {
     const entrance = prefersReducedMotion ? false : { opacity: 0, y: 24 }
 
     return (
-        <section className="relative isolate overflow-hidden bg-ink text-white">
-            {/* Blueprint grid and a green glow: technical, but quiet. */}
+        <section className="relative isolate overflow-hidden bg-hero text-ink">
+            {/* Blueprint grid and a cool glow: technical, but quiet. */}
             <div
                 aria-hidden="true"
-                className="absolute inset-0 -z-10 bg-[linear-gradient(rgb(255_255_255/0.04)_1px,transparent_1px),linear-gradient(90deg,rgb(255_255_255/0.04)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_75%)] bg-[size:48px_48px]"
+                className="absolute inset-0 -z-10 bg-[linear-gradient(rgb(11_111_184/0.06)_1px,transparent_1px),linear-gradient(90deg,rgb(11_111_184/0.06)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_75%)] bg-[size:48px_48px]"
             />
             <div
                 aria-hidden="true"
-                className="absolute -top-40 right-0 -z-10 size-[36rem] rounded-full bg-brand-500/20 blur-3xl"
+                className="absolute -top-40 right-0 -z-10 size-[36rem] rounded-full bg-frost-400/25 blur-3xl"
             />
             <div
                 aria-hidden="true"
-                className="absolute bottom-0 -left-40 -z-10 size-96 rounded-full bg-frost-400/10 blur-3xl"
+                className="absolute bottom-0 -left-40 -z-10 size-96 rounded-full bg-white/70 blur-3xl"
             />
 
             <div
@@ -43,16 +43,16 @@ export function Hero() {
                     transition={{ duration: 0.5, ease: 'easeOut' }}
                     className="space-y-8"
                 >
-                    <p className="inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/10 px-3.5 py-1.5 text-xs font-bold tracking-[0.14em] text-brand-300 uppercase">
+                    <p className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/80 px-3.5 py-1.5 text-xs font-bold tracking-[0.14em] text-brand-700 uppercase">
                         <ShieldCheck aria-hidden="true" className="size-4" />
                         {home.heroBadge}
                     </p>
 
-                    <h1 className="text-4xl leading-[1.05] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-                        <HighlightedText text={home.heroTitle} className="text-brand-400" />
+                    <h1 className="text-4xl leading-[1.05] font-extrabold tracking-display text-balance sm:text-5xl lg:text-6xl">
+                        <HighlightedText text={home.heroTitle} className="text-brand-600" />
                     </h1>
 
-                    <p className="max-w-xl text-lg leading-relaxed text-white/70">
+                    <p className="max-w-xl text-lg leading-relaxed text-ink-soft">
                         {home.heroSubtitle}
                     </p>
 
@@ -67,7 +67,7 @@ export function Hero() {
                         <ButtonLink
                             to={ROUTES.contact}
                             size="lg"
-                            variant="outline-light"
+                            variant="secondary"
                             leadingIcon={<Headset aria-hidden="true" className="size-5" />}
                         >
                             {home.heroSecondaryCta}
@@ -79,9 +79,9 @@ export function Hero() {
                             {home.heroFeatures.map((feature, index) => (
                                 <li
                                     key={`${index}-${feature}`}
-                                    className="flex items-center gap-2 text-sm font-semibold text-white/80"
+                                    className="flex items-center gap-2 text-sm font-semibold text-ink"
                                 >
-                                    <span className="flex size-5 items-center justify-center rounded-full bg-brand-500 text-ink">
+                                    <span className="flex size-5 items-center justify-center rounded-full bg-brand-600 text-white">
                                         <Check
                                             aria-hidden="true"
                                             className="size-3"
@@ -106,11 +106,11 @@ export function Hero() {
             </div>
 
             {about.stats.length > 0 ? (
-                <div className="border-t border-white/10 bg-surface/60">
+                <div className="border-t border-line bg-white/70">
                     <dl
                         className={cn(
                             CONTAINER,
-                            'grid grid-cols-1 divide-white/10 py-8 sm:grid-cols-3 sm:divide-x',
+                            'grid grid-cols-1 divide-line py-8 sm:grid-cols-3 sm:divide-x',
                         )}
                     >
                         {about.stats.slice(0, 3).map((stat, index) => (
@@ -118,8 +118,8 @@ export function Hero() {
                                 key={index}
                                 className="flex items-baseline gap-3 py-2 sm:flex-col sm:items-center sm:gap-1 sm:py-0 sm:text-center"
                             >
-                                <dt className="order-2 text-sm text-white/60">{stat.label}</dt>
-                                <dd className="order-1 font-tech text-3xl font-bold text-brand-400 sm:text-4xl">
+                                <dt className="order-2 text-sm text-ink-muted">{stat.label}</dt>
+                                <dd className="order-1 text-3xl font-bold text-brand-600 tabular-nums sm:text-4xl">
                                     {stat.value}
                                 </dd>
                             </div>

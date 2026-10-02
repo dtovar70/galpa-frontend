@@ -60,7 +60,7 @@ export function OrderQrCard({ code, url }: OrderQrCardProps) {
                         aria-expanded={isOpen}
                         aria-controls={panelId}
                         onClick={() => setIsOpen((open) => !open)}
-                        className="-m-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-2xl p-2 text-left transition hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-400"
+                        className="-m-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-2xl p-2 text-left transition hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-500"
                     >
                         {heading}
                         <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-700">

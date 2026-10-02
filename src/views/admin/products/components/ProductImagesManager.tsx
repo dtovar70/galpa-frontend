@@ -21,7 +21,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024
 const MAX_FILES_PER_UPLOAD = 8
 
 const iconButtonClass =
-    'flex size-9 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft transition hover:bg-brand-100 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40'
+    'flex size-9 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft transition hover:bg-brand-100 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40'
 
 /** Client-side check so a bad batch fails fast, with a message that names the file. */
 function validateFiles(files: File[]): string | null {

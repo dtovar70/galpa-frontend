@@ -5,7 +5,7 @@
  * comments that point at each other differ), so the storefront and the API agree on the shape.
  *
  * Text conventions shared by the API and the storefront:
- * - Highlighted words (painted green in headings) are wrapped in asterisks: "Tus *favoritos*".
+ * - Highlighted words (painted blue in headings) are wrapped in asterisks: "Tus *favoritos*".
  * - Placeholders in braces are replaced when rendered, e.g. "{envioGratis}" -> "$35". Each field
  *   accepts only the placeholders listed in `CONTENT_PLACEHOLDERS`.
  */
@@ -14,7 +14,6 @@ import { PAYMENT_METHODS, type PaymentMethod } from '@/@types/order'
 
 export const CONTENT_SECTIONS = [
     'general',
-    'announcements',
     'home',
     'about',
     'contact',
@@ -71,11 +70,6 @@ export interface GeneralContent {
     /** `<meta name="description">`. Accepts {envioGratis}. */
     metaDescription: string
     searchPlaceholder: string
-}
-
-export interface AnnouncementsContent {
-    /** Ticker messages, in order. Accept {envioGratis} and {tarifaEnvio}. */
-    messages: string[]
 }
 
 export interface HomeStep {
@@ -242,7 +236,6 @@ export interface PaymentContent {
 
 export interface SiteContent {
     general: GeneralContent
-    announcements: AnnouncementsContent
     home: HomeContent
     about: AboutContent
     contact: ContactContent

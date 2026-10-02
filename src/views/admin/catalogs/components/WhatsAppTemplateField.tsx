@@ -110,7 +110,7 @@ export function WhatsAppTemplateField({
                                 type="button"
                                 onClick={() => insert(placeholder.name)}
                                 aria-label={`Insertar {${placeholder.name}}: ${placeholder.description}`}
-                                className="rounded-full border border-line bg-white px-2.5 py-1 font-mono text-xs text-ink transition hover:border-brand-300 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+                                className="rounded-full border border-line bg-white px-2.5 py-1 font-mono text-xs text-ink transition hover:border-brand-300 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
                             >
                                 {`{${placeholder.name}}`}
                             </button>

@@ -36,14 +36,14 @@ export function AdvisoryExpertise() {
             {CHECKS.map(({ icon: Icon, title, description }) => (
                 <li
                     key={title}
-                    className="flex gap-4 rounded-2xl border border-white/10 bg-white/5 p-5"
+                    className="flex gap-4 rounded-2xl border border-line bg-white p-5 shadow-soft"
                 >
-                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-500/15 text-brand-400">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
                         <Icon aria-hidden="true" className="size-5" />
                     </span>
                     <div>
-                        <h3 className="text-base text-white">{title}</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-white/65">{description}</p>
+                        <h3 className="text-base text-ink">{title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-ink-soft">{description}</p>
                     </div>
                 </li>
             ))}

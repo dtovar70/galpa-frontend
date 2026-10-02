@@ -15,12 +15,12 @@ export function NotFoundView() {
             <div className="mx-auto flex max-w-xl flex-col items-center gap-7 text-center">
                 <div className="relative w-48">
                     <ProductPlaceholder art="split" size="lg" className="shadow-soft" />
-                    <span className="absolute -top-3 -right-3 rounded-lg bg-ink px-3 py-1 font-tech text-sm font-bold text-brand-400">
+                    <span className="absolute -top-3 -right-3 rounded-lg bg-brand-600 px-3 py-1 text-sm font-bold text-white tabular-nums">
                         404
                     </span>
                 </div>
 
-                <h1 className="text-4xl font-extrabold tracking-tight text-balance text-ink sm:text-5xl">
+                <h1 className="text-4xl font-extrabold tracking-display text-balance text-ink sm:text-5xl">
                     Esta página se fue <span className="text-brand-600">con el aire</span>
                 </h1>
 

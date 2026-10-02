@@ -38,7 +38,7 @@ export function CopyButton({ value, label, children, className }: CopyButtonProp
             aria-label={children ? undefined : label}
             className={cn(
                 // The pseudo-element grows the 36px button to a 44px hit area without a bigger look.
-                "relative inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition after:absolute after:-inset-1 after:content-[''] focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2",
+                "relative inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition after:absolute after:-inset-1 after:content-[''] focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
                 children
                     ? 'h-9 border-2 border-ink/10 bg-white px-3.5 text-ink hover:border-ink/20'
                     : 'size-9 text-ink-soft hover:bg-brand-100 hover:text-brand-700',

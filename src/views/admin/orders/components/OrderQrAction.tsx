@@ -120,7 +120,7 @@ export function OrderQrAction({ order }: { order: AdminOrder }) {
                         <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">
                             {general.brandName}
                         </p>
-                        <p className="font-tech text-2xl font-bold text-ink">{order.code}</p>
+                        <p className="text-2xl font-bold text-ink tabular-nums">{order.code}</p>
                         <p className="text-sm break-words text-ink">{order.customer.fullName}</p>
                         <p className="pt-1 text-xs text-ink-soft">
                             La etiqueta mide 6 × 4 cm. Quien escanee el QR podrá ver el pedido.

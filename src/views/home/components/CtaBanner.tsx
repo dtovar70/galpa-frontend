@@ -14,30 +14,30 @@ export function CtaBanner() {
     return (
         <section aria-labelledby="cta-heading" className="py-16 lg:py-20">
             <div className={CONTAINER}>
-                <div className="relative isolate overflow-hidden rounded-3xl bg-ink px-6 py-14 text-white sm:px-12">
+                <div className="relative isolate overflow-hidden rounded-3xl border border-line bg-hero px-6 py-14 text-ink shadow-soft sm:px-12">
                     <div
                         aria-hidden="true"
-                        className="absolute -top-24 -right-16 -z-10 size-80 rounded-full bg-brand-500/25 blur-3xl"
+                        className="absolute -top-24 -right-16 -z-10 size-80 rounded-full bg-frost-400/30 blur-3xl"
                     />
                     <div
                         aria-hidden="true"
-                        className="absolute -bottom-24 left-10 -z-10 size-72 rounded-full bg-frost-400/10 blur-3xl"
+                        className="absolute -bottom-24 left-10 -z-10 size-72 rounded-full bg-white/80 blur-3xl"
                     />
 
                     <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-2xl space-y-5">
-                            <p className="inline-flex rounded-full border border-brand-400/30 bg-brand-500/10 px-3 py-1 text-xs font-bold tracking-[0.14em] text-brand-300 uppercase">
+                            <p className="inline-flex rounded-full border border-brand-200 bg-white/80 px-3 py-1 text-xs font-bold tracking-[0.14em] text-brand-700 uppercase">
                                 {home.ctaBadge}
                             </p>
 
                             <h2
                                 id="cta-heading"
-                                className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl"
+                                className="text-3xl font-extrabold tracking-display sm:text-4xl lg:text-5xl"
                             >
-                                <HighlightedText text={home.ctaTitle} className="text-brand-400" />
+                                <HighlightedText text={home.ctaTitle} className="text-brand-600" />
                             </h2>
 
-                            <p className="max-w-lg text-white/70">{home.ctaDescription}</p>
+                            <p className="max-w-lg text-ink-soft">{home.ctaDescription}</p>
                         </div>
 
                         <div className="flex shrink-0 flex-wrap gap-3">
@@ -59,7 +59,7 @@ export function CtaBanner() {
                                     {home.ctaPrimary}
                                 </ButtonLink>
                             )}
-                            <ButtonLink to={ROUTES.about} size="lg" variant="outline-light">
+                            <ButtonLink to={ROUTES.about} size="lg" variant="secondary">
                                 {home.ctaSecondary}
                             </ButtonLink>
                         </div>

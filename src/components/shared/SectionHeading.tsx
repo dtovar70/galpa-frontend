@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { HighlightedText } from '@/components/shared/HighlightedText'
 import { cn } from '@/utils/cn'
 
-const headingVariants = cva('font-extrabold tracking-tight text-balance', {
+const headingVariants = cva('font-extrabold tracking-display text-balance', {
     variants: {
         level: {
             h1: 'text-4xl sm:text-5xl lg:text-6xl',
@@ -23,7 +23,7 @@ const headingVariants = cva('font-extrabold tracking-tight text-balance', {
 })
 
 export interface SectionHeadingProps extends VariantProps<typeof headingVariants> {
-    /** Words between asterisks are painted green: "Tu *confort*". */
+    /** Words between asterisks are painted in the primary blue: "Tu *confort*". */
     title: string
     /** Applied to the heading element so a section can reference it with aria-labelledby. */
     headingId?: string
@@ -60,7 +60,7 @@ export function SectionHeading({
                     <p
                         className={cn(
                             'inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase',
-                            tone === 'dark' ? 'text-brand-400' : 'text-brand-700',
+                            tone === 'dark' ? 'text-frost-400' : 'text-brand-700',
                         )}
                     >
                         <span aria-hidden="true" className="h-px w-6 bg-current" />
@@ -71,7 +71,7 @@ export function SectionHeading({
                 <Heading id={headingId} className={headingVariants({ level, tone })}>
                     <HighlightedText
                         text={title}
-                        className={tone === 'dark' ? 'text-brand-400' : undefined}
+                        className={tone === 'dark' ? 'text-frost-400' : undefined}
                     />
                 </Heading>
 

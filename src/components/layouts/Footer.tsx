@@ -20,7 +20,7 @@ const HELP_LINKS = [
     { label: 'Consultar pedido', to: ROUTES.orderLookup },
 ]
 
-const linkClass = 'text-sm text-white/65 transition hover:text-brand-300'
+const linkClass = 'text-sm text-on-surface transition hover:text-white'
 const headingClass = 'text-xs font-bold tracking-[0.16em] text-white uppercase'
 
 export function Footer() {
@@ -30,7 +30,7 @@ export function Footer() {
     const [emailUser, emailDomain] = contact.email.split('@')
 
     return (
-        <footer className="mt-20 bg-ink text-white">
+        <footer className="mt-20 bg-surface text-white">
             <div
                 className={cn(
                     CONTAINER,
@@ -39,7 +39,7 @@ export function Footer() {
             >
                 <div className="max-w-sm space-y-5">
                     <BrandLogo withTagline />
-                    <p className="text-sm leading-relaxed text-white/65">{general.description}</p>
+                    <p className="text-sm leading-relaxed text-on-surface">{general.description}</p>
                     <ul className="space-y-1.5">
                         {socialLinks(contact).map((social) => (
                             <li key={social.label}>
@@ -88,12 +88,12 @@ export function Footer() {
 
                 <div className="space-y-4">
                     <h2 className={headingClass}>Contacto</h2>
-                    <ul className="space-y-3 text-sm text-white/65">
+                    <ul className="space-y-3 text-sm text-on-surface">
                         {contact.phone ? (
                             <li className="flex items-start gap-2.5">
                                 <Phone
                                     aria-hidden="true"
-                                    className="mt-0.5 size-4 text-brand-400"
+                                    className="mt-0.5 size-4 text-frost-400"
                                 />
                                 <a href={phoneHref(contact.phone)} className={linkClass}>
                                     {formatVePhone(contact.phone)}
@@ -101,7 +101,7 @@ export function Footer() {
                             </li>
                         ) : null}
                         <li className="flex items-start gap-2.5">
-                            <Mail aria-hidden="true" className="mt-0.5 size-4 text-brand-400" />
+                            <Mail aria-hidden="true" className="mt-0.5 size-4 text-frost-400" />
                             <a href={`mailto:${contact.email}`} className={linkClass}>
                                 {emailUser}@
                                 <wbr />
@@ -109,11 +109,11 @@ export function Footer() {
                             </a>
                         </li>
                         <li className="flex items-start gap-2.5">
-                            <MapPin aria-hidden="true" className="mt-0.5 size-4 text-brand-400" />
+                            <MapPin aria-hidden="true" className="mt-0.5 size-4 text-frost-400" />
                             {contact.city}
                         </li>
                         <li className="flex items-start gap-2.5">
-                            <Clock aria-hidden="true" className="mt-0.5 size-4 text-brand-400" />
+                            <Clock aria-hidden="true" className="mt-0.5 size-4 text-frost-400" />
                             {contact.schedule}
                         </li>
                     </ul>
@@ -124,7 +124,7 @@ export function Footer() {
                 <div
                     className={cn(
                         CONTAINER,
-                        'flex flex-col gap-2 py-6 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between',
+                        'flex flex-col gap-2 py-6 text-xs text-on-surface/80 sm:flex-row sm:items-center sm:justify-between',
                     )}
                 >
                     <p>

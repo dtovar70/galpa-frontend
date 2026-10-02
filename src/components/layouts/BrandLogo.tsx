@@ -8,7 +8,7 @@ import { useSiteContent } from '@/utils/hooks/useSiteContent'
 
 export interface BrandLogoProps {
     className?: string
-    /** Light text for the dark bands (header, footer). */
+    /** `light`: light text for the navy footer; `dark`: navy text for the white header. */
     tone?: 'light' | 'dark'
     /** Renders the tagline under the wordmark; used in the footer. */
     withTagline?: boolean
@@ -24,12 +24,12 @@ export function BrandLogo({ className, tone = 'light', withTagline = false }: Br
             aria-label={`${general.brandName} — ir al inicio`}
             className={cn('group inline-flex items-center gap-3 rounded-xl', className)}
         >
-            <BrandMark className="size-10 transition-transform duration-500 group-hover:rotate-60 motion-reduce:transform-none lg:size-11" />
+            <BrandMark className="size-10 lg:size-11" />
 
             <span className="flex flex-col leading-none">
                 <span
                     className={cn(
-                        'text-xl font-extrabold tracking-tight sm:text-2xl',
+                        'text-xl font-extrabold tracking-display sm:text-2xl',
                         onDark ? 'text-white' : 'text-ink',
                     )}
                 >
@@ -38,7 +38,7 @@ export function BrandLogo({ className, tone = 'light', withTagline = false }: Br
                 <span
                     className={cn(
                         'mt-1 hidden text-[0.6rem] font-semibold tracking-[0.18em] uppercase sm:block',
-                        onDark ? 'text-brand-400' : 'text-brand-700',
+                        onDark ? 'text-frost-400' : 'text-brand-700',
                     )}
                 >
                     {general.brandName}

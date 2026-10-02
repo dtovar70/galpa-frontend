@@ -45,7 +45,7 @@ export function OrderTimeline({ order }: { order: PublicOrder }) {
                                 'relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 text-xs',
                                 done
                                     ? 'border-brand-600 bg-brand-600 text-white'
-                                    : 'border-line-strong bg-white font-tech text-ink-soft',
+                                    : 'border-line-strong bg-white text-ink-soft tabular-nums',
                                 current && 'ring-4 ring-brand-100',
                             )}
                         >

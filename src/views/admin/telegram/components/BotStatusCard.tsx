@@ -25,7 +25,7 @@ export function BotStatusCard({ bot, isRefreshing, onRefresh }: BotStatusCardPro
                 <div className="min-w-0 space-y-2">
                     <h2 className="text-xl font-bold text-ink">Bot de Telegram</h2>
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone={bot.connected ? 'brand' : 'neutral'} size="sm">
+                        <Badge tone={bot.connected ? 'success' : 'neutral'} size="sm">
                             <span
                                 aria-hidden="true"
                                 className={cn(

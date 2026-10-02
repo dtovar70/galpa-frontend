@@ -2,7 +2,7 @@ import { HighlightedText } from '@/components/shared/HighlightedText'
 import { cn } from '@/utils/cn'
 
 export const HIGHLIGHT_HINT =
-    'Encierra entre asteriscos las palabras que van en verde, por ejemplo: Tu *confort*.'
+    'Encierra entre asteriscos las palabras que van en azul, por ejemplo: Tu *confort*.'
 
 export interface HighlightPreviewProps {
     text: string
@@ -23,7 +23,7 @@ export function HighlightPreview({ text, size = 'heading', className }: Highligh
             <p className="text-xs font-semibold text-ink-soft">Vista previa</p>
             <p
                 className={cn(
-                    'font-extrabold tracking-tight break-words text-ink',
+                    'font-extrabold tracking-display break-words text-ink',
                     size === 'hero' ? 'text-3xl leading-tight sm:text-4xl' : 'text-2xl',
                 )}
             >

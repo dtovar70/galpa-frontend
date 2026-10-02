@@ -245,7 +245,7 @@ export function DatePicker({
                                     aria-pressed={isActive}
                                     onClick={() => pick(preset.date)}
                                     className={cn(
-                                        'rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none',
+                                        'rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none',
                                         isActive
                                             ? 'border-brand-400 bg-brand-100 text-brand-700'
                                             : 'border-line text-ink-soft hover:bg-brand-50 hover:text-ink',
@@ -259,7 +259,7 @@ export function DatePicker({
                             <button
                                 type="button"
                                 onClick={clear}
-                                className="ml-auto rounded-full px-3 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-50 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+                                className="ml-auto rounded-full px-3 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-50 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
                             >
                                 Quitar fecha
                             </button>

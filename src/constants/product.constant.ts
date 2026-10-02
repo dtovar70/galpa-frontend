@@ -21,7 +21,7 @@ export const AVAILABILITY_LABELS: Record<ProductAvailability, string> = {
 }
 
 export const AVAILABILITY_TONES: Record<ProductAvailability, BadgeVariant> = {
-    IN_STOCK: 'brand',
+    IN_STOCK: 'success',
     ON_ORDER: 'warning',
     OUT_OF_STOCK: 'neutral',
 }

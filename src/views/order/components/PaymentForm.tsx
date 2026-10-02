@@ -238,7 +238,7 @@ export function PaymentForm({
                             autoComplete="off"
                             hint="Ya viene con el monto exacto; cámbialo solo si pagaste otro."
                             error={errors.amountBs?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('amountBs')}
                         />
                     </>
@@ -268,7 +268,7 @@ export function PaymentForm({
                             autoComplete="off"
                             hint="Ya viene con el total del pedido; cámbialo solo si pagaste otro."
                             error={errors.amountUsd?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('amountUsd')}
                         />
                     </>

@@ -36,7 +36,7 @@ const pageClass = 'space-y-8 py-10 lg:py-14'
 function StepTitle({ number, children }: { number: number; children: string }) {
     return (
         <h2 className="flex items-center gap-3 text-xl text-ink">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-ink font-tech text-base text-brand-400">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-base text-brand-700 tabular-nums">
                 {number}
             </span>
             {children}
@@ -175,7 +175,7 @@ export function OrderView() {
             <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div className="min-w-0 space-y-2">
                     <p className="text-sm font-semibold text-ink-soft">Pedido</p>
-                    <h1 className="font-tech text-4xl font-bold tracking-tight break-words text-ink sm:text-5xl">
+                    <h1 className="text-4xl font-bold tracking-tight break-words text-ink tabular-nums sm:text-5xl">
                         {order.code}
                     </h1>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">

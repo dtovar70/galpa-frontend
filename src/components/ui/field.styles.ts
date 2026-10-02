@@ -1,7 +1,7 @@
 /**
  * Shared shell for the text-entry fields (Input, Textarea, Select).
  *
- * The focus treatment is deliberately one element: the border turns green and a soft halo
+ * The focus treatment is deliberately one element: the border turns blue and a soft halo
  * hugs it. A coloured border *plus* an offset ring reads as two stacked outlines.
  */
 export const FIELD_BASE_CLASS =

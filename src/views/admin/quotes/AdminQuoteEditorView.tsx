@@ -191,7 +191,7 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                     Convertida en el pedido{' '}
                     <Link
                         to={adminOrderPath(quote.convertedOrderCode)}
-                        className="font-tech font-bold underline underline-offset-2"
+                        className="font-bold tabular-nums underline underline-offset-2"
                     >
                         {quote.convertedOrderCode}
                     </Link>
@@ -323,7 +323,7 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                             step="0.01"
                             disabled={!editable}
                             error={errors.discount?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('discount', { setValueAs: toOptionalNumber })}
                         />
                         <QuoteTotals control={control} rate={totalsRate} rateLabel={rateLabel} />

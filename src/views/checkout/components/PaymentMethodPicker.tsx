@@ -81,7 +81,7 @@ export function PaymentMethodPicker({
                                 <span className="block text-xs text-ink-soft">
                                     {info.description}
                                 </span>
-                                <span className="block font-tech text-sm font-bold text-ink">
+                                <span className="block text-sm font-bold text-ink tabular-nums">
                                     {amount}
                                 </span>
                             </span>

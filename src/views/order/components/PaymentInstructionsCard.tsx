@@ -97,7 +97,7 @@ export function PaymentInstructionsCard({ order }: PaymentInstructionsCardProps)
         <div className="@container space-y-4 rounded-2xl border border-line bg-white p-5 shadow-soft">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-ink text-brand-400">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                         <Icon aria-hidden="true" className="size-5" />
                     </span>
                     <p className="text-lg font-bold text-ink">{order.paymentMethodLabel}</p>
@@ -123,7 +123,7 @@ export function PaymentInstructionsCard({ order }: PaymentInstructionsCardProps)
                 <div className="flex min-w-0 items-center gap-2 rounded-xl border-2 border-brand-500 bg-brand-50 px-4 py-3 @md:col-span-2">
                     <div className="min-w-0 flex-1">
                         <dt className="text-xs font-semibold text-brand-800">{amount.label}</dt>
-                        <dd className="font-tech text-2xl font-bold break-words text-ink">
+                        <dd className="text-2xl font-bold break-words text-ink tabular-nums">
                             {amount.display}
                         </dd>
                     </div>

@@ -137,11 +137,11 @@ export function ProductDetailView() {
                         <p className="text-sm font-bold tracking-[0.14em] text-brand-700 uppercase">
                             {product.brand}
                         </p>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                        <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                             {product.name}
                         </h1>
                         {product.model || product.sku ? (
-                            <p className="flex flex-wrap gap-x-4 gap-y-1 font-tech text-sm text-ink-muted">
+                            <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-muted tabular-nums">
                                 {product.model ? <span>Modelo: {product.model}</span> : null}
                                 {product.sku ? <span>SKU: {product.sku}</span> : null}
                             </p>

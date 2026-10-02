@@ -29,7 +29,7 @@ export function CatalogToolbar({ total, sort, isRefreshing, onSortChange }: Cata
                     'Actualizando resultados…'
                 ) : (
                     <>
-                        <span className="font-tech font-semibold text-ink">{total}</span>{' '}
+                        <span className="font-semibold text-ink tabular-nums">{total}</span>{' '}
                         {total === 1 ? 'producto encontrado' : 'productos encontrados'}
                     </>
                 )}

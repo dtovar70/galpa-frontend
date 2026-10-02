@@ -54,7 +54,7 @@ export function OrderItemsCard({ order }: { order: PublicOrder }) {
                                 <OnOrderNote leadTimeDays={null} className="mt-0.5" />
                             ) : null}
                         </div>
-                        <span className="shrink-0 font-tech text-sm font-semibold text-ink">
+                        <span className="shrink-0 text-sm font-semibold text-ink tabular-nums">
                             {formatCurrency(item.lineTotalUsd)}
                         </span>
                     </li>
@@ -63,14 +63,14 @@ export function OrderItemsCard({ order }: { order: PublicOrder }) {
             <dl className="space-y-2 border-t border-line pt-4 text-sm">
                 <div className="flex items-center justify-between gap-3">
                     <dt className="text-ink-soft">Subtotal</dt>
-                    <dd className="font-tech font-semibold text-ink">
+                    <dd className="font-semibold text-ink tabular-nums">
                         {formatCurrency(totals.subtotalUsd)}
                     </dd>
                 </div>
                 {totals.discountUsd > 0 ? (
                     <div className="flex items-center justify-between gap-3">
                         <dt className="text-ink-soft">Descuento</dt>
-                        <dd className="font-tech font-semibold text-ink">
+                        <dd className="font-semibold text-ink tabular-nums">
                             −{formatCurrency(totals.discountUsd)}
                         </dd>
                     </div>
@@ -79,7 +79,7 @@ export function OrderItemsCard({ order }: { order: PublicOrder }) {
                     <dt className="text-ink-soft">
                         {DELIVERY_METHOD_LABELS[order.customer.deliveryMethod]}
                     </dt>
-                    <dd className="font-tech font-semibold text-ink">
+                    <dd className="font-semibold text-ink tabular-nums">
                         {totals.shippingUsd === 0 ? 'Gratis' : formatCurrency(totals.shippingUsd)}
                     </dd>
                 </div>
@@ -90,12 +90,12 @@ export function OrderItemsCard({ order }: { order: PublicOrder }) {
                 <div className="flex items-baseline justify-between gap-3 border-t border-line pt-3">
                     <dt className="text-base font-bold text-ink">Total</dt>
                     <dd className="text-right">
-                        <span className="block font-tech text-2xl font-bold text-ink">
+                        <span className="block text-2xl font-bold text-ink tabular-nums">
                             {paysInBolivares
                                 ? formatBolivares(totals.totalBs)
                                 : formatCurrency(totals.totalUsd)}
                         </span>
-                        <span className="font-tech text-sm font-semibold text-ink-soft">
+                        <span className="text-sm font-semibold text-ink-soft tabular-nums">
                             {paysInBolivares
                                 ? formatCurrency(totals.totalUsd)
                                 : formatBolivares(totals.totalBs)}

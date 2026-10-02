@@ -21,7 +21,7 @@ import {
 const LOOKUP_SENT_MESSAGE = 'Si los datos coinciden, te enviamos un enlace a tu correo.'
 
 const linkClass =
-    'font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-brand-400'
+    'font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-brand-500'
 
 /**
  * "Consultar mi pedido" (`/consultar-pedido`): the order code and the checkout email. When they
@@ -74,7 +74,7 @@ export function OrderLookupView() {
                 <p className="text-sm font-semibold tracking-[0.2em] text-brand-700 uppercase">
                     Tus pedidos
                 </p>
-                <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                     Consulta tu <span className="text-brand-600">pedido</span>
                 </h1>
                 <p className="max-w-2xl text-ink-soft">

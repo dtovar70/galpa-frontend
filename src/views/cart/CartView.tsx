@@ -28,7 +28,7 @@ export function CartView() {
 
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
-            <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                 Tu <span className="text-brand-600">carrito</span>
             </h1>
 
@@ -77,19 +77,19 @@ export function CartView() {
                         <dl className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
                                 <dt className="text-ink-soft">Subtotal</dt>
-                                <dd className="font-tech font-semibold text-ink">
+                                <dd className="font-semibold text-ink tabular-nums">
                                     {formatCurrency(subtotal)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-ink-soft">Envío</dt>
-                                <dd className="font-tech font-semibold text-ink">
+                                <dd className="font-semibold text-ink tabular-nums">
                                     {shipping === 0 ? 'Gratis' : formatCurrency(shipping)}
                                 </dd>
                             </div>
                             <div className="flex items-baseline justify-between border-t border-line pt-3">
                                 <dt className="text-base font-bold text-ink">Total</dt>
-                                <dd className="font-tech text-2xl font-bold text-ink">
+                                <dd className="text-2xl font-bold text-ink tabular-nums">
                                     {formatCurrency(total)}
                                 </dd>
                             </div>

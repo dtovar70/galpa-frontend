@@ -8,8 +8,10 @@ const badgeVariants = cva(
     {
         variants: {
             tone: {
-                /** Brand green, also "success": in stock, approved, delivered. */
+                /** Brand blue: neutral emphasis that belongs to the store (e.g. "En el menú"). */
                 brand: 'bg-brand-100 text-brand-800',
+                /** Green "good" state: in stock, approved, delivered, connected. */
+                success: 'bg-success-100 text-success-700',
                 /** Amber: "Bajo pedido", pending actions. */
                 warning: 'bg-warning-100 text-warning-800',
                 /** Frost: informational states (in review, on its way). */

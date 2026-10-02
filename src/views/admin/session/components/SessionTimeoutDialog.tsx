@@ -72,7 +72,7 @@ export function SessionTimeoutDialog({
                     <div className="space-y-3 rounded-2xl border border-warning-200 bg-warning-50 px-4 pt-4 pb-5 text-center">
                         <p className="text-sm text-ink-soft">
                             Tu sesión se cerrará en
-                            <span className="block font-tech text-6xl leading-tight font-bold text-warning-800 tabular-nums">
+                            <span className="block text-6xl leading-tight font-bold text-warning-800 tabular-nums">
                                 {secondsLeft}
                             </span>
                             {secondsLeft === 1 ? 'segundo' : 'segundos'}

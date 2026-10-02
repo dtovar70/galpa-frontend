@@ -75,7 +75,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <p className="truncate text-[11px] font-bold tracking-[0.12em] text-brand-700 uppercase sm:text-xs">
                     {product.brand}
                     {product.model ? (
-                        <span className="font-tech font-medium tracking-normal text-ink-muted normal-case">
+                        <span className="font-medium tracking-normal text-ink-muted normal-case tabular-nums">
                             {' '}
                             · {product.model}
                         </span>

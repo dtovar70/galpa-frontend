@@ -61,7 +61,7 @@ export function OrderSummary({
                                         />
                                     ) : null}
                                 </div>
-                                <span className="shrink-0 font-tech text-sm font-semibold text-ink">
+                                <span className="shrink-0 text-sm font-semibold text-ink tabular-nums">
                                     {formatCurrency(item.unitPrice * item.quantity)}
                                 </span>
                             </div>
@@ -84,17 +84,19 @@ export function OrderSummary({
             <dl className="space-y-2 border-t border-line pt-4 text-sm">
                 <div className="flex items-center justify-between">
                     <dt className="text-ink-soft">Subtotal</dt>
-                    <dd className="font-tech font-semibold text-ink">{formatCurrency(subtotal)}</dd>
+                    <dd className="font-semibold text-ink tabular-nums">
+                        {formatCurrency(subtotal)}
+                    </dd>
                 </div>
                 <div className="flex items-center justify-between">
                     <dt className="text-ink-soft">Envío</dt>
-                    <dd className="font-tech font-semibold text-ink">
+                    <dd className="font-semibold text-ink tabular-nums">
                         {shipping === 0 ? 'Gratis' : formatCurrency(shipping)}
                     </dd>
                 </div>
                 <div className="flex items-baseline justify-between border-t border-line pt-3">
                     <dt className="text-base font-bold text-ink">Total</dt>
-                    <dd className="font-tech text-2xl font-bold text-ink">
+                    <dd className="text-2xl font-bold text-ink tabular-nums">
                         {formatCurrency(total)}
                     </dd>
                 </div>

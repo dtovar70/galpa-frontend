@@ -19,8 +19,8 @@ const navLinkVariants = cva(
     {
         variants: {
             isActive: {
-                true: 'bg-white/10 text-brand-300',
-                false: 'text-white/75 hover:bg-white/5 hover:text-white',
+                true: 'bg-brand-50 text-brand-700',
+                false: 'text-ink-soft hover:bg-mist hover:text-ink',
             },
         },
         defaultVariants: { isActive: false },
@@ -35,9 +35,9 @@ export function Header() {
     const navLinks = useNavLinks(appConfig.categoryLinkLimits.header)
 
     return (
-        <header className="sticky top-0 z-40 border-b border-white/10 bg-ink/95 text-white backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-line bg-white/95 text-ink backdrop-blur">
             <div className={cn(CONTAINER, 'flex h-16 items-center gap-3 lg:h-20 lg:gap-6')}>
-                <BrandLogo />
+                <BrandLogo tone="dark" />
 
                 <nav
                     aria-label="Navegación principal"
@@ -82,7 +82,7 @@ export function Header() {
                         icon={<ShoppingBag aria-hidden="true" className="size-5" />}
                         badge={
                             cartCount > 0 ? (
-                                <span className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 font-tech text-[11px] font-bold text-ink tabular-nums">
+                                <span className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full bg-brand-600 px-1.5 text-[11px] font-bold text-white tabular-nums ring-2 ring-white">
                                     {cartCount}
                                 </span>
                             ) : null

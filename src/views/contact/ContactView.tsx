@@ -13,21 +13,21 @@ export function ContactView() {
 
     return (
         <div className="space-y-16">
-            <section className="relative isolate overflow-hidden bg-ink text-white">
+            <section className="relative isolate overflow-hidden bg-hero text-ink">
                 <div
                     aria-hidden="true"
-                    className="absolute -top-24 left-1/3 -z-10 size-96 rounded-full bg-brand-500/20 blur-3xl"
+                    className="absolute -top-24 left-1/3 -z-10 size-96 rounded-full bg-frost-400/25 blur-3xl"
                 />
                 <div className={cn(CONTAINER, 'space-y-5 pt-14 pb-28 lg:pt-20 lg:pb-32')}>
-                    <p className="inline-flex rounded-full border border-brand-400/30 bg-brand-500/10 px-3.5 py-1.5 text-xs font-bold tracking-[0.14em] text-brand-300 uppercase">
+                    <p className="inline-flex rounded-full border border-brand-200 bg-white/80 px-3.5 py-1.5 text-xs font-bold tracking-[0.14em] text-brand-700 uppercase">
                         {contactPage.badge}
                     </p>
 
-                    <h1 className="max-w-3xl text-4xl leading-tight font-extrabold tracking-tight text-balance sm:text-5xl">
-                        <HighlightedText text={contactPage.title} className="text-brand-400" />
+                    <h1 className="max-w-3xl text-4xl leading-tight font-extrabold tracking-display text-balance sm:text-5xl">
+                        <HighlightedText text={contactPage.title} className="text-brand-600" />
                     </h1>
 
-                    <p className="max-w-xl text-lg text-white/70">{contactPage.intro}</p>
+                    <p className="max-w-xl text-lg text-ink-soft">{contactPage.intro}</p>
                 </div>
             </section>
 

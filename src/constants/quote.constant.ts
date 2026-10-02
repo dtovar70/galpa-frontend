@@ -13,7 +13,7 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
 export const QUOTE_STATUS_TONES: Record<QuoteStatus, BadgeVariant> = {
     BORRADOR: 'neutral',
     ENVIADA: 'info',
-    ACEPTADA: 'brand',
+    ACEPTADA: 'success',
     CONVERTIDA: 'solid',
     RECHAZADA: 'danger',
     VENCIDA: 'warning',

@@ -18,7 +18,7 @@ export function OrderCustomerCard({ order }: { order: AdminOrder }) {
             <div className="min-w-0 space-y-1 text-sm">
                 <p className="font-semibold break-words text-ink">{customer.fullName}</p>
                 {order.customer.idNumber ? (
-                    <p className="font-tech text-ink-soft">{order.customer.idNumber}</p>
+                    <p className="text-ink-soft tabular-nums">{order.customer.idNumber}</p>
                 ) : null}
                 <p className="break-all text-ink-soft">{customer.email}</p>
                 <p className="text-ink-soft">{customer.phone}</p>

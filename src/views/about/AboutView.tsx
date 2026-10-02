@@ -18,10 +18,10 @@ export function AboutView() {
 
     return (
         <div className="space-y-20 lg:space-y-24">
-            <section className="relative isolate overflow-hidden bg-ink text-white">
+            <section className="relative isolate overflow-hidden bg-hero text-ink">
                 <div
                     aria-hidden="true"
-                    className="absolute -top-32 right-0 -z-10 size-[32rem] rounded-full bg-brand-500/20 blur-3xl"
+                    className="absolute -top-32 right-0 -z-10 size-[32rem] rounded-full bg-frost-400/25 blur-3xl"
                 />
                 <div
                     className={cn(
@@ -30,19 +30,19 @@ export function AboutView() {
                     )}
                 >
                     <div className="space-y-6">
-                        <p className="inline-flex rounded-full border border-brand-400/30 bg-brand-500/10 px-3.5 py-1.5 text-xs font-bold tracking-[0.14em] text-brand-300 uppercase">
+                        <p className="inline-flex rounded-full border border-brand-200 bg-white/80 px-3.5 py-1.5 text-xs font-bold tracking-[0.14em] text-brand-700 uppercase">
                             {about.badge}
                         </p>
 
-                        <h1 className="text-4xl leading-tight font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-                            <HighlightedText text={about.title} className="text-brand-400" />
+                        <h1 className="text-4xl leading-tight font-extrabold tracking-display text-balance sm:text-5xl lg:text-6xl">
+                            <HighlightedText text={about.title} className="text-brand-600" />
                         </h1>
 
                         {about.paragraphs.map((paragraph, index) => (
                             <p
                                 key={index}
                                 className={cn(
-                                    'leading-relaxed text-white/70',
+                                    'leading-relaxed text-ink-soft',
                                     index === 0 && 'text-lg',
                                 )}
                             >
@@ -60,15 +60,15 @@ export function AboutView() {
                     </div>
 
                     <div className="relative mx-auto w-full max-w-sm">
-                        <div className="rounded-3xl border border-white/10 bg-surface-raised p-8 text-center shadow-lift">
-                            <p className="font-tech text-8xl font-bold tracking-tighter text-brand-400 sm:text-9xl">
+                        <div className="rounded-3xl border border-line bg-white p-8 text-center shadow-lift">
+                            <p className="text-8xl font-bold tracking-tighter text-brand-600 tabular-nums sm:text-9xl">
                                 30
                             </p>
-                            <p className="mt-2 text-sm font-bold tracking-[0.2em] text-white/60 uppercase">
+                            <p className="mt-2 text-sm font-bold tracking-[0.2em] text-ink-muted uppercase">
                                 años de experiencia
                             </p>
                         </div>
-                        <p className="absolute -bottom-3 left-6 rounded-full bg-brand-500 px-4 py-1.5 text-sm font-bold text-ink shadow-lift">
+                        <p className="absolute -bottom-3 left-6 rounded-full bg-brand-600 px-4 py-1.5 text-sm font-bold text-white shadow-lift">
                             {about.imageBadge}
                         </p>
                     </div>
@@ -95,10 +95,7 @@ export function AboutView() {
                 <ValuesGrid values={about.values} />
             </section>
 
-            <section
-                aria-labelledby="expertise-heading"
-                className="bg-ink py-16 text-white lg:py-24"
-            >
+            <section aria-labelledby="expertise-heading" className="bg-sky py-16 text-ink lg:py-24">
                 <div
                     className={cn(
                         CONTAINER,
@@ -107,7 +104,6 @@ export function AboutView() {
                 >
                     <SectionHeading
                         headingId="expertise-heading"
-                        tone="dark"
                         eyebrow="Asesoría técnica"
                         title="Antes de vender, *escuchamos*"
                         description="Nuestros asesores revisan contigo lo que define el equipo correcto, para que no pagues de más ni te quedes corto."

@@ -1,9 +1,12 @@
 import type { BadgeTone } from '@/@types/catalog'
 import type { BadgeVariant } from '@/components/ui/Badge'
 
-/** The badge variant of each stored status tone (the API stores the variant names themselves). */
+/**
+ * The badge variant of each stored status tone. The API stores `brand` for the "approved" green
+ * (the brand used to be green); it renders with the success variant now that brand is blue.
+ */
 export const STATUS_TONE_VARIANTS: Record<BadgeTone, BadgeVariant> = {
-    brand: 'brand',
+    brand: 'success',
     warning: 'warning',
     info: 'info',
     danger: 'danger',
@@ -19,6 +22,6 @@ export const STATUS_TONE_LABELS: Record<BadgeTone, string> = {
     info: 'Celeste (en proceso)',
     danger: 'Rojo (problema)',
     outline: 'Contorno',
-    solid: 'Negro',
+    solid: 'Azul marino',
     neutral: 'Gris',
 }

@@ -22,7 +22,7 @@ type MessageTone = 'warning' | 'info' | 'success' | 'danger' | 'neutral'
 const TONE_CLASS: Record<MessageTone, string> = {
     warning: 'border-warning-200 bg-warning-50',
     info: 'border-frost-200 bg-frost-50',
-    success: 'border-brand-200 bg-brand-50',
+    success: 'border-success-200 bg-success-50',
     danger: 'border-danger-200 bg-danger-50',
     neutral: 'border-line bg-white',
 }
@@ -30,7 +30,7 @@ const TONE_CLASS: Record<MessageTone, string> = {
 const ICON_CLASS: Record<MessageTone, string> = {
     warning: 'text-warning-700',
     info: 'text-frost-700',
-    success: 'text-brand-700',
+    success: 'text-success-700',
     danger: 'text-danger-700',
     neutral: 'text-ink-soft',
 }

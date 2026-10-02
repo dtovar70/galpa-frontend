@@ -69,7 +69,7 @@ export function VariantPicker({
                                     Agotada
                                 </span>
                             ) : showPrices ? (
-                                <span className="font-tech text-xs text-ink-muted">
+                                <span className="text-xs text-ink-muted tabular-nums">
                                     {formatCurrency(product.price + variant.priceDelta)}
                                 </span>
                             ) : null}

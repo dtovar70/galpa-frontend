@@ -199,7 +199,7 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
                         maxLength={20}
                         hint="Los 20 dígitos de la cuenta."
                         error={errors.transfer?.accountNumber?.message}
-                        className="font-tech"
+                        className="tabular-nums"
                         {...register('transfer.accountNumber')}
                     />
                     <Select
@@ -267,7 +267,7 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
                         label="Binance Pay ID"
                         inputMode="numeric"
                         error={errors.binance?.payId?.message}
-                        className="font-tech"
+                        className="tabular-nums"
                         {...register('binance.payId')}
                     />
                     <Input

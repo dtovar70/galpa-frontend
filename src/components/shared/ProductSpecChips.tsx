@@ -26,7 +26,7 @@ export function ProductSpecChips({
     return (
         <ul className={cn('flex flex-wrap gap-1.5', className)} aria-label="Características">
             {product.btu !== null ? (
-                <li className={cn(CHIP, 'bg-ink font-tech text-white')}>
+                <li className={cn(CHIP, 'bg-ink text-white tabular-nums')}>
                     <Snowflake aria-hidden="true" className="size-3 text-frost-400" />
                     {formatBtu(product.btu)}
                 </li>
@@ -35,7 +35,7 @@ export function ProductSpecChips({
                 <li className={cn(CHIP, 'bg-brand-100 text-brand-800')}>Inverter</li>
             ) : null}
             {showVoltage && product.voltage ? (
-                <li className={cn(CHIP, 'border border-line-strong font-tech text-ink-soft')}>
+                <li className={cn(CHIP, 'border border-line-strong text-ink-soft tabular-nums')}>
                     <Zap aria-hidden="true" className="size-3" />
                     {product.voltage}
                 </li>

@@ -33,14 +33,14 @@ export function WhyChooseUs() {
                                 className="group flex h-full flex-col gap-4 rounded-2xl border border-line bg-page p-6 transition hover:border-brand-200 hover:bg-white hover:shadow-soft"
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="grid size-12 place-items-center rounded-xl bg-ink text-brand-400">
+                                    <span className="grid size-12 place-items-center rounded-xl bg-brand-50 text-brand-600">
                                         <Icon
                                             aria-hidden="true"
                                             className="size-6"
                                             strokeWidth={1.75}
                                         />
                                     </span>
-                                    <span className="font-tech text-sm font-bold text-ink-muted/60">
+                                    <span className="text-sm font-bold text-ink-muted/60 tabular-nums">
                                         0{index + 1}
                                     </span>
                                 </div>
@@ -62,7 +62,7 @@ export function WhyChooseUs() {
                                 className="inline-flex items-center gap-2 rounded-lg border border-line-strong bg-white px-3 py-1.5 text-sm font-semibold text-ink"
                             >
                                 {PAYMENT_METHOD_INFO[method].label}
-                                <span className="font-tech text-[11px] font-bold text-ink-muted">
+                                <span className="text-[11px] font-bold text-ink-muted tabular-nums">
                                     {PAYMENT_METHOD_INFO[method].currency === 'VES' ? 'Bs' : 'USD'}
                                 </span>
                             </li>

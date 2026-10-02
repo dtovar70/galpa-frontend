@@ -9,7 +9,7 @@ export interface HighlightedTextProps {
     className?: string
 }
 
-/** Paints the *marked* words in green, the brand's signature headline accent. */
+/** Paints the *marked* words in the primary blue, the brand's signature headline accent. */
 export function HighlightedText({ text, className }: HighlightedTextProps) {
     return splitHighlights(text).map((segment, index) =>
         segment.highlighted ? (

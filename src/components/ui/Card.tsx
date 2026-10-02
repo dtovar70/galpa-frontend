@@ -11,7 +11,7 @@ const cardVariants = cva('rounded-2xl border transition duration-300', {
             muted: 'border-line bg-page',
             brand: 'border-brand-100 bg-brand-50',
             info: 'border-frost-100 bg-frost-50',
-            /** Dark band: ink surface with light text. */
+            /** Navy band with light text. */
             dark: 'border-white/10 bg-surface text-white',
         },
         elevation: {

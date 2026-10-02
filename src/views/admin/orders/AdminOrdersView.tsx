@@ -54,8 +54,8 @@ function ListTotal({ order, align }: { order: AdminOrderListItem; align?: 'right
     const secondary = inBolivares ? formatCurrency(order.totalUsd) : formatBolivares(order.totalBs)
     return (
         <div className={align === 'right' ? 'text-right' : undefined}>
-            <p className="font-tech font-semibold text-ink">{primary}</p>
-            <p className="font-tech text-xs text-ink-soft">{secondary}</p>
+            <p className="font-semibold text-ink tabular-nums">{primary}</p>
+            <p className="text-xs text-ink-soft tabular-nums">{secondary}</p>
         </div>
     )
 }
@@ -65,7 +65,7 @@ function OpenLink({ order }: { order: AdminOrderListItem }) {
         <Link
             to={adminOrderPath(order.code)}
             aria-label={`Ver pedido ${order.code}`}
-            className="flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+            className="flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
         >
             <ChevronRight aria-hidden="true" className="size-5" />
         </Link>
@@ -523,7 +523,7 @@ export function AdminOrdersView() {
                                                 <td className={cellClass}>
                                                     <Link
                                                         to={adminOrderPath(order.code)}
-                                                        className="font-tech text-base font-bold text-ink hover:text-brand-700"
+                                                        className="text-base font-bold text-ink tabular-nums hover:text-brand-700"
                                                     >
                                                         {order.code}
                                                     </Link>
@@ -581,7 +581,7 @@ export function AdminOrdersView() {
                                             <div className="min-w-0 flex-1 space-y-1">
                                                 <Link
                                                     to={adminOrderPath(order.code)}
-                                                    className="font-tech text-lg font-bold text-ink"
+                                                    className="text-lg font-bold text-ink tabular-nums"
                                                 >
                                                     {order.code}
                                                 </Link>

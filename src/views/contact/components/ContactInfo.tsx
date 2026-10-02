@@ -60,7 +60,7 @@ export function ContactInfo() {
             {channels.map((channel) => (
                 <li key={channel.id} className="h-full">
                     <Card className="flex h-full items-start gap-3">
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ink text-brand-400">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                             {channel.icon}
                         </span>
                         <div className="min-w-0 space-y-0.5">

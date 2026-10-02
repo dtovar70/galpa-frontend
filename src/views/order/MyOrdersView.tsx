@@ -12,7 +12,7 @@ import { formatDateTime } from '@/utils/formatDate'
 import { forgetOrder, readRecentOrders, type RecentOrder } from '@/utils/recentOrders'
 
 const LOOKUP_LINK_CLASS =
-    'font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-brand-400'
+    'font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-brand-500'
 
 /** Orders placed from this browser (their private links are kept in local storage). */
 export function MyOrdersView() {
@@ -26,7 +26,7 @@ export function MyOrdersView() {
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
             <div className="space-y-2">
-                <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                     Mis <span className="text-brand-600">pedidos</span>
                 </h1>
                 <p className="max-w-2xl text-ink-soft">
@@ -69,7 +69,7 @@ export function MyOrdersView() {
                                     to={orderPath(order.code, order.token)}
                                     className="min-w-0 flex-1 rounded-2xl px-2 py-1 transition hover:bg-brand-50"
                                 >
-                                    <p className="font-tech text-lg font-bold text-ink">
+                                    <p className="text-lg font-bold text-ink tabular-nums">
                                         {order.code}
                                     </p>
                                     <p className="text-sm text-ink-soft">

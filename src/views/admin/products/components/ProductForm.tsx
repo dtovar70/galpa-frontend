@@ -180,7 +180,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             optional
                             placeholder="FTKF12"
                             error={errors.model?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('model')}
                         />
                         <Input
@@ -190,7 +190,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             autoCapitalize="characters"
                             spellCheck={false}
                             error={errors.sku?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('sku')}
                         />
                     </div>
@@ -227,7 +227,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             step="0.01"
                             min={0}
                             error={errors.price?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('price', { setValueAs: toOptionalNumber })}
                         />
                         <Input
@@ -239,7 +239,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             step="0.01"
                             min={0}
                             error={errors.compareAtPrice?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('compareAtPrice', { setValueAs: toOptionalNumber })}
                         />
                     </div>
@@ -360,7 +360,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             min={0}
                             placeholder="12000"
                             error={errors.btu?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('btu', { setValueAs: toOptionalNumber })}
                         />
                         <Input
@@ -369,7 +369,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             placeholder="220V"
                             list={voltageListId}
                             error={errors.voltage?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('voltage')}
                         />
                         <Select
@@ -385,7 +385,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                             list={refrigerantListId}
                             autoCapitalize="characters"
                             error={errors.refrigerant?.message}
-                            className="font-tech"
+                            className="tabular-nums"
                             {...register('refrigerant')}
                         />
                     </div>
@@ -605,7 +605,7 @@ export function ProductForm({ mode, initialValues, onSubmit }: ProductFormProps)
                                                 inputMode="decimal"
                                                 step="0.01"
                                                 error={rowErrors?.priceDelta?.message}
-                                                className="font-tech"
+                                                className="tabular-nums"
                                                 {...register(`variants.${index}.priceDelta`, {
                                                     setValueAs: toOptionalNumber,
                                                 })}

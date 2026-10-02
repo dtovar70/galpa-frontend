@@ -22,7 +22,7 @@ export function WhatsAppInlineLink({ message, children }: WhatsAppInlineLinkProp
             href={whatsappUrl(contact.whatsapp, message)}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-sm font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-1 rounded-sm font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
         >
             <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
             {children}

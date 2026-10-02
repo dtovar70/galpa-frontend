@@ -138,7 +138,7 @@ export function CheckoutView() {
 
     return (
         <div className={cn(CONTAINER, 'space-y-8 py-12 lg:py-16')}>
-            <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                 Finalizar <span className="text-brand-600">compra</span>
             </h1>
 

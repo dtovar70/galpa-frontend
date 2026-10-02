@@ -61,7 +61,7 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                                 <OnOrderNote leadTimeDays={null} className="mt-1" />
                             ) : null}
                         </div>
-                        <span className="shrink-0 font-tech text-sm font-semibold text-ink">
+                        <span className="shrink-0 text-sm font-semibold text-ink tabular-nums">
                             {formatCurrency(item.lineTotalUsd)}
                         </span>
                     </li>
@@ -89,10 +89,10 @@ export function OrderItemsTable({ order }: { order: AdminOrder }) {
                 <div className="flex justify-between gap-3 border-t border-line pt-2">
                     <dt className="text-base font-bold text-ink">Total</dt>
                     <dd className="text-right">
-                        <span className="block font-tech text-xl font-bold text-ink">
+                        <span className="block text-xl font-bold text-ink tabular-nums">
                             {formatCurrency(totals.totalUsd)}
                         </span>
-                        <span className="font-tech font-semibold text-ink">
+                        <span className="font-semibold text-ink tabular-nums">
                             {formatBolivares(totals.totalBs)}
                         </span>
                     </dd>

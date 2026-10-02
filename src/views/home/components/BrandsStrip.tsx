@@ -26,7 +26,7 @@ export function BrandsStrip() {
                         <li key={brand}>
                             <Link
                                 to={`${ROUTES.catalog}?${new URLSearchParams({ [CATALOG_PARAMS.brand]: brand }).toString()}`}
-                                className="rounded-sm text-2xl font-extrabold tracking-tight text-ink/35 uppercase transition hover:text-ink"
+                                className="rounded-sm text-2xl font-extrabold tracking-display text-ink/35 uppercase transition hover:text-ink"
                             >
                                 {brand}
                             </Link>

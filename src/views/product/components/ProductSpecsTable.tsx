@@ -42,7 +42,7 @@ export function ProductSpecsTable({ product }: ProductSpecsTableProps) {
                                 >
                                     {row.label}
                                 </th>
-                                <td className="px-4 py-3 font-tech font-medium text-ink">
+                                <td className="px-4 py-3 font-medium text-ink tabular-nums">
                                     {row.value}
                                 </td>
                             </tr>

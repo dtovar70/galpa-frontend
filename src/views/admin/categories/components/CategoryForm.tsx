@@ -158,7 +158,7 @@ export function CategoryForm(props: CategoryFormProps) {
                 <div className="flex items-center gap-3">
                     <span
                         aria-hidden="true"
-                        className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink text-brand-400"
+                        className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600"
                     >
                         <CategoryIconGlyph name={icon} className="size-5" />
                     </span>
@@ -237,7 +237,7 @@ export function CategoryForm(props: CategoryFormProps) {
                 <div className="flex items-end gap-3">
                     <span
                         aria-hidden="true"
-                        className="grid size-11 shrink-0 place-items-center rounded-xl bg-ink text-brand-400"
+                        className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600"
                     >
                         <CategoryIconGlyph name={icon} className="size-5" />
                     </span>

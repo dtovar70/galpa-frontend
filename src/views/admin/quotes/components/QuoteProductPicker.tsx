@@ -91,7 +91,7 @@ export function QuoteProductPicker({ onPick, disabled = false }: QuoteProductPic
                                         </span>
                                     </span>
                                     <AvailabilityBadge product={product} />
-                                    <span className="font-tech text-sm font-semibold text-ink">
+                                    <span className="text-sm font-semibold text-ink tabular-nums">
                                         {formatCurrency(product.price)}
                                     </span>
                                     {hasVariants ? (
@@ -131,7 +131,7 @@ export function QuoteProductPicker({ onPick, disabled = false }: QuoteProductPic
                                                             {variant.stock} en stock
                                                         </span>
                                                     ) : null}
-                                                    <span className="font-tech font-semibold text-ink">
+                                                    <span className="font-semibold text-ink tabular-nums">
                                                         {formatCurrency(
                                                             product.price + variant.priceDelta,
                                                         )}

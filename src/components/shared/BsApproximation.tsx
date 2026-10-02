@@ -19,7 +19,7 @@ export function BsApproximation({ usd, className }: BsApproximationProps) {
 
     return (
         <div className={cn('space-y-0.5 text-right', className)}>
-            <p className="font-tech text-sm font-semibold text-ink">
+            <p className="text-sm font-semibold text-ink tabular-nums">
                 ≈ {formatBolivares(usdToBolivares(usd, data.rate))}
             </p>
             <p className="text-xs text-ink-soft">

@@ -21,7 +21,7 @@ const chipVariants = cva(
                 true: 'border-brand-500 bg-brand-50 text-brand-800',
                 false: 'border-line-strong bg-white text-ink-soft hover:border-ink/40 hover:text-ink',
             },
-            tech: { true: 'font-tech', false: '' },
+            tech: { true: 'tabular-nums', false: '' },
         },
         defaultVariants: { isSelected: false, tech: false },
     },
@@ -149,7 +149,7 @@ export function CatalogFilters({ catalog }: CatalogFiltersProps) {
                         <button
                             type="button"
                             onClick={() => catalog.setBtuRange(undefined, undefined)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500 bg-brand-50 px-3 py-1.5 font-tech text-sm font-semibold text-brand-800 transition hover:bg-brand-100"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500 bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-800 tabular-nums transition hover:bg-brand-100"
                             aria-label="Quitar el rango de capacidad"
                         >
                             {btuRange[0] !== undefined ? formatBtu(btuRange[0]) : '…'} –{' '}

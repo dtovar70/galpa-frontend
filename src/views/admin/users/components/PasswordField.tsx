@@ -15,11 +15,11 @@ import {
 } from '@/views/admin/users/utils/password'
 
 const STRENGTH_BAR_CLASS: Record<PasswordStrength, string> = {
-    0: 'bg-brand-500',
-    1: 'bg-brand-400',
+    0: 'bg-danger-500',
+    1: 'bg-danger-400',
     2: 'bg-warning-400',
-    3: 'bg-brand-400',
-    4: 'bg-brand-400',
+    3: 'bg-success-400',
+    4: 'bg-success-500',
 }
 
 export interface PasswordFieldProps {
@@ -136,7 +136,7 @@ export function PasswordField({
                                         aria-hidden="true"
                                         className={cn(
                                             'size-3.5',
-                                            ok ? 'text-brand-600' : 'text-danger-500',
+                                            ok ? 'text-success-600' : 'text-danger-500',
                                         )}
                                     />
                                     {rule.label}

@@ -15,7 +15,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
     return (
         <article className="group relative flex h-full flex-col gap-5 overflow-hidden rounded-2xl border border-line bg-white p-6 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift motion-reduce:transform-none motion-reduce:transition-none">
             <div className="flex items-start justify-between gap-3">
-                <span className="grid size-14 place-items-center rounded-xl bg-ink text-brand-400 transition-colors duration-300 group-hover:bg-brand-600 group-hover:text-white">
+                <span className="grid size-14 place-items-center rounded-xl bg-brand-50 text-brand-600 transition-colors duration-300 group-hover:bg-brand-600 group-hover:text-white">
                     <CategoryIconGlyph name={category.icon} className="size-7" strokeWidth={1.75} />
                 </span>
                 <ArrowUpRight
@@ -39,7 +39,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
                 <p className="text-sm text-ink-soft">{category.description}</p>
             </div>
 
-            <p className="font-tech text-xs font-medium tracking-wide text-ink-muted uppercase">
+            <p className="text-xs font-medium tracking-wide text-ink-muted uppercase tabular-nums">
                 {count === 1 ? '1 producto' : `${count} productos`}
             </p>
         </article>

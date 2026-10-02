@@ -28,7 +28,7 @@ export function CheckboxField({ checked, onChange, children, hint, disabled }: C
                     disabled={disabled}
                     onChange={(event) => onChange(event.target.checked)}
                     aria-describedby={hint ? `${id}-hint` : undefined}
-                    className="peer size-5 cursor-pointer appearance-none rounded-md border-2 border-ink/25 bg-white transition-colors checked:border-brand-700 checked:bg-brand-700 hover:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="peer size-5 cursor-pointer appearance-none rounded-md border-2 border-ink/25 bg-white transition-colors checked:border-brand-700 checked:bg-brand-700 hover:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
                 <Check
                     aria-hidden="true"

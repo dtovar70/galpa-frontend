@@ -47,7 +47,7 @@ export function CartLineStockNotice({ issue, onAdjust, className }: CartLineStoc
                 <button
                     type="button"
                     onClick={() => onAdjust(fixTo)}
-                    className="rounded-full bg-danger-100 px-2.5 py-1 text-xs font-semibold text-danger-800 transition hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+                    className="rounded-full bg-danger-100 px-2.5 py-1 text-xs font-semibold text-danger-800 transition hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
                 >
                     Ajustar a {fixTo}
                 </button>

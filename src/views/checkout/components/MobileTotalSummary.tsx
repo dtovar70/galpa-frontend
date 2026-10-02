@@ -32,7 +32,7 @@ export function MobileTotalSummary({
         <details
             className={cn('group rounded-2xl border border-line bg-white lg:hidden', className)}
         >
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 focus-visible:outline-2 focus-visible:outline-brand-400 [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 focus-visible:outline-2 focus-visible:outline-brand-500 [&::-webkit-details-marker]:hidden">
                 <span className="min-w-0 text-sm text-ink">
                     <span className="font-semibold">Total: {formatCurrency(total)}</span>
                     {bolivares ? <span className="text-ink-soft"> · ≈ {bolivares}</span> : null}

@@ -12,10 +12,6 @@ export const SECTION_META: Record<ContentSection, SectionMeta> = {
         description:
             'Nombre de la marca, eslogan, descripción del pie de página y lo que muestran los buscadores.',
     },
-    announcements: {
-        label: 'Cinta de anuncios',
-        description: 'Los mensajes cortos que se desplazan en la franja oscura sobre el menú.',
-    },
     home: {
         label: 'Inicio',
         description:

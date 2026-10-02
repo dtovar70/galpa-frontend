@@ -6,7 +6,7 @@ import { formatPaidAmount } from '@/utils/payment'
 
 const PAYMENT_LABELS: Record<PaymentStatus, { label: string; tone: BadgeVariant }> = {
     PENDIENTE: { label: 'En revisión', tone: 'info' },
-    VERIFICADO: { label: 'Aprobado', tone: 'brand' },
+    VERIFICADO: { label: 'Aprobado', tone: 'success' },
     RECHAZADO: { label: 'Rechazado', tone: 'danger' },
 }
 
@@ -33,7 +33,7 @@ export function PaymentHistory({ payments }: { payments: OrderPayment[] }) {
                             className="space-y-1 rounded-xl border border-line bg-white px-4 py-3 text-sm"
                         >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="font-tech font-semibold break-all text-ink">
+                                <span className="font-semibold break-all text-ink tabular-nums">
                                     Ref. {payment.reference}
                                 </span>
                                 <Badge tone={status.tone} size="sm">
@@ -42,7 +42,7 @@ export function PaymentHistory({ payments }: { payments: OrderPayment[] }) {
                             </div>
                             <p className="text-ink-soft">
                                 {paymentMethodLabel(payment.method)} ·{' '}
-                                <span className="font-tech">{formatPaidAmount(payment)}</span>
+                                <span className="tabular-nums">{formatPaidAmount(payment)}</span>
                                 {payer ? ` · ${payer}` : ''} · pagado el {formatDay(payment.paidOn)}
                             </p>
                             <p className="text-xs text-ink-soft">

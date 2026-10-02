@@ -106,7 +106,7 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
                                         )}
                                         {isProduct ? 'Producto del catálogo' : 'Línea libre'}
                                     </span>
-                                    <span className="font-tech text-xs text-ink-muted">
+                                    <span className="text-xs text-ink-muted tabular-nums">
                                         #{index + 1}
                                     </span>
                                     {readOnly ? null : (
@@ -164,7 +164,7 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
                                         label="Modelo"
                                         optional
                                         error={rowErrors?.model?.message}
-                                        className="font-tech"
+                                        className="tabular-nums"
                                         {...register(`items.${index}.model`)}
                                     />
                                     <Input
@@ -185,7 +185,7 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
                                         min={0}
                                         step="0.01"
                                         error={rowErrors?.unitPrice?.message}
-                                        className="font-tech"
+                                        className="tabular-nums"
                                         {...register(`items.${index}.unitPrice`, {
                                             setValueAs: toOptionalNumber,
                                         })}
@@ -193,7 +193,7 @@ export function QuoteItemsEditor({ control, register, errors, readOnly }: QuoteI
                                 </fieldset>
                                 <p className="text-right text-sm text-ink-soft">
                                     Total de la línea:{' '}
-                                    <span className="font-tech font-bold text-ink">
+                                    <span className="font-bold text-ink tabular-nums">
                                         {formatCurrency(lineTotal(current ?? {}))}
                                     </span>
                                 </p>

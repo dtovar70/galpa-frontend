@@ -77,9 +77,9 @@ const navLinkVariants = cva(
             },
         },
         compoundVariants: [
-            { isCollapsed: false, isActive: true, class: 'bg-ink text-white' },
+            { isCollapsed: false, isActive: true, class: 'bg-brand-600 text-white shadow-glow' },
             { isCollapsed: false, isActive: false, class: 'hover:bg-mist' },
-            { isCollapsed: true, isActive: true, class: 'bg-ink text-brand-400' },
+            { isCollapsed: true, isActive: true, class: 'bg-brand-600 text-white shadow-glow' },
             { isCollapsed: true, isActive: false, class: 'hover:bg-mist' },
         ],
         defaultVariants: { isActive: false, isCollapsed: false },
@@ -189,10 +189,10 @@ function AdminBrand({ compact = false }: { compact?: boolean }) {
             aria-label={`${general.brandName} — panel de administración`}
             className="group inline-flex min-w-0 items-center gap-2.5 rounded-xl"
         >
-            <BrandMark className="size-11 transition-transform duration-500 group-hover:rotate-60 motion-reduce:transform-none" />
+            <BrandMark className="size-11" />
             {compact ? null : (
                 <span className="flex flex-col leading-none whitespace-nowrap">
-                    <span className="text-lg font-extrabold tracking-tight text-ink">
+                    <span className="text-lg font-extrabold tracking-display text-ink">
                         {appConfig.brandShortName}
                     </span>
                     <span className="text-[0.65rem] font-bold tracking-[0.22em] text-brand-700 uppercase">
@@ -314,7 +314,7 @@ function AdminNav({ user, onNavigate, isCollapsed = false }: AdminNavProps) {
                                                 <>
                                                     <span
                                                         aria-hidden="true"
-                                                        className="flex min-w-6 items-center justify-center rounded-full bg-brand-700 px-1.5 text-xs font-bold text-white tabular-nums"
+                                                        className="flex min-w-6 items-center justify-center rounded-full bg-brand-800 px-1.5 text-xs font-bold text-white tabular-nums ring-1 ring-white/60"
                                                     >
                                                         {count}
                                                     </span>
@@ -401,7 +401,7 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
     const accountLabel = `Mi cuenta: ${user.name}, ${roleLabel}, ${user.email}`
 
     /*
-     * The circle itself reacts, never a tile behind it: a green ring and a slight lift on hover,
+     * The circle itself reacts, never a tile behind it: a blue ring and a slight lift on hover,
      * and the keyboard focus ring drawn around the circle. The link that holds it is a group
      * and drops its own ring.
      */
@@ -409,9 +409,9 @@ function AdminUserBlock({ user, onNavigate, isCollapsed = false }: AdminUserBloc
         <span
             aria-hidden="true"
             className={cn(
-                'flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-1 transition duration-200 group-hover:scale-105 group-hover:ring-2 group-hover:ring-brand-300 group-focus-visible:ring-2 group-focus-visible:ring-brand-400 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-brand-50 motion-reduce:transform-none',
+                'flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-1 transition duration-200 group-hover:scale-105 group-hover:ring-2 group-hover:ring-brand-300 group-focus-visible:ring-2 group-focus-visible:ring-brand-500 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-brand-50 motion-reduce:transform-none',
                 isActive
-                    ? 'bg-ink text-brand-400 ring-ink'
+                    ? 'bg-brand-600 text-white ring-brand-600'
                     : 'bg-brand-100 text-brand-800 ring-brand-200',
             )}
         >

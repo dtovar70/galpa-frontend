@@ -35,7 +35,7 @@ export function WhatsAppNotice({ title, children, className, message }: WhatsApp
                     href={whatsappUrl(contact.whatsapp, message)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-sm font-semibold text-white transition hover:bg-ink/90 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+                    className="inline-flex h-11 items-center gap-2 rounded-full bg-[#128c7e] px-5 text-sm font-semibold text-white transition hover:bg-[#0b6f63] focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
                 >
                     <MessageCircle aria-hidden="true" className="size-4" />
                     Escríbenos por WhatsApp

@@ -41,7 +41,7 @@ export function RolePermissionsTable({ className }: { className?: string }) {
                 className,
             )}
         >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-4 text-base font-bold text-ink transition hover:bg-brand-50/60 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-4 text-base font-bold text-ink transition hover:bg-brand-50/60 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-3">
                     <ShieldCheck aria-hidden="true" className="size-5 shrink-0 text-brand-600" />
                     ¿Qué puede hacer cada rol?

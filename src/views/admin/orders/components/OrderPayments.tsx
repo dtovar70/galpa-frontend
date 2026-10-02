@@ -13,7 +13,7 @@ import { PaymentFlagBadges } from '@/views/admin/orders/components/PaymentFlagBa
 
 const STATUS: Record<PaymentStatus, { label: string; tone: BadgeVariant }> = {
     PENDIENTE: { label: 'Por verificar', tone: 'info' },
-    VERIFICADO: { label: 'Aprobado', tone: 'brand' },
+    VERIFICADO: { label: 'Aprobado', tone: 'success' },
     RECHAZADO: { label: 'Rechazado', tone: 'danger' },
 }
 
@@ -92,7 +92,7 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
                                 <div className="min-w-0 flex-1 space-y-2 text-sm">
                                     <div className="flex flex-wrap items-center gap-2">
                                         <span className="flex min-w-0 items-center gap-1 font-semibold text-ink">
-                                            <span className="font-tech break-all">
+                                            <span className="break-all tabular-nums">
                                                 Ref. {payment.reference}
                                             </span>
                                             <CopyButton
@@ -120,7 +120,7 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
                                             <dt className="text-ink-soft">Pagó:</dt>
                                             <dd
                                                 className={cn(
-                                                    'font-tech font-semibold',
+                                                    'font-semibold tabular-nums',
                                                     amountOff ? 'text-warning-800' : 'text-ink',
                                                 )}
                                             >
@@ -129,7 +129,7 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
                                         </div>
                                         <div className="flex flex-wrap gap-1">
                                             <dt className="text-ink-soft">Esperado:</dt>
-                                            <dd className="font-tech font-semibold text-ink">
+                                            <dd className="font-semibold text-ink tabular-nums">
                                                 {expectedAmount(payment)}
                                                 {amountOff
                                                     ? ` (${formatPaymentDifference(payment.currency, payment.amountDifference)})`

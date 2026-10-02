@@ -12,7 +12,7 @@ export function RoleBadge({ role }: { role: UserRole }) {
 
 export function StatusBadge({ isActive }: { isActive: boolean }) {
     return (
-        <Badge size="sm" tone={isActive ? 'brand' : 'neutral'}>
+        <Badge size="sm" tone={isActive ? 'success' : 'neutral'}>
             {isActive ? 'Activo' : 'Inactivo'}
         </Badge>
     )

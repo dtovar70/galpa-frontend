@@ -45,9 +45,11 @@ function isQuoteStatus(value: string | null): value is QuoteStatus {
 function QuoteTotal({ quote, align }: { quote: Quote; align?: 'right' }) {
     return (
         <div className={align === 'right' ? 'text-right' : undefined}>
-            <p className="font-tech font-semibold text-ink">{formatCurrency(quote.total)}</p>
+            <p className="font-semibold text-ink tabular-nums">{formatCurrency(quote.total)}</p>
             {quote.totalBs !== null ? (
-                <p className="font-tech text-xs text-ink-soft">{formatBolivares(quote.totalBs)}</p>
+                <p className="text-xs text-ink-soft tabular-nums">
+                    {formatBolivares(quote.totalBs)}
+                </p>
             ) : null}
         </div>
     )
@@ -248,7 +250,7 @@ export function AdminQuotesView() {
                                             <td className={cellClass}>
                                                 <Link
                                                     to={adminQuotePath(quote.code)}
-                                                    className="font-tech text-base font-bold text-ink hover:text-brand-700"
+                                                    className="text-base font-bold text-ink tabular-nums hover:text-brand-700"
                                                 >
                                                     {quote.code}
                                                 </Link>
@@ -301,7 +303,7 @@ export function AdminQuotesView() {
                                         <div className="min-w-0 space-y-1">
                                             <Link
                                                 to={adminQuotePath(quote.code)}
-                                                className="font-tech text-lg font-bold text-ink"
+                                                className="text-lg font-bold text-ink tabular-nums"
                                             >
                                                 {quote.code}
                                             </Link>

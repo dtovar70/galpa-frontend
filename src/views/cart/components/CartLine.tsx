@@ -36,7 +36,7 @@ export function CartLine({ item, stock }: CartLineProps) {
                 <p className="text-xs font-bold tracking-[0.12em] text-brand-700 uppercase">
                     {item.brand}
                     {item.model ? (
-                        <span className="font-tech font-medium tracking-normal text-ink-muted normal-case">
+                        <span className="font-medium tracking-normal text-ink-muted normal-case tabular-nums">
                             {' '}
                             · {item.model}
                         </span>
@@ -50,7 +50,7 @@ export function CartLine({ item, stock }: CartLineProps) {
                 {item.variantLabel ? (
                     <p className="text-sm text-ink-soft">{item.variantLabel}</p>
                 ) : null}
-                <p className="font-tech text-sm text-ink-soft">
+                <p className="text-sm text-ink-soft tabular-nums">
                     {formatCurrency(item.unitPrice)} c/u
                 </p>
                 {item.stockMode === 'ON_ORDER' ? (
@@ -73,7 +73,7 @@ export function CartLine({ item, stock }: CartLineProps) {
                     onChange={(quantity) => updateQuantity(item.lineId, quantity, max)}
                 />
 
-                <p className="w-28 text-right font-tech text-lg font-bold text-ink">
+                <p className="w-28 text-right text-lg font-bold text-ink tabular-nums">
                     {formatCurrency(item.unitPrice * item.quantity)}
                 </p>
 

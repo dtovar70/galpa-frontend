@@ -9,7 +9,7 @@ import { CategoryForm } from '@/views/admin/categories/components/CategoryForm'
 
 /** `aria-disabled` instead of `disabled` keeps keyboard focus on the button while saving. */
 const actionClass =
-    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
+    'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
 function plural(count: number, singular: string, pluralForm: string): string {
     return `${count} ${count === 1 ? singular : pluralForm}`
@@ -137,7 +137,7 @@ export function CategoryRow({
                     </span>
                     <span
                         aria-hidden="true"
-                        className="grid size-8 shrink-0 place-items-center rounded-lg bg-ink text-brand-400"
+                        className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"
                     >
                         <CategoryIconGlyph name={category.icon} className="size-4" />
                     </span>

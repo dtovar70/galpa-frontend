@@ -45,7 +45,7 @@ export function CatalogView() {
                     <p className="text-sm font-bold tracking-[0.2em] text-brand-700 uppercase">
                         Catálogo
                     </p>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                    <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                         Categoría no encontrada
                     </h1>
                 </header>
@@ -65,7 +65,7 @@ export function CatalogView() {
                 <p className="text-sm font-bold tracking-[0.2em] text-brand-700 uppercase">
                     Catálogo
                 </p>
-                <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                <h1 className="text-3xl font-extrabold tracking-display text-ink sm:text-4xl">
                     {activeCategory?.name ?? 'Equipos, repuestos y accesorios'}
                 </h1>
                 <p className="max-w-2xl text-ink-soft">

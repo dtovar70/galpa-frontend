@@ -26,7 +26,7 @@ const TWO_MONTHS_QUERY = '(min-width: 50rem)'
 
 /*
  * The range reads as one pill: the cells carry the pale band (rounded at both ends) and the
- * day buttons sit on top of it, solid green at the ends. While a second day is only being
+ * day buttons sit on top of it, solid blue at the ends. While a second day is only being
  * hovered, `.is-previewing` on the root pales the band and the hovered end turns dashed.
  */
 const RANGE_CALENDAR_CLASSES: Partial<ClassNames> = {
@@ -39,7 +39,7 @@ const RANGE_CALENDAR_CLASSES: Partial<ClassNames> = {
 
 /** The day under the pointer while only the start is picked: a dashed, not-yet-chosen end. */
 const PREVIEW_END_CLASS =
-    '[&>button]:bg-white! [&>button]:text-brand-700! [&>button]:outline-2 [&>button]:-outline-offset-2 [&>button]:outline-brand-400 [&>button]:outline-dashed'
+    '[&>button]:bg-white! [&>button]:text-brand-700! [&>button]:outline-2 [&>button]:-outline-offset-2 [&>button]:outline-brand-500 [&>button]:outline-dashed'
 
 function firstVisibleMonth(anchor: Date, twoMonths: boolean): Date {
     return twoMonths ? subMonths(startOfMonth(anchor), 1) : startOfMonth(anchor)

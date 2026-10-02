@@ -38,7 +38,7 @@ export const categoryFormSchema = z.object({
         .string()
         .trim()
         .max(MAX_TEXT, MAX_TEXT_MESSAGE)
-        .regex(HEX_COLOR_PATTERN, 'Usa un color hexadecimal, por ejemplo #10B981'),
+        .regex(HEX_COLOR_PATTERN, 'Usa un color hexadecimal, por ejemplo #0B6FB8'),
     /** Lucide icon name, or "" for the default one. */
     icon: z.union([z.enum(CATEGORY_ICON_NAMES), z.literal('')]),
 })
@@ -50,6 +50,6 @@ export const EMPTY_CATEGORY_FORM: CategoryFormValues = {
     slug: '',
     tagline: '',
     description: '',
-    colorHex: '#10B981',
+    colorHex: '#0B6FB8',
     icon: 'air-vent',
 }

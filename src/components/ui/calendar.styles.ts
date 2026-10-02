@@ -6,11 +6,11 @@ import type { ClassNames } from 'react-day-picker'
  */
 
 const NAV_BUTTON_CLASS =
-    'flex size-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-30 aria-disabled:pointer-events-none aria-disabled:opacity-30'
+    'flex size-8 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-30 aria-disabled:pointer-events-none aria-disabled:opacity-30'
 
 /**
  * Month grid, navigation, today dot and disabled days; modes add their own selection look.
- * Today is tinted only while unselected, so a picked today stays white on green. Days are
+ * Today is tinted only while unselected, so a picked today stays white on blue. Days are
  * 36px, so two months plus the range presets fit a 600px-tall window.
  */
 export const CALENDAR_CLASSES: Partial<ClassNames> = {
@@ -29,7 +29,7 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
     week: '',
     day: 'p-0 text-center text-sm',
     day_button:
-        'relative mx-auto flex size-9 items-center justify-center rounded-full font-semibold text-ink transition-colors hover:bg-brand-100 hover:text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1 focus-visible:outline-none',
+        'relative mx-auto flex size-9 items-center justify-center rounded-full font-semibold text-ink transition-colors hover:bg-brand-100 hover:text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:outline-none',
     today: '[&:not([data-selected])>button]:text-brand-700 [&>button]:after:absolute [&>button]:after:bottom-0.5 [&>button]:after:left-1/2 [&>button]:after:size-1 [&>button]:after:-translate-x-1/2 [&>button]:after:rounded-full [&>button]:after:bg-current',
     selected: '',
     disabled:
@@ -39,6 +39,6 @@ export const CALENDAR_CLASSES: Partial<ClassNames> = {
     focused: '',
 }
 
-/** A picked day on its own: the solid green dot (also the ends of a range). */
+/** A picked day on its own: the solid blue dot (also the ends of a range). */
 export const CALENDAR_SELECTED_DAY_CLASS =
     '[&>button]:bg-brand-700 [&>button]:text-white [&>button]:hover:bg-brand-800 [&>button]:hover:text-white'

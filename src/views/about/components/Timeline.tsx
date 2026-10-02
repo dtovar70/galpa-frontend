@@ -58,7 +58,7 @@ export function Timeline() {
                                 : 'absolute top-0 left-0 grid size-6 place-items-center rounded-full border-2 border-brand-500 bg-white'
                         }
                     />
-                    <p className="font-tech text-sm font-bold text-brand-700">{item.period}</p>
+                    <p className="text-sm font-bold text-brand-700 tabular-nums">{item.period}</p>
                     <h3 className="mt-1 text-base text-ink">{item.title}</h3>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
                         {item.description}

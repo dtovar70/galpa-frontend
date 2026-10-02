@@ -355,7 +355,7 @@ export function AnimatedEyeToggle({ visible, onToggle, className }: AnimatedEyeT
             aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             aria-pressed={visible}
             className={cn(
-                'flex size-8 items-center justify-center rounded-full text-ink transition-colors outline-none hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-400',
+                'flex size-8 items-center justify-center rounded-full text-ink transition-colors outline-none hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500',
                 className,
             )}
         >

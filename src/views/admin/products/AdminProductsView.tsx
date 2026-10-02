@@ -55,7 +55,7 @@ function AvailabilityCell({ product }: { product: AdminProduct }) {
         <span className="inline-flex flex-col items-center gap-1" title={stockBreakdown(product)}>
             <AvailabilityBadge product={product} />
             {product.stockMode === 'STOCK' ? (
-                <span className="font-tech text-xs text-ink-soft tabular-nums">
+                <span className="text-xs text-ink-soft tabular-nums">
                     {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                 </span>
             ) : product.leadTimeDays ? (
@@ -344,7 +344,7 @@ export function AdminProductsView() {
                                                             {product.name}
                                                         </Link>
                                                         <p
-                                                            className="truncate font-tech text-xs text-ink-soft"
+                                                            className="truncate text-xs text-ink-soft tabular-nums"
                                                             title={`/${product.slug}`}
                                                         >
                                                             {product.sku ?? `/${product.slug}`}

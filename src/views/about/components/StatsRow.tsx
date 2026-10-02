@@ -27,7 +27,7 @@ export function StatsRow({ stats }: StatsRowProps) {
                 <div key={index} className="space-y-1 text-center">
                     <dt className="sr-only">{stat.label}</dt>
                     <dd>
-                        <span className="block font-tech text-4xl font-bold text-brand-600">
+                        <span className="block text-4xl font-bold text-brand-600 tabular-nums">
                             {stat.value}
                         </span>
                         <span className="text-sm text-ink-soft">{stat.label}</span>

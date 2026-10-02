@@ -71,7 +71,7 @@ export function ShippingSection(props: SectionFormProps<'shipping'>) {
                     rows={2}
                     hint="Página de producto y preguntas frecuentes ({despacho}): cuándo salen los pedidos pagados."
                     error={errors.dispatchCopy?.message}
-                    maxLength={CONTENT_LIMITS.announcement}
+                    maxLength={CONTENT_LIMITS.shippingCopy}
                     {...register('dispatchCopy')}
                 />
             </FieldGroup>
