@@ -3,62 +3,59 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowDown, ArrowUp, Lock, Pencil, Save, Trash2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
-import type { AdminBank } from '@/@types/catalog'
+import type { AdminContactOption, ContactOptionKind } from '@/@types/catalog'
 import { Alert, Badge, Button, Input, Switch, Tooltip } from '@/components/ui'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { cn } from '@/utils/cn'
-import { bankFormSchema, type BankFormValues } from '@/views/admin/catalogs/schema/catalog.schema'
-import { useUpdateBank } from '@/views/admin/hooks/useAdminCatalogs'
+import {
+    contactOptionFormSchema,
+    type ContactOptionFormValues,
+} from '@/views/admin/catalogs/schema/catalog.schema'
+import { useUpdateContactOption } from '@/views/admin/hooks/useAdminCatalogs'
 
 /** `aria-disabled` instead of `disabled` keeps keyboard focus on the button while saving. */
 const actionClass =
     'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
-function plural(count: number, singular: string, pluralForm: string): string {
-    return `${count} ${count === 1 ? singular : pluralForm}`
-}
-
-/** "3 pagos · Datos de pago de la tienda", or null when nothing uses the bank. */
-function bankUsage(bank: AdminBank): string | null {
-    const parts = [
-        bank.paymentCount > 0 ? plural(bank.paymentCount, 'pago', 'pagos') : '',
-        bank.usedByPaymentContent ? 'Datos de pago de la tienda' : '',
-    ].filter(Boolean)
-    return parts.length ? parts.join(' · ') : null
-}
-
-export interface BankRowProps {
-    bank: AdminBank
+export interface ContactOptionRowProps {
+    kind: ContactOptionKind
+    option: AdminContactOption
     index: number
     total: number
     /** While a new order is being saved, moves are ignored. */
     isBusy: boolean
+    /** Why it cannot be turned off or deleted (the last active topic), or null. */
+    lockedReason: string | null
     onMove: (index: number, offset: -1 | 1) => void
-    onDelete: (bank: AdminBank) => void
+    onDelete: (option: AdminContactOption) => void
 }
 
-/**
- * One bank: position, code, name, whether it is offered in the selects, and what uses it.
- * A bank in use cannot be deleted, only deactivated.
- */
-export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRowProps) {
+/** One option of the contact form: position, name, whether it is offered, rename and delete. */
+export function ContactOptionRow({
+    kind,
+    option,
+    index,
+    total,
+    isBusy,
+    lockedReason,
+    onMove,
+    onDelete,
+}: ContactOptionRowProps) {
     const panelId = useId()
-    const deleteHintId = useId()
-    const update = useUpdateBank()
+    const lockedHintId = useId()
+    const update = useUpdateContactOption(kind)
     const [isExpanded, setIsExpanded] = useState(false)
     const [hasOpened, setHasOpened] = useState(false)
-    const usage = bankUsage(bank)
-    const canDelete = usage === null
     const isFirst = index === 0
     const isLast = index === total - 1
+    const isLocked = lockedReason !== null
 
     return (
         <li
-            data-bank-code={bank.code}
             className={cn(
                 'rounded-2xl border border-line bg-white shadow-soft',
-                !bank.isActive && 'bg-page/60',
+                !option.isActive && 'bg-page/60',
             )}
         >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 sm:p-4">
@@ -69,34 +66,31 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
                     </span>
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className="font-mono text-sm text-ink-soft">{bank.code}</span>
-                            <h3
+                            <h4
                                 className={cn(
-                                    'min-w-0 text-lg font-bold break-words',
-                                    bank.isActive ? 'text-ink' : 'text-ink-soft',
+                                    'min-w-0 font-bold break-words',
+                                    option.isActive ? 'text-ink' : 'text-ink-soft',
                                 )}
                             >
-                                {bank.name}
-                            </h3>
-                            {bank.isActive ? null : (
+                                {option.label}
+                            </h4>
+                            {option.isActive ? null : (
                                 <Badge tone="neutral" size="sm">
-                                    Inactivo
+                                    Inactiva
                                 </Badge>
                             )}
                         </div>
-                        <p className="text-xs text-ink-soft">
-                            {usage ?? 'Ningún pago lo usa todavía'}
-                        </p>
+                        <p className="font-mono text-xs break-all text-ink-soft">{option.code}</p>
                     </div>
                 </div>
 
                 <div className="ml-auto flex shrink-0 items-center gap-1">
                     <Switch
-                        label={`Mostrar ${bank.name} en las listas de bancos`}
-                        checked={bank.isActive}
-                        disabled={update.isPending}
+                        label={`Mostrar «${option.label}» en el formulario`}
+                        checked={option.isActive}
+                        disabled={update.isPending || (option.isActive && isLocked)}
                         onChange={(isActive) =>
-                            update.mutate({ code: bank.code, input: { isActive } })
+                            update.mutate({ code: option.code, input: { isActive } })
                         }
                     />
                     <Tooltip label="Subir" placement="top">
@@ -106,7 +100,7 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
                                 if (!isBusy && !isFirst) onMove(index, -1)
                             }}
                             aria-disabled={isBusy || isFirst}
-                            aria-label={`Subir ${bank.name}`}
+                            aria-label={`Subir ${option.label}`}
                             className={actionClass}
                         >
                             <ArrowUp aria-hidden="true" className="size-4" />
@@ -119,7 +113,7 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
                                 if (!isBusy && !isLast) onMove(index, 1)
                             }}
                             aria-disabled={isBusy || isLast}
-                            aria-label={`Bajar ${bank.name}`}
+                            aria-label={`Bajar ${option.label}`}
                             className={actionClass}
                         >
                             <ArrowDown aria-hidden="true" className="size-4" />
@@ -134,36 +128,35 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
                             }}
                             aria-expanded={isExpanded}
                             aria-controls={panelId}
-                            aria-label={`Renombrar ${bank.name}`}
+                            aria-label={`Renombrar ${option.label}`}
                             className={cn(actionClass, isExpanded && 'bg-brand-100 text-brand-700')}
                         >
                             <Pencil aria-hidden="true" className="size-4" />
                         </button>
                     </Tooltip>
                     <Tooltip
-                        label={canDelete ? 'Eliminar' : 'En uso: desactívalo'}
+                        label={isLocked ? 'Debe quedar una activa' : 'Eliminar'}
                         placement="top"
                         align="end"
                     >
                         <button
                             type="button"
                             onClick={() => {
-                                if (canDelete) onDelete(bank)
+                                if (!isLocked) onDelete(option)
                             }}
-                            aria-disabled={!canDelete}
-                            aria-describedby={canDelete ? undefined : deleteHintId}
-                            aria-label={`Eliminar ${bank.name}`}
+                            aria-disabled={isLocked}
+                            aria-describedby={isLocked ? lockedHintId : undefined}
+                            aria-label={`Eliminar ${option.label}`}
                             className={actionClass}
                         >
                             <Trash2 aria-hidden="true" className="size-4" />
                         </button>
                     </Tooltip>
-                    {canDelete ? null : (
-                        <span id={deleteHintId} className="sr-only">
-                            No se puede eliminar porque está en uso ({usage}). Desactívalo para
-                            ocultarlo.
+                    {isLocked ? (
+                        <span id={lockedHintId} className="sr-only">
+                            {lockedReason}
                         </span>
-                    )}
+                    ) : null}
                 </div>
             </div>
 
@@ -175,15 +168,21 @@ export function BankRow({ bank, index, total, isBusy, onMove, onDelete }: BankRo
 
             {hasOpened ? (
                 <div id={panelId} hidden={!isExpanded} className="border-t border-line p-4 sm:p-6">
-                    <BankNameForm bank={bank} />
+                    <ContactOptionNameForm kind={kind} option={option} />
                 </div>
             ) : null}
         </li>
     )
 }
 
-function BankNameForm({ bank }: { bank: AdminBank }) {
-    const update = useUpdateBank()
+function ContactOptionNameForm({
+    kind,
+    option,
+}: {
+    kind: ContactOptionKind
+    option: AdminContactOption
+}) {
+    const update = useUpdateContactOption(kind)
     const [isSaved, setIsSaved] = useState(false)
     const {
         register,
@@ -191,25 +190,25 @@ function BankNameForm({ bank }: { bank: AdminBank }) {
         reset,
         setError,
         formState: { errors, isDirty },
-    } = useForm<BankFormValues>({
-        resolver: zodResolver(bankFormSchema),
-        defaultValues: { code: bank.code, name: bank.name },
+    } = useForm<ContactOptionFormValues>({
+        resolver: zodResolver(contactOptionFormSchema),
+        defaultValues: { label: option.label },
     })
 
     const submit = handleSubmit((values) => {
         setIsSaved(false)
         update.mutate(
-            { code: bank.code, input: { name: values.name } },
+            { code: option.code, input: { label: values.label } },
             {
                 onSuccess: (saved) => {
-                    reset({ code: saved.code, name: saved.name })
+                    reset({ label: saved.label })
                     setIsSaved(true)
                 },
                 onError: (error) => {
                     const message = isApiError(error)
-                        ? error.details.find((detail) => detail.field === 'name')?.errors[0]
+                        ? error.details.find((detail) => detail.field === 'label')?.errors[0]
                         : undefined
-                    if (message) setError('name', { type: 'server', message })
+                    if (message) setError('label', { type: 'server', message })
                 },
             },
         )
@@ -217,21 +216,21 @@ function BankNameForm({ bank }: { bank: AdminBank }) {
 
     return (
         <form onSubmit={submit} noValidate className="space-y-4">
-            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-[8rem_minmax(0,1fr)]">
-                <div className="space-y-1.5">
+            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
+                <div className="min-w-0 space-y-1.5">
                     <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                         <Lock aria-hidden="true" className="size-3.5" />
                         Código
                     </p>
-                    <p className="flex h-11 items-center rounded-full border-2 border-dashed border-line px-4 font-mono text-sm text-ink-soft">
-                        {bank.code}
+                    <p className="flex h-11 items-center overflow-hidden rounded-full border-2 border-dashed border-line px-4 font-mono text-sm text-ellipsis whitespace-nowrap text-ink-soft">
+                        {option.code}
                     </p>
                 </div>
-                <Input label="Nombre" error={errors.name?.message} {...register('name')} />
+                <Input label="Nombre" error={errors.label?.message} {...register('label')} />
             </div>
             <p className="text-xs text-ink-soft">
-                El código identifica al banco en los pagos y no se puede cambiar. Los pagos ya
-                registrados conservan el nombre que tenía el banco ese día.
+                El código se generó con el primer nombre y no cambia; el nuevo nombre se verá en el
+                formulario y en los avisos que recibes.
             </p>
 
             {update.isError ? <Alert>{getErrorMessage(update.error)}</Alert> : null}
@@ -241,7 +240,7 @@ function BankNameForm({ bank }: { bank: AdminBank }) {
                     autoDismissMs={NOTICE_DISMISS_MS}
                     onDismiss={() => setIsSaved(false)}
                 >
-                    Banco actualizado.
+                    Opción actualizada.
                 </Alert>
             ) : null}
 

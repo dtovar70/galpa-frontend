@@ -90,9 +90,11 @@ export function QuoteProductPicker({ onPick, disabled = false }: QuoteProductPic
                                                 .join(' · ')}
                                         </span>
                                     </span>
-                                    <AvailabilityBadge product={product} />
-                                    <span className="text-sm font-semibold text-ink tabular-nums">
-                                        {formatCurrency(product.price)}
+                                    <span className="flex shrink-0 flex-col items-end gap-1">
+                                        <span className="text-sm font-semibold text-ink tabular-nums">
+                                            {formatCurrency(product.price)}
+                                        </span>
+                                        <AvailabilityBadge product={product} />
                                     </span>
                                     {hasVariants ? (
                                         <ChevronRight

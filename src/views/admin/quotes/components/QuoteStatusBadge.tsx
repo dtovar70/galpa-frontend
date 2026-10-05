@@ -1,17 +1,28 @@
-import type { QuoteStatus } from '@/@types/quote'
+import type { Quote } from '@/@types/quote'
 import { Badge } from '@/components/ui'
-import { QUOTE_STATUS_LABELS, QUOTE_STATUS_TONES } from '@/constants/quote.constant'
+import { STATUS_TONE_VARIANTS } from '@/constants/tone.constant'
+import { useQuoteStatuses } from '@/views/admin/hooks/useAdminCatalogs'
 
 export interface QuoteStatusBadgeProps {
-    status: QuoteStatus
+    quote: Pick<Quote, 'status' | 'statusLabel'>
     size?: 'sm' | 'md'
     className?: string
 }
 
-export function QuoteStatusBadge({ status, size = 'sm', className }: QuoteStatusBadgeProps) {
+/**
+ * The quote's status as a badge, named and colored by the status catalog. Until the catalog
+ * loads (or when it fails) it shows the label the API sent with the quote, in neutral.
+ */
+export function QuoteStatusBadge({ quote, size = 'sm', className }: QuoteStatusBadgeProps) {
+    const catalog = useQuoteStatuses()
+    const info = catalog.status(quote.status)
     return (
-        <Badge tone={QUOTE_STATUS_TONES[status]} size={size} className={className}>
-            {QUOTE_STATUS_LABELS[status]}
+        <Badge
+            tone={info ? STATUS_TONE_VARIANTS[info.tone] : 'neutral'}
+            size={size}
+            className={className}
+        >
+            {info?.label ?? quote.statusLabel}
         </Badge>
     )
 }

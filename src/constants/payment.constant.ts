@@ -1,56 +1,57 @@
-import { Bitcoin, Building2, DollarSign, Smartphone, type LucideIcon } from 'lucide-react'
+import {
+    Banknote,
+    Bitcoin,
+    Building2,
+    CreditCard,
+    DollarSign,
+    Landmark,
+    Smartphone,
+    Wallet,
+    type LucideIcon,
+} from 'lucide-react'
 
-import type { PaymentCurrency, PaymentMethod } from '@/@types/order'
+import type { PaymentMethod } from '@/@types/order'
 
-export interface PaymentMethodInfo {
-    label: string
-    /** One line under the label on the checkout cards. */
-    description: string
-    currency: PaymentCurrency
+/**
+ * Icons a payment method can use (the admin picks one by name in Catálogos). The names are the
+ * ones the API accepts and stores in `payment_methods.icon`; the names, help texts and order of
+ * the methods themselves come from `GET /catalogs/payment-methods` (`usePaymentMethods`).
+ */
+export const PAYMENT_METHOD_ICONS = {
+    smartphone: { icon: Smartphone, label: 'Celular' },
+    building: { icon: Building2, label: 'Edificio' },
+    landmark: { icon: Landmark, label: 'Banco' },
+    'dollar-sign': { icon: DollarSign, label: 'Dólar' },
+    bitcoin: { icon: Bitcoin, label: 'Cripto' },
+    wallet: { icon: Wallet, label: 'Billetera' },
+    'credit-card': { icon: CreditCard, label: 'Tarjeta' },
+    banknote: { icon: Banknote, label: 'Billete' },
+} as const satisfies Record<string, { icon: LucideIcon; label: string }>
+
+export type PaymentMethodIconName = keyof typeof PAYMENT_METHOD_ICONS
+
+export const PAYMENT_METHOD_ICON_NAMES = Object.keys(
+    PAYMENT_METHOD_ICONS,
+) as PaymentMethodIconName[]
+
+export function isPaymentMethodIconName(
+    value: string | null | undefined,
+): value is PaymentMethodIconName {
+    return typeof value === 'string' && Object.hasOwn(PAYMENT_METHOD_ICONS, value)
 }
 
-export const PAYMENT_METHOD_INFO: Record<PaymentMethod, PaymentMethodInfo> = {
-    PAGO_MOVIL: {
-        label: 'Pago Móvil',
-        description: 'En bolívares, a la tasa BCV del día.',
-        currency: 'VES',
-    },
-    TRANSFERENCIA: {
-        label: 'Transferencia bancaria',
-        description: 'En bolívares, a la tasa BCV del día.',
-        currency: 'VES',
-    },
-    ZELLE: {
-        label: 'Zelle',
-        description: 'En dólares, desde tu cuenta en EE. UU.',
-        currency: 'USD',
-    },
-    BINANCE: {
-        label: 'Binance Pay',
-        description: 'En dólares (USDT) con Binance Pay.',
-        currency: 'USD',
-    },
+/** The icon component of a stored icon name; unknown or missing names fall back to a wallet. */
+export function paymentMethodIcon(icon: string | null | undefined): LucideIcon {
+    return isPaymentMethodIconName(icon) ? PAYMENT_METHOD_ICONS[icon].icon : Wallet
 }
 
-export const PAYMENT_METHOD_ICONS: Record<PaymentMethod, LucideIcon> = {
-    PAGO_MOVIL: Smartphone,
-    TRANSFERENCIA: Building2,
-    ZELLE: DollarSign,
-    BINANCE: Bitcoin,
-}
-
-/** Order the methods are offered in. */
-export const PAYMENT_METHOD_ORDER: readonly PaymentMethod[] = [
-    'PAGO_MOVIL',
-    'TRANSFERENCIA',
-    'ZELLE',
-    'BINANCE',
-]
-
-export function paymentMethodLabel(method: PaymentMethod): string {
-    return PAYMENT_METHOD_INFO[method].label
-}
+/**
+ * Methods whose payment proof carries bolívar amounts, the payer's bank and ID (the other ones
+ * carry dollars and an account). Mirrors the API's payment validation, like the per-method form
+ * fields; what people read about each method comes from the catalog.
+ */
+const BOLIVAR_METHODS: ReadonlySet<PaymentMethod> = new Set(['PAGO_MOVIL', 'TRANSFERENCIA'])
 
 export function isBolivarMethod(method: PaymentMethod): boolean {
-    return PAYMENT_METHOD_INFO[method].currency === 'VES'
+    return BOLIVAR_METHODS.has(method)
 }

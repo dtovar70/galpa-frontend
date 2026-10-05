@@ -3,8 +3,8 @@ import { ArrowLeftRight } from 'lucide-react'
 
 import type { PaymentMethod, PublicOrder } from '@/@types/order'
 import { Alert, Button, Select, type SelectOption } from '@/components/ui'
-import { paymentMethodLabel } from '@/constants/payment.constant'
 import { getErrorMessage } from '@/services/errors'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { formatOrderAmount } from '@/utils/payment'
 
 export interface PaymentMethodSwitcherProps {
@@ -16,7 +16,8 @@ export interface PaymentMethodSwitcherProps {
 
 /** "¿Prefieres pagar de otra forma?": switches the order's method before paying. */
 export function PaymentMethodSwitcher({ order, methods, onChange }: PaymentMethodSwitcherProps) {
-    const others = methods.filter((method) => method !== order.paymentMethod)
+    const catalog = usePaymentMethods()
+    const others = catalog.sort(methods.filter((method) => method !== order.paymentMethod))
     const [isOpen, setIsOpen] = useState(false)
     const [choice, setChoice] = useState<PaymentMethod | ''>('')
     const [isSaving, setIsSaving] = useState(false)
@@ -26,7 +27,7 @@ export function PaymentMethodSwitcher({ order, methods, onChange }: PaymentMetho
 
     const options: SelectOption[] = others.map((method) => ({
         value: method,
-        label: `${paymentMethodLabel(method)} · ${formatOrderAmount(method, order.totals)}`,
+        label: `${catalog.label(method)} · ${formatOrderAmount(method, order.totals)}`,
     }))
 
     const save = async () => {

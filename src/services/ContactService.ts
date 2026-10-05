@@ -1,13 +1,14 @@
 import { apiClient } from '@/services/ApiClient'
-import type { ContactTopic, SpaceType } from '@/views/contact/schema/contact.schema'
 
 export interface ContactMessageInput {
     name: string
     email: string
     /** "0424-1234567"; left out when empty. */
     phone?: string
-    topic: ContactTopic
-    spaceType?: SpaceType
+    /** Code of an active topic (`GET /catalogs/contact-options`). */
+    topic: string
+    /** Code of an active space type; left out when not chosen. */
+    spaceType?: string
     /** Square meters of the space (1–5000). */
     areaM2?: number
     /** The product the customer asks about (from "Solicitar asesoría" on its page). */

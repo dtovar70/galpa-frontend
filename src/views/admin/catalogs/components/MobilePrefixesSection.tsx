@@ -103,7 +103,7 @@ function NewMobilePrefixForm({
 
 /**
  * "Códigos de celular": the operator codes (0412, 0414…) offered by every mobile phone field
- * (Contenido → Pago Móvil and WhatsApp, the checkout, the payment forms). An inactive code
+ * (Contenido → payment phone and WhatsApp, the checkout, the payment forms). An inactive code
  * disappears from those selects and is refused for new saves; stored numbers keep showing.
  */
 export function MobilePrefixesSection() {
@@ -141,9 +141,10 @@ export function MobilePrefixesSection() {
         <div className="space-y-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <p className="text-sm text-ink-soft">
-                    Los códigos activos aparecen, en este orden, al escribir un celular: WhatsApp y
-                    Pago Móvil de la tienda, el teléfono del cliente y el del pagador. Desactiva un
-                    código para dejar de aceptarlo; los números ya guardados se siguen mostrando.
+                    Los códigos activos aparecen, en este orden, al escribir un celular: el WhatsApp
+                    y el teléfono de pago de la tienda, el teléfono del cliente y el del pagador.
+                    Desactiva un código para dejar de aceptarlo; los números ya guardados se siguen
+                    mostrando.
                 </p>
                 {isCreating ? null : (
                     <Button

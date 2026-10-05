@@ -12,11 +12,11 @@ const actionClass =
     'flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-brand-100 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-ink-soft'
 
 const CONTENT_FIELD_LABELS: Record<ContentPhoneField, string> = {
-    'payment.phone': 'Pago Móvil de la tienda',
+    'payment.phone': 'Teléfono de pago de la tienda',
     'contact.whatsapp': 'WhatsApp de contacto',
 }
 
-/** "2 pedidos en curso · Pago Móvil de la tienda", or null when nothing uses the code. */
+/** "2 pedidos en curso · Teléfono de pago de la tienda", or null when nothing uses the code. */
 function mobilePrefixUsage(prefix: AdminMobilePrefix): string | null {
     const count = prefix.activeOrderCount
     const parts = [

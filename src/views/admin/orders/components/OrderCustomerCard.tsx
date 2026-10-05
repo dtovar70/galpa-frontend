@@ -3,7 +3,6 @@ import { Mail, MessageCircle, Phone } from 'lucide-react'
 import type { AdminOrder } from '@/@types/order'
 import { Card } from '@/components/ui'
 import { DELIVERY_METHOD_LABELS } from '@/constants/order.constant'
-import { paymentMethodLabel } from '@/constants/payment.constant'
 import { phoneHref, whatsappUrl } from '@/utils/content'
 
 const linkClass =
@@ -54,9 +53,7 @@ export function OrderCustomerCard({ order }: { order: AdminOrder }) {
                 </div>
                 <div>
                     <dt className="text-xs text-ink-soft">Método de pago</dt>
-                    <dd className="font-semibold text-ink">
-                        {paymentMethodLabel(order.paymentMethod)}
-                    </dd>
+                    <dd className="font-semibold text-ink">{order.paymentMethodLabel}</dd>
                 </div>
                 {order.wantsInstallation ? (
                     <div className="rounded-lg bg-brand-50 px-3 py-2">

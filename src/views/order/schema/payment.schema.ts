@@ -15,7 +15,7 @@ function parseAmount(value: string): number {
 }
 
 export interface ReferenceRule {
-    /** Digits only (bank references) or letters and digits (Zelle, Binance). */
+    /** Digits only (bank references) or letters and digits (dollar methods). */
     digitsOnly: boolean
     min: number
     max: number
@@ -28,7 +28,7 @@ export const REFERENCE_RULES: Record<PaymentMethod, ReferenceRule> = {
         digitsOnly: true,
         min: 4,
         max: 12,
-        message: 'La referencia del Pago Móvil tiene de 4 a 12 dígitos.',
+        message: 'La referencia tiene de 4 a 12 dígitos.',
     },
     TRANSFERENCIA: {
         digitsOnly: true,
@@ -40,13 +40,13 @@ export const REFERENCE_RULES: Record<PaymentMethod, ReferenceRule> = {
         digitsOnly: false,
         min: 4,
         max: 40,
-        message: 'Usa de 4 a 40 letras o números de la confirmación de Zelle.',
+        message: 'Usa de 4 a 40 letras o números del código de confirmación.',
     },
     BINANCE: {
         digitsOnly: false,
         min: 4,
         max: 64,
-        message: 'Usa de 4 a 64 letras o números del ID de la orden de Binance.',
+        message: 'Usa de 4 a 64 letras o números del ID de la orden.',
     },
 }
 
@@ -115,12 +115,12 @@ export const paymentSchema = z
                 break
             case 'ZELLE':
                 if (values.payerName.length < 3)
-                    issue('payerName', 'Escribe el nombre del titular de la cuenta Zelle')
+                    issue('payerName', 'Escribe el nombre del titular de la cuenta')
                 if (
                     !EMAIL_PATTERN.test(values.payerAccount) &&
                     !PHONE_LIKE_PATTERN.test(values.payerAccount)
                 ) {
-                    issue('payerAccount', 'Escribe el correo o teléfono registrado en Zelle')
+                    issue('payerAccount', 'Escribe el correo o teléfono registrado en la cuenta')
                 }
                 if (!(parseAmount(values.amountUsd) > 0)) {
                     issue('amountUsd', 'Escribe el monto pagado, por ejemplo 120,00')
@@ -128,7 +128,7 @@ export const paymentSchema = z
                 break
             case 'BINANCE':
                 if (values.payerAccount.length < 3) {
-                    issue('payerAccount', 'Escribe tu Binance Pay ID o el correo de tu cuenta')
+                    issue('payerAccount', 'Escribe tu Pay ID o el correo de tu cuenta')
                 }
                 if (!(parseAmount(values.amountUsd) > 0)) {
                     issue('amountUsd', 'Escribe el monto pagado, por ejemplo 120,00')

@@ -11,6 +11,7 @@ import { IdNumberField } from '@/components/shared/IdNumberField'
 import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
 import { Input, Select, Switch, Textarea, type SelectOption } from '@/components/ui'
 import { bankOptionLabel, useBanks } from '@/utils/hooks/useBanks'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { FieldGroup, FieldRow } from '@/views/admin/content/components/FieldGroup'
 import { PaymentPreviewCard } from '@/views/admin/content/components/PaymentPreviewCard'
 import { SectionFormLayout } from '@/views/admin/content/components/SectionFormLayout'
@@ -118,17 +119,19 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
         formState: { errors },
     } = state.form
     const payment = useWatch({ control })
+    // Names of the methods: Catálogos → Métodos de pago.
+    const { label: methodLabel } = usePaymentMethods()
 
     return (
         <SectionFormLayout state={state}>
             <FieldGroup
-                title="Pago Móvil"
+                title={methodLabel('PAGO_MOVIL')}
                 description="En bolívares, a la tasa BCV. Revisa bien cada dato: el cliente los copiará para pagarte."
                 action={
                     <EnableSwitch
                         control={control}
                         name="pagoMovil.enabled"
-                        label="Ofrecer Pago Móvil"
+                        label={`Ofrecer ${methodLabel('PAGO_MOVIL')}`}
                     />
                 }
             >
@@ -175,13 +178,13 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
             </FieldGroup>
 
             <FieldGroup
-                title="Transferencia bancaria"
+                title={methodLabel('TRANSFERENCIA')}
                 description="En bolívares, a la tasa BCV."
                 action={
                     <EnableSwitch
                         control={control}
                         name="transfer.enabled"
-                        label="Ofrecer transferencia bancaria"
+                        label={`Ofrecer ${methodLabel('TRANSFERENCIA')}`}
                     />
                 }
             >
@@ -230,15 +233,19 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
             </FieldGroup>
 
             <FieldGroup
-                title="Zelle"
+                title={methodLabel('ZELLE')}
                 description="En dólares."
                 action={
-                    <EnableSwitch control={control} name="zelle.enabled" label="Ofrecer Zelle" />
+                    <EnableSwitch
+                        control={control}
+                        name="zelle.enabled"
+                        label={`Ofrecer ${methodLabel('ZELLE')}`}
+                    />
                 }
             >
                 <FieldRow>
                     <Input
-                        label="Correo de Zelle"
+                        label="Correo de la cuenta"
                         type="email"
                         error={errors.zelle?.email?.message}
                         {...register('zelle.email')}
@@ -252,19 +259,19 @@ export function PaymentSection(props: SectionFormProps<'payment'>) {
             </FieldGroup>
 
             <FieldGroup
-                title="Binance Pay"
+                title={methodLabel('BINANCE')}
                 description="En dólares (USDT)."
                 action={
                     <EnableSwitch
                         control={control}
                         name="binance.enabled"
-                        label="Ofrecer Binance Pay"
+                        label={`Ofrecer ${methodLabel('BINANCE')}`}
                     />
                 }
             >
                 <FieldRow>
                     <Input
-                        label="Binance Pay ID"
+                        label="Pay ID"
                         inputMode="numeric"
                         error={errors.binance?.payId?.message}
                         className="tabular-nums"

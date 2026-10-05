@@ -1,10 +1,11 @@
 import type { PaymentContent } from '@/@types/content'
 import type { PaymentMethod, PublicOrder } from '@/@types/order'
 import { CopyButton } from '@/components/shared/CopyButton'
-import { PAYMENT_METHOD_ICONS } from '@/constants/payment.constant'
+import { PaymentMethodIconGlyph } from '@/components/shared/PaymentMethodIconGlyph'
 import { formatRate, formatVeNumber } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDay } from '@/utils/formatDate'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { formatAmountDue } from '@/utils/payment'
 
 interface Row {
@@ -57,13 +58,13 @@ function accountRows(method: PaymentMethod, payment: PaymentContent): Row[] {
         case 'ZELLE': {
             const m = payment.zelle
             return [
-                { label: 'Correo Zelle', display: m.email, copy: m.email },
+                { label: 'Correo', display: m.email, copy: m.email },
                 { label: 'Titular', display: m.holderName, copy: m.holderName },
             ]
         }
         case 'BINANCE': {
             const m = payment.binance
-            const rows: Row[] = [{ label: 'Binance Pay ID', display: m.payId, copy: m.payId }]
+            const rows: Row[] = [{ label: 'Pay ID', display: m.payId, copy: m.payId }]
             if (m.email) rows.push({ label: 'Correo', display: m.email, copy: m.email })
             rows.push({ label: 'Titular', display: m.holderName, copy: m.holderName })
             return rows
@@ -79,7 +80,7 @@ export interface PaymentInstructionsCardProps {
 /** Where and how much to pay with the order's method, each value one tap from the clipboard. */
 export function PaymentInstructionsCard({ order }: PaymentInstructionsCardProps) {
     const { totals, paymentMethod: method, amountDue, payment } = order
-    const Icon = PAYMENT_METHOD_ICONS[method]
+    const iconName = usePaymentMethods().iconName(method)
     const inBolivares = amountDue.currency === 'VES'
     const amount: Row = {
         label: 'Monto exacto',
@@ -98,7 +99,7 @@ export function PaymentInstructionsCard({ order }: PaymentInstructionsCardProps)
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-                        <Icon aria-hidden="true" className="size-5" />
+                        <PaymentMethodIconGlyph name={iconName} className="size-5" />
                     </span>
                     <p className="text-lg font-bold text-ink">{order.paymentMethodLabel}</p>
                 </div>

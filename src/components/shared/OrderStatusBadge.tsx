@@ -18,7 +18,7 @@ export function OrderStatusBadge({ status, size, className }: OrderStatusBadgePr
             <Skeleton
                 as="span"
                 shape="circle"
-                className={cn('inline-block align-middle', size === 'sm' ? 'h-5 w-24' : 'h-6 w-28')}
+                className={cn('inline-block align-middle', size === 'sm' ? 'h-6 w-24' : 'h-7 w-28')}
             />
         )
     }

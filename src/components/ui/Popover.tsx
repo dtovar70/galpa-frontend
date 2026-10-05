@@ -19,7 +19,8 @@ import { useMediaQuery } from '@/utils/hooks/useMediaQuery'
 const VIEWPORT_MARGIN_PX = 8
 /** How close the arrow may get to the panel's rounded corners. */
 const ARROW_INSET_PX = 16
-const SHEET_QUERY = '(max-width: 639px)'
+/** Where `sheetOnMobile` turns the panel into a bottom sheet; exported for callers widening it. */
+export const SHEET_QUERY = '(max-width: 639px)'
 
 const FOCUSABLE =
     'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -39,6 +40,8 @@ export interface PopoverProps {
     arrow?: boolean
     /** Below 640px the panel becomes a bottom sheet with a backdrop. */
     sheetOnMobile?: boolean
+    /** The media query behind `sheetOnMobile`; `SHEET_QUERY` unless a caller needs more cases. */
+    sheetQuery?: string
     /** Keeps Tab inside the panel, for dialog-like content. */
     trapFocus?: boolean
     /** A purely visual panel (a hint): no pointer events, hidden from assistive tech. */
@@ -79,6 +82,7 @@ export function Popover({
     offset = 10,
     arrow = false,
     sheetOnMobile = false,
+    sheetQuery = SHEET_QUERY,
     trapFocus = false,
     decorative = false,
     container,
@@ -89,7 +93,7 @@ export function Popover({
 }: PopoverProps) {
     const panelRef = useRef<HTMLDivElement>(null)
     const [position, setPosition] = useState<Position | null>(null)
-    const isSmall = useMediaQuery(SHEET_QUERY)
+    const isSmall = useMediaQuery(sheetQuery)
     const asSheet = sheetOnMobile && isSmall
 
     useLockBodyScroll(open && asSheet)
@@ -165,6 +169,8 @@ export function Popover({
         }
         /* Pointer down rather than click, like the Select: gone before the next widget reacts. */
         const onPointerDown = (event: PointerEvent) => {
+            // The sheet's backdrop covers everything else and closes on its own click instead.
+            if (asSheet) return
             const target = event.target as Node
             if (panelRef.current?.contains(target) || anchorRef.current?.contains(target)) return
             onClose('outside')
@@ -175,7 +181,7 @@ export function Popover({
             document.removeEventListener('keydown', onKeyDown)
             document.removeEventListener('pointerdown', onPointerDown)
         }
-    }, [anchorRef, onClose, open])
+    }, [anchorRef, asSheet, onClose, open])
 
     const onPanelKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         if (!trapFocus || event.key !== 'Tab') return
@@ -203,7 +209,15 @@ export function Popover({
     if (asSheet) {
         return createPortal(
             <div className="fixed inset-0 z-60 flex flex-col justify-end">
-                <div aria-hidden="true" className="absolute inset-0 bg-ink/35" />
+                {/*
+                 * Closed by its click, not on pointer down: a tap's click follows its pointer down,
+                 * and with the sheet already gone it landed on whatever lay beneath (a link).
+                 */}
+                <div
+                    aria-hidden="true"
+                    onClick={() => onClose('outside')}
+                    className="absolute inset-0 bg-ink/35"
+                />
                 <div
                     ref={panelRef}
                     {...a11y}

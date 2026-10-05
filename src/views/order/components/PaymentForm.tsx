@@ -2,16 +2,17 @@ import { useState, type ClipboardEvent } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
-import { PAYMENT_METHODS, type PaymentMethod, type SubmitPaymentInput } from '@/@types/order'
+import type { PaymentMethod, SubmitPaymentInput } from '@/@types/order'
 import { IdNumberField } from '@/components/shared/IdNumberField'
 import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
-import { Alert, Button, Input, Select, type SelectOption } from '@/components/ui'
+import { Alert, Button, Input, Select } from '@/components/ui'
 import { DatePicker } from '@/components/ui/DatePicker'
-import { isBolivarMethod, paymentMethodLabel } from '@/constants/payment.constant'
+import { isBolivarMethod } from '@/constants/payment.constant'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { formatVeNumber } from '@/utils/formatBolivares'
 import { todayInCaracas } from '@/utils/formatDate'
 import { useBanks } from '@/utils/hooks/useBanks'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { ProofDropzone } from '@/views/order/components/ProofDropzone'
 import {
     cleanReference,
@@ -21,15 +22,10 @@ import {
     type PaymentFormValues,
 } from '@/views/order/schema/payment.schema'
 
-const METHOD_OPTIONS: SelectOption[] = PAYMENT_METHODS.map((method) => ({
-    value: method,
-    label: paymentMethodLabel(method),
-}))
-
 const REFERENCE_LABELS: Record<PaymentMethod, { label: string; hint: string }> = {
     PAGO_MOVIL: {
         label: 'Número de referencia',
-        hint: 'El número completo que aparece en el comprobante del Pago Móvil.',
+        hint: 'El número completo que aparece en el comprobante del pago.',
     },
     TRANSFERENCIA: {
         label: 'Número de referencia',
@@ -37,11 +33,11 @@ const REFERENCE_LABELS: Record<PaymentMethod, { label: string; hint: string }> =
     },
     ZELLE: {
         label: 'Código de confirmación',
-        hint: 'El código que muestra tu banco al enviar el Zelle.',
+        hint: 'El código que muestra tu banco al enviar el pago.',
     },
     BINANCE: {
         label: 'ID de la orden',
-        hint: 'El Order ID de la transferencia en Binance Pay.',
+        hint: 'El Order ID que aparece en el detalle de la transferencia.',
     },
 }
 
@@ -72,8 +68,8 @@ export interface PaymentFormProps {
 }
 
 /**
- * The payment proof form, with the fields of each method (bank and phone for Pago Móvil,
- * holder for Zelle…) and the screenshot. Step 2 of the customer's order page, and the admin's
+ * The payment proof form, with the fields each method needs (bank and phone, holder, account…)
+ * and the screenshot. Step 2 of the customer's order page, and the admin's
  * "Registrar pago manualmente".
  */
 export function PaymentForm({
@@ -91,6 +87,7 @@ export function PaymentForm({
     const [formError, setFormError] = useState<string | null>(null)
     const today = todayInCaracas()
     const banks = useBanks()
+    const paymentMethods = usePaymentMethods()
 
     const {
         register,
@@ -146,7 +143,7 @@ export function PaymentForm({
                     <div className="sm:col-span-2">
                         <Select
                             label="Método de pago"
-                            options={METHOD_OPTIONS}
+                            options={paymentMethods.options()}
                             error={errors.method?.message}
                             {...register('method')}
                         />
@@ -225,7 +222,7 @@ export function PaymentForm({
                                 render={({ field }) => (
                                     <MobilePhoneField
                                         label="Teléfono del pagador"
-                                        hint="El celular desde el que hiciste el Pago Móvil."
+                                        hint="El celular desde el que hiciste el pago."
                                         error={errors.payerPhone?.message}
                                         {...field}
                                     />
@@ -246,7 +243,7 @@ export function PaymentForm({
                     <>
                         {method === 'ZELLE' ? (
                             <Input
-                                label="Titular de la cuenta Zelle"
+                                label="Titular de la cuenta"
                                 autoComplete="name"
                                 error={errors.payerName?.message}
                                 {...register('payerName')}
@@ -255,8 +252,8 @@ export function PaymentForm({
                         <Input
                             label={
                                 method === 'ZELLE'
-                                    ? 'Correo o teléfono de Zelle'
-                                    : 'Binance Pay ID o correo'
+                                    ? 'Correo o teléfono de la cuenta'
+                                    : 'Pay ID o correo de la cuenta'
                             }
                             autoComplete="off"
                             error={errors.payerAccount?.message}

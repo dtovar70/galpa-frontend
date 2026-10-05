@@ -1,18 +1,22 @@
 import { isMethodConfigured, type PaymentContent } from '@/@types/content'
-import type {
-    AmountDue,
-    OrderPayment,
-    OrderTotals,
-    PaymentCurrency,
-    PaymentMethod,
+import {
+    PAYMENT_METHODS,
+    type AmountDue,
+    type OrderPayment,
+    type OrderTotals,
+    type PaymentCurrency,
+    type PaymentMethod,
 } from '@/@types/order'
-import { isBolivarMethod, PAYMENT_METHOD_ORDER } from '@/constants/payment.constant'
+import { isBolivarMethod } from '@/constants/payment.constant'
 import { formatBolivares } from '@/utils/formatBolivares'
 import { formatCurrency } from '@/utils/formatCurrency'
 
-/** Methods the store can take now, in display order. */
+/**
+ * Methods the store can take now. Shown in the catalog's order: pass them through
+ * `usePaymentMethods().sort`.
+ */
 export function configuredPaymentMethods(payment: PaymentContent): PaymentMethod[] {
-    return PAYMENT_METHOD_ORDER.filter((method) => isMethodConfigured(payment, method))
+    return PAYMENT_METHODS.filter((method) => isMethodConfigured(payment, method))
 }
 
 /**

@@ -2,8 +2,8 @@ import { Headset, PackageCheck, Wallet, Wrench, type LucideIcon } from 'lucide-r
 
 import { SectionHeading } from '@/components/shared/SectionHeading'
 import { CONTAINER } from '@/constants/layout.constant'
-import { PAYMENT_METHOD_INFO, PAYMENT_METHOD_ORDER } from '@/constants/payment.constant'
 import { cn } from '@/utils/cn'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 
 /** Icons of the reasons, in order; extra reasons reuse the last one. */
@@ -12,6 +12,7 @@ const REASON_ICONS: readonly LucideIcon[] = [Headset, PackageCheck, Wrench, Wall
 /** "Por qué elegirnos": the home `steps` content, plus the accepted payment methods. */
 export function WhyChooseUs() {
     const { home } = useSiteContent()
+    const { methods } = usePaymentMethods()
 
     return (
         <section aria-labelledby="why-heading" className="bg-white py-16 lg:py-24">
@@ -53,22 +54,24 @@ export function WhyChooseUs() {
                     })}
                 </ol>
 
-                <div className="flex flex-col gap-4 rounded-2xl border border-line bg-page p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm font-semibold text-ink">Métodos de pago aceptados</p>
-                    <ul className="flex flex-wrap gap-2">
-                        {PAYMENT_METHOD_ORDER.map((method) => (
-                            <li
-                                key={method}
-                                className="inline-flex items-center gap-2 rounded-lg border border-line-strong bg-white px-3 py-1.5 text-sm font-semibold text-ink"
-                            >
-                                {PAYMENT_METHOD_INFO[method].label}
-                                <span className="text-[11px] font-bold text-ink-muted tabular-nums">
-                                    {PAYMENT_METHOD_INFO[method].currency === 'VES' ? 'Bs' : 'USD'}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {methods.length ? (
+                    <div className="flex flex-col gap-4 rounded-2xl border border-line bg-page p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm font-semibold text-ink">Métodos de pago aceptados</p>
+                        <ul className="flex flex-wrap gap-2">
+                            {methods.map((method) => (
+                                <li
+                                    key={method.code}
+                                    className="inline-flex items-center gap-2 rounded-lg border border-line-strong bg-white px-3 py-1.5 text-sm font-semibold text-ink"
+                                >
+                                    {method.label}
+                                    <span className="text-[11px] font-bold text-ink-muted tabular-nums">
+                                        {method.currency === 'VES' ? 'Bs' : 'USD'}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ) : null}
             </div>
         </section>
     )

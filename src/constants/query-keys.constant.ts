@@ -36,6 +36,8 @@ export const queryKeys = {
         orderStatuses: () => [...queryKeys.catalogs.all, 'order-statuses'] as const,
         banks: () => [...queryKeys.catalogs.all, 'banks'] as const,
         mobilePrefixes: () => [...queryKeys.catalogs.all, 'mobile-prefixes'] as const,
+        paymentMethods: () => [...queryKeys.catalogs.all, 'payment-methods'] as const,
+        contactOptions: () => [...queryKeys.catalogs.all, 'contact-options'] as const,
     },
     /** Current BCV rate for the approximate bolívar amounts (`GET /exchange-rate/current`). */
     exchangeRate: ['exchange-rate'] as const,
@@ -76,8 +78,13 @@ export const queryKeys = {
         exchangeRate: () => [...queryKeys.admin.all, 'exchange-rate'] as const,
         banks: () => [...queryKeys.admin.all, 'banks'] as const,
         mobilePrefixes: () => [...queryKeys.admin.all, 'mobile-prefixes'] as const,
+        /** Every topic or space type of the contact form (Catálogos → Asesoría). */
+        contactOptions: (kind: string) =>
+            [...queryKeys.admin.all, 'contact-options', kind] as const,
         /** The status catalog with the WhatsApp templates (Catálogos). */
         orderStatuses: () => [...queryKeys.admin.all, 'order-statuses'] as const,
+        /** Labels, help texts and tones of the quote statuses (`GET /admin/catalogs/quote-statuses`). */
+        quoteStatuses: () => [...queryKeys.admin.all, 'quote-statuses'] as const,
         /** Telegram bot status and linked chats (`GET /admin/telegram`). */
         telegram: () => [...queryKeys.admin.all, 'telegram'] as const,
         /** Panel accounts (`GET /admin/users`), ADMIN only. */

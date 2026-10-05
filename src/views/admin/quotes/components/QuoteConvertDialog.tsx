@@ -6,9 +6,9 @@ import type { Quote } from '@/@types/quote'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Input, Select, type SelectOption } from '@/components/ui'
 import { DELIVERY_METHOD_LABELS } from '@/constants/order.constant'
-import { paymentMethodLabel } from '@/constants/payment.constant'
 import { adminOrderPath } from '@/constants/route.constant'
 import { getErrorMessage } from '@/services/errors'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 import { configuredPaymentMethods } from '@/utils/payment'
 import { useConvertQuote } from '@/views/admin/hooks/useAdminQuotes'
@@ -35,11 +35,9 @@ export function QuoteConvertDialog({ quote, isOpen, onClose }: QuoteConvertDialo
     const navigate = useNavigate()
     const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('delivery')
     // Only the methods the store offers now: the API refuses the others.
-    const offered = configuredPaymentMethods(useSiteContent().payment)
-    const paymentOptions: SelectOption[] = offered.map((method) => ({
-        value: method,
-        label: paymentMethodLabel(method),
-    }))
+    const catalog = usePaymentMethods()
+    const offered = catalog.sort(configuredPaymentMethods(useSiteContent().payment))
+    const paymentOptions: SelectOption[] = catalog.options(offered)
     const [chosenMethod, setChosenMethod] = useState<PaymentMethod | null>(null)
     const paymentMethod =
         chosenMethod && offered.includes(chosenMethod) ? chosenMethod : (offered[0] ?? null)
@@ -64,7 +62,7 @@ export function QuoteConvertDialog({ quote, isOpen, onClose }: QuoteConvertDialo
                     Se crea un pedido «Pendiente de pago» con las líneas de la cotización y el
                     cliente recibe el enlace para pagarlo.
                     {freeLines > 0
-                        ? ` Las ${freeLines === 1 ? 'línea libre se agrega' : `${freeLines} líneas libres se agregan`} como servicio, sin stock.`
+                        ? ` ${freeLines === 1 ? 'La línea libre se agrega' : `Las ${freeLines} líneas libres se agregan`} como servicio, sin stock.`
                         : ''}
                 </>
             }

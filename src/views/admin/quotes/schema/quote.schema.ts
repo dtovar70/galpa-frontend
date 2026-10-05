@@ -1,21 +1,21 @@
 import type { FieldPath } from 'react-hook-form'
 import { z } from 'zod'
 
+import type { QuotesContent } from '@/@types/content'
 import type { Quote, QuoteInput } from '@/@types/quote'
-import { QUOTE_DEFAULT_TERMS, QUOTE_DEFAULT_VALIDITY_DAYS } from '@/constants/quote.constant'
 import {
     TEXT_INPUT_MAX_LENGTH as MAX_TEXT,
     TEXT_INPUT_MAX_MESSAGE as MAX_TEXT_MESSAGE,
 } from '@/constants/ui.constant'
 import { caracasToday, toCalendarDay } from '@/utils/calendarDay'
-import { idNumberSchema, VE_PHONE_PATTERN } from '@/utils/veFormats'
+import { idNumberSchema, mobilePhoneSchema } from '@/utils/veFormats'
 
 export const QUOTE_MAX_ITEMS = 50
 export const QUOTE_NOTES_MAX_LENGTH = 1000
 export const QUOTE_TERMS_MAX_LENGTH = 2000
 export const QUOTE_DESCRIPTION_MAX_LENGTH = 300
 const MAX_AMOUNT = 99_999_999.99
-const MAX_QUANTITY = 9999
+export const QUOTE_MAX_QUANTITY = 9999
 
 /** At most two decimals, checked on the text form to dodge floating-point noise. */
 function hasTwoDecimalsAtMost(value: number): boolean {
@@ -48,13 +48,7 @@ export const quoteFormSchema = z
                 (value) => value === '' || z.email().safeParse(value).success,
                 'Escribe un correo válido, por ejemplo cliente@correo.com',
             ),
-        customerPhone: z
-            .string()
-            .trim()
-            .refine(
-                (value) => value === '' || VE_PHONE_PATTERN.test(value),
-                'Escribe un teléfono válido, por ejemplo 0414-1234567',
-            ),
+        customerPhone: mobilePhoneSchema({ required: '', optional: true }),
         customerIdNumber: idNumberSchema({ optional: true }),
         customerCompany: z.string().trim().max(MAX_TEXT, MAX_TEXT_MESSAGE),
         validUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Elige hasta cuándo es válida'),
@@ -87,7 +81,7 @@ export const quoteFormSchema = z
                         .number({ error: 'Escribe la cantidad' })
                         .int('Usa un número entero')
                         .min(1, 'Mínimo 1')
-                        .max(MAX_QUANTITY, 'Cantidad demasiado alta'),
+                        .max(QUOTE_MAX_QUANTITY, 'Cantidad demasiado alta'),
                     unitPrice: money('Escribe el precio unitario'),
                 }),
             )
@@ -132,17 +126,18 @@ function addDays(days: number): string {
     return toCalendarDay(date)
 }
 
-export function emptyQuoteForm(): QuoteFormValues {
+/** A new quote, from the defaults set in Contenido → Cotizaciones. */
+export function emptyQuoteForm(defaults: QuotesContent): QuoteFormValues {
     return {
         customerName: '',
         customerEmail: '',
         customerPhone: '',
         customerIdNumber: '',
         customerCompany: '',
-        validUntil: addDays(QUOTE_DEFAULT_VALIDITY_DAYS),
+        validUntil: addDays(defaults.defaultValidityDays),
         discount: 0,
         notes: '',
-        terms: QUOTE_DEFAULT_TERMS,
+        terms: defaults.defaultTerms,
         items: [],
     }
 }

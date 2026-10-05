@@ -20,6 +20,7 @@ import {
     FIELD_MESSAGE_ERROR_CLASS,
 } from '@/components/ui/field.styles'
 import { OptionalMark } from '@/components/ui/OptionalMark'
+import { Popover, SHEET_QUERY } from '@/components/ui/Popover'
 import { cn } from '@/utils/cn'
 import { useMediaQuery } from '@/utils/hooks/useMediaQuery'
 
@@ -48,10 +49,20 @@ const PANEL_CLEARANCE_PX = 264
 const PANEL_MAX_WIDTH = 'min(22rem, calc(100vw - 2rem))'
 const VIEWPORT_GUTTER_PX = 16
 
+/**
+ * When the list opens as a bottom sheet instead of the floating panel: the Popover's own
+ * small-screen breakpoint, so a Select and a DatePicker in one form always agree, plus any
+ * touch-first screen. A tablet held wide clears 640px, yet a finger still wants big rows and a
+ * sheet within thumb reach more than a dropdown hanging off a 44px field.
+ */
+const SELECT_SHEET_QUERY = `${SHEET_QUERY}, (pointer: coarse)`
+
 const optionVariants = cva(
-    'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition duration-150',
+    'flex cursor-pointer items-center justify-between gap-3 rounded-xl font-semibold transition duration-150',
     {
         variants: {
+            // The sheet's rows are thumb targets: 48px at least, and 16px text.
+            inSheet: { true: 'min-h-12 px-4 py-3 text-base', false: 'px-3.5 py-2.5 text-sm' },
             isSelected: { true: 'text-brand-700', false: 'text-ink-soft' },
             isActive: { true: '', false: '' },
             isDisabled: { true: 'cursor-not-allowed opacity-45', false: '' },
@@ -60,8 +71,10 @@ const optionVariants = cva(
             { isSelected: true, isActive: true, class: 'bg-brand-200 text-brand-800' },
             { isSelected: true, isActive: false, class: 'bg-brand-100' },
             { isSelected: false, isActive: true, class: 'bg-brand-50 text-ink' },
+            // Tailwind's `hover:` only applies where a pointer can hover, never to a finger.
+            { inSheet: true, isSelected: false, isDisabled: false, class: 'hover:bg-brand-50' },
         ],
-        defaultVariants: { isSelected: false, isActive: false, isDisabled: false },
+        defaultVariants: { inSheet: false, isSelected: false, isActive: false, isDisabled: false },
     },
 )
 
@@ -93,9 +106,12 @@ export interface SelectProps extends Omit<ComponentPropsWithRef<'select'>, 'id'>
  * `register()` and `event.target.value` keep working untouched at every call site — the
  * custom UI only drives that element and never becomes the source of truth.
  *
- * On touch screens (`pointer: coarse`) that real <select> is laid invisibly over the trigger
- * and takes the taps itself: the phone's own picker is bigger, scrolls better and never ends
- * up under the on-screen keyboard. The trigger then only paints the chosen value.
+ * On small or touch screens (`SELECT_SHEET_QUERY`) the list opens as a bottom sheet — the
+ * Popover's, with its backdrop, scroll lock and rise-in — titled with the field label, its
+ * rows big enough for a thumb. It used to hand the taps to the native <select> instead, but
+ * that picker is the operating system's again: unstyled, and a bare desktop popup wherever
+ * a browser only pretends to be a phone. Focus moves into the sheet's list while it is open
+ * and returns to the trigger when it closes, however it closes.
  */
 export function Select({
     label,
@@ -119,10 +135,12 @@ export function Select({
     const rootRef = useRef<HTMLDivElement>(null)
     const triggerRef = useRef<HTMLButtonElement>(null)
     const listRef = useRef<HTMLUListElement>(null)
+    const sheetTitleId = `${fieldId}-sheet-title`
     const typeahead = useRef({ query: '', timer: 0 })
 
     const [isOpen, setIsOpen] = useState(false)
     const [panel, setPanel] = useState({ dropUp: false, width: 0, left: 0 })
+    const [sheetContainer, setSheetContainer] = useState<Element | null>(null)
     const [activeIndex, setActiveIndex] = useState(-1)
     const [selectedValue, setSelectedValue] = useState(() => {
         if (rest.value !== undefined) return String(rest.value)
@@ -131,7 +149,7 @@ export function Select({
     })
 
     const isDisabled = rest.disabled === true
-    const isTouch = useMediaQuery('(pointer: coarse)')
+    const asSheet = useMediaQuery(SELECT_SHEET_QUERY)
     const describedBy = error ? errorId : hint ? hintId : undefined
     const selectedOption = options.find((option) => option.value === selectedValue)
 
@@ -185,11 +203,20 @@ export function Select({
             const selectedIndex = options.findIndex(
                 (option) => option.value === selectedValue && !option.disabled,
             )
-            const fallback = landOn === 'last' ? enabledBounds.last : enabledBounds.first
+            // A tapped sheet highlights only the chosen row; a first row lit up would pass for it.
+            const fallback =
+                landOn === 'last'
+                    ? enabledBounds.last
+                    : asSheet && landOn === 'selected'
+                      ? -1
+                      : enabledBounds.first
             setActiveIndex(landOn === 'selected' && selectedIndex >= 0 ? selectedIndex : fallback)
+            // Inside a modal <dialog> the sheet must live in the dialog, or it is inert (and
+            // drawn beneath it). A Drawer is not a <dialog>: the body portal clears its z-50.
+            setSheetContainer(triggerRef.current?.closest('dialog') ?? null)
             setIsOpen(true)
         },
-        [enabledBounds, isDisabled, options, selectedValue],
+        [asSheet, enabledBounds, isDisabled, options, selectedValue],
     )
 
     const closeList = useCallback(() => {
@@ -197,12 +224,19 @@ export function Select({
         setActiveIndex(-1)
     }, [])
 
+    /* The sheet is modal: however it goes away, the field it belongs to gets focus back. */
+    const dismissSheet = useCallback(() => {
+        closeList()
+        triggerRef.current?.focus()
+    }, [closeList])
+
     const stepActive = useCallback(
         (step: number) => {
             const total = options.length
             if (total === 0) return
             setActiveIndex((current) => {
-                let index = current
+                // Nothing active yet (a sheet with no value): Up starts from the last row.
+                let index = current < 0 && step < 0 ? total : current
                 for (let hop = 0; hop < total; hop += 1) {
                     index = (((index + step) % total) + total) % total
                     if (!options[index]?.disabled) return index
@@ -244,15 +278,18 @@ export function Select({
 
     useEffect(() => () => window.clearTimeout(typeahead.current.timer), [])
 
-    /* Pointer down rather than click: the list should be gone before the next widget reacts. */
+    /*
+     * Pointer down rather than click: the list should be gone before the next widget reacts.
+     * The sheet is portalled outside the root, so the Popover watches its backdrop instead.
+     */
     useEffect(() => {
-        if (!isOpen) return
+        if (!isOpen || asSheet) return
         const onPointerDown = (event: PointerEvent) => {
             if (!rootRef.current?.contains(event.target as Node)) closeList()
         }
         document.addEventListener('pointerdown', onPointerDown)
         return () => document.removeEventListener('pointerdown', onPointerDown)
-    }, [closeList, isOpen])
+    }, [asSheet, closeList, isOpen])
 
     /*
      * Measured rather than stretched: callers size the control through `className`, so the
@@ -263,7 +300,7 @@ export function Select({
      * list off-screen.
      */
     useLayoutEffect(() => {
-        if (!isOpen) return
+        if (!isOpen || asSheet) return
         const rect = triggerRef.current?.getBoundingClientRect()
         if (!rect) return
         const spaceBelow = window.innerHeight - rect.bottom
@@ -280,15 +317,24 @@ export function Select({
             width: rect.width,
             left: viewportLeft - containerLeft,
         })
-    }, [isOpen])
+    }, [asSheet, isOpen])
 
-    /* Focus never leaves the trigger, so the active row has to be scrolled into view by hand. */
+    /*
+     * The sheet takes focus, as a modal should: the keys then work on its list, and a screen
+     * reader lands among the options instead of behind the backdrop.
+     */
+    useEffect(() => {
+        if (isOpen && asSheet) listRef.current?.focus({ preventScroll: true })
+    }, [asSheet, isOpen])
+
+    /* Focus never leaves the trigger (or the sheet's list), so the active row is scrolled by hand. */
     useEffect(() => {
         if (!isOpen || activeIndex < 0) return
         listRef.current?.children[activeIndex]?.scrollIntoView({ block: 'nearest' })
     }, [activeIndex, isOpen])
 
-    const onTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    /* Shared by the trigger and, while it holds focus, the sheet's list. */
+    const onListKeyDown = (event: KeyboardEvent<HTMLElement>) => {
         switch (event.key) {
             case 'ArrowDown':
                 event.preventDefault()
@@ -319,10 +365,14 @@ export function Select({
             case 'Escape':
                 if (!isOpen) return
                 event.preventDefault()
-                closeList()
+                // Only the sheet: an enclosing dialog or Drawer would close on the same press.
+                event.stopPropagation()
+                if (asSheet) dismissSheet()
+                else closeList()
                 return
             case 'Tab':
-                if (isOpen) closeList()
+                // The sheet traps Tab (the Popover's `trapFocus`); the panel simply closes.
+                if (isOpen && !asSheet) closeList()
                 return
             default:
                 if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey) {
@@ -331,6 +381,56 @@ export function Select({
                 }
         }
     }
+
+    const renderOptions = (inSheet: boolean) =>
+        options.map((option, index) => {
+            const isSelected = option.value === selectedValue
+            return (
+                <li
+                    key={option.value}
+                    id={`${fieldId}-option-${index}`}
+                    role="option"
+                    aria-selected={isSelected}
+                    aria-disabled={option.disabled}
+                    /*
+                     * Not in the sheet: it opens under a finger at rest, and the browser fires a
+                     * mouseenter on whichever row slides beneath it. Its rows hover by CSS alone.
+                     */
+                    onMouseEnter={
+                        inSheet ? undefined : () => !option.disabled && setActiveIndex(index)
+                    }
+                    onClick={() => {
+                        if (option.disabled) return
+                        commit(option.value)
+                        closeList()
+                        triggerRef.current?.focus()
+                    }}
+                    className={optionVariants({
+                        inSheet,
+                        isSelected,
+                        isActive: index === activeIndex,
+                        isDisabled: option.disabled === true,
+                    })}
+                >
+                    {option.description ? (
+                        <span className="flex min-w-0 flex-col gap-0.5">
+                            <span className="truncate">{option.label}</span>
+                            <span className="text-xs leading-snug font-normal text-ink-soft">
+                                {option.description}
+                            </span>
+                        </span>
+                    ) : (
+                        <span className="truncate">{option.label}</span>
+                    )}
+                    {isSelected ? (
+                        <Check
+                            aria-hidden="true"
+                            className={cn('shrink-0', inSheet ? 'size-5' : 'size-4')}
+                        />
+                    ) : null}
+                </li>
+            )
+        })
 
     return (
         <div ref={rootRef} className="flex w-full flex-col gap-1.5">
@@ -352,21 +452,9 @@ export function Select({
                         setSelectedValue(event.target.value)
                         rest.onChange?.(event)
                     }}
-                    {...(isTouch
-                        ? {
-                              'aria-labelledby': labelId,
-                              'aria-describedby': describedBy,
-                              'aria-invalid': error ? true : undefined,
-                              // 16px text: iOS zooms into smaller focused fields.
-                              className:
-                                  'peer absolute inset-0 z-10 size-full cursor-pointer appearance-none rounded-xl text-base opacity-0 disabled:cursor-not-allowed',
-                          }
-                        : {
-                              tabIndex: -1,
-                              'aria-hidden': true,
-                              className:
-                                  'pointer-events-none absolute bottom-0 left-4 size-0 opacity-0',
-                          })}
+                    tabIndex={-1}
+                    aria-hidden
+                    className="pointer-events-none absolute bottom-0 left-4 size-0 opacity-0"
                 >
                     {placeholder ? (
                         <option value="" hidden>
@@ -383,9 +471,6 @@ export function Select({
                 <button
                     ref={triggerRef}
                     type="button"
-                    // On touch screens the native <select> above takes focus and taps.
-                    tabIndex={isTouch ? -1 : undefined}
-                    aria-hidden={isTouch || undefined}
                     role="combobox"
                     disabled={rest.disabled}
                     aria-labelledby={labelId}
@@ -395,18 +480,18 @@ export function Select({
                     aria-required={rest.required}
                     aria-invalid={error ? true : undefined}
                     aria-activedescendant={
-                        isOpen && activeIndex >= 0 ? `${fieldId}-option-${activeIndex}` : undefined
+                        isOpen && !asSheet && activeIndex >= 0
+                            ? `${fieldId}-option-${activeIndex}`
+                            : undefined
                     }
                     aria-describedby={describedBy}
                     onClick={() => (isOpen ? closeList() : openList())}
-                    onKeyDown={onTriggerKeyDown}
+                    onKeyDown={onListKeyDown}
                     className={cn(
                         FIELD_BASE_CLASS,
                         'flex h-11 items-center justify-between gap-3 rounded-xl px-4 text-left outline-none',
                         'enabled:hover:border-brand-200',
                         isOpen && 'border-brand-400 ring-4 ring-brand-100',
-                        isTouch &&
-                            'pointer-events-none peer-focus-visible:border-brand-400 peer-focus-visible:ring-4 peer-focus-visible:ring-brand-100',
                         error && FIELD_ERROR_CLASS,
                         className,
                     )}
@@ -423,7 +508,7 @@ export function Select({
                     />
                 </button>
 
-                {isOpen ? (
+                {isOpen && !asSheet ? (
                     <ul
                         ref={listRef}
                         id={listboxId}
@@ -444,44 +529,7 @@ export function Select({
                                 : 'top-full mt-2 origin-top',
                         )}
                     >
-                        {options.map((option, index) => {
-                            const isSelected = option.value === selectedValue
-                            return (
-                                <li
-                                    key={option.value}
-                                    id={`${fieldId}-option-${index}`}
-                                    role="option"
-                                    aria-selected={isSelected}
-                                    aria-disabled={option.disabled}
-                                    onMouseEnter={() => !option.disabled && setActiveIndex(index)}
-                                    onClick={() => {
-                                        if (option.disabled) return
-                                        commit(option.value)
-                                        closeList()
-                                        triggerRef.current?.focus()
-                                    }}
-                                    className={optionVariants({
-                                        isSelected,
-                                        isActive: index === activeIndex,
-                                        isDisabled: option.disabled === true,
-                                    })}
-                                >
-                                    {option.description ? (
-                                        <span className="flex min-w-0 flex-col gap-0.5">
-                                            <span className="truncate">{option.label}</span>
-                                            <span className="text-xs leading-snug font-normal text-ink-soft">
-                                                {option.description}
-                                            </span>
-                                        </span>
-                                    ) : (
-                                        <span className="truncate">{option.label}</span>
-                                    )}
-                                    {isSelected ? (
-                                        <Check aria-hidden="true" className="size-4 shrink-0" />
-                                    ) : null}
-                                </li>
-                            )
-                        })}
+                        {renderOptions(false)}
                     </ul>
                 ) : null}
             </div>
@@ -495,6 +543,42 @@ export function Select({
                     {hint}
                 </p>
             ) : null}
+
+            {/*
+             * The Popover's sheet brings the backdrop, the body scroll lock, the rise-in (cut short
+             * under `prefers-reduced-motion` by the global rule) and the 640px+ centring. Escape is
+             * caught on the list first, so it never reaches the Popover or an enclosing dialog.
+             */}
+            <Popover
+                open={isOpen && asSheet}
+                anchorRef={triggerRef}
+                onClose={dismissSheet}
+                sheetOnMobile
+                sheetQuery={SELECT_SHEET_QUERY}
+                trapFocus
+                container={sheetContainer}
+                role="dialog"
+                aria-label={label}
+                className="flex flex-col sm:mx-auto sm:w-full sm:max-w-lg"
+            >
+                <p id={sheetTitleId} className="px-5 pt-3 pb-2 text-base font-bold text-ink">
+                    {label}
+                </p>
+                <ul
+                    ref={listRef}
+                    id={listboxId}
+                    role="listbox"
+                    tabIndex={0}
+                    aria-labelledby={sheetTitleId}
+                    aria-activedescendant={
+                        activeIndex >= 0 ? `${fieldId}-option-${activeIndex}` : undefined
+                    }
+                    onKeyDown={onListKeyDown}
+                    className="scroll-soft max-h-[70dvh] space-y-1 overflow-y-auto overscroll-contain px-3 pb-4 outline-none"
+                >
+                    {renderOptions(true)}
+                </ul>
+            </Popover>
         </div>
     )
 }

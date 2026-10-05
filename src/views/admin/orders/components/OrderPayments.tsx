@@ -2,7 +2,7 @@ import type { AdminOrder, AdminOrderPayment, PaymentStatus } from '@/@types/orde
 import { CopyButton } from '@/components/shared/CopyButton'
 import { ProofViewer } from '@/components/shared/ProofViewer'
 import { Badge, Card, type BadgeVariant } from '@/components/ui'
-import { isBolivarMethod, paymentMethodLabel } from '@/constants/payment.constant'
+import { isBolivarMethod } from '@/constants/payment.constant'
 import { AdminOrderService } from '@/services/AdminOrderService'
 import { cn } from '@/utils/cn'
 import { formatBolivares } from '@/utils/formatBolivares'
@@ -33,7 +33,7 @@ function payerRows(payment: AdminOrderPayment): { label: string; value: string }
         : [
               { label: 'Titular', value: payment.payerName },
               {
-                  label: payment.method === 'ZELLE' ? 'Cuenta Zelle' : 'Binance',
+                  label: payment.method === 'ZELLE' ? 'Correo o teléfono' : 'Pay ID o correo',
                   value: payment.payerAccount,
               },
           ]
@@ -55,8 +55,8 @@ export function OrderPayments({ order }: { order: AdminOrder }) {
             <div className="space-y-1">
                 <h2 className="text-xl text-ink">Pagos reportados</h2>
                 <p className="text-xs text-ink-soft">
-                    Método elegido: {paymentMethodLabel(order.paymentMethod)}. Los montos esperados
-                    se fijaron al crear el pedido ({formatCurrency(order.totals.totalUsd)} ·{' '}
+                    Método elegido: {order.paymentMethodLabel}. Los montos esperados se fijaron al
+                    crear el pedido ({formatCurrency(order.totals.totalUsd)} ·{' '}
                     {formatBolivares(order.totals.totalBs)}); no cambian aunque la tasa BCV cambie.
                 </p>
             </div>

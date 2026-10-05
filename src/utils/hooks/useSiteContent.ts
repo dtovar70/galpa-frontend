@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-import type { SiteContent } from '@/@types/content'
+import type { PublicSiteContent } from '@/@types/content'
 import { DEFAULT_SITE_CONTENT } from '@/configs/content.defaults'
 import { queryKeys } from '@/constants/query-keys.constant'
 import { ContentService } from '@/services/ContentService'
@@ -30,10 +30,11 @@ export function useSiteContentQuery() {
 }
 
 /**
- * The site's editable texts and business data. Never undefined: until the API answers (and
- * whenever it cannot be reached) it is the built-in defaults, identical to the API's.
+ * The site's editable texts and business data (the public sections). Never undefined: until the
+ * API answers (and whenever it cannot be reached) it is the built-in defaults, identical to the
+ * API's.
  */
-export function useSiteContent(): SiteContent {
+export function useSiteContent(): PublicSiteContent {
     return useSiteContentQuery().data ?? DEFAULT_SITE_CONTENT
 }
 

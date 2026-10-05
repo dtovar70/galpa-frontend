@@ -23,8 +23,8 @@ export function OrdersSetupWarnings({ summary }: { summary: AdminOrdersSummary |
             ) : null}
             {!summary.exchangeRate.available ? (
                 <Alert>
-                    Sin una tasa BCV vigente la tienda no ofrece Pago Móvil ni transferencias (solo
-                    Zelle y Binance, si están activos). Revísala en{' '}
+                    Sin una tasa BCV vigente la tienda no ofrece los métodos de pago en bolívares
+                    (solo los de dólares, si están activos). Revísala en{' '}
                     <Link to={ADMIN_ROUTES.exchangeRate} className={linkClass}>
                         Tasa BCV
                     </Link>

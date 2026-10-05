@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { OrderStatusBadge } from '@/components/shared/OrderStatusBadge'
 import { Button, Card, Input, Select, Skeleton, Spinner, type SelectOption } from '@/components/ui'
 import { DateRangePicker } from '@/components/ui/DateRangePicker'
-import { isBolivarMethod, paymentMethodLabel } from '@/constants/payment.constant'
+import { isBolivarMethod } from '@/constants/payment.constant'
 import { adminOrderPath } from '@/constants/route.constant'
 import { getErrorMessage } from '@/services/errors'
 import { formatDayRange, isCalendarDay, parseCalendarDay } from '@/utils/calendarDay'
@@ -17,6 +17,7 @@ import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDateTime } from '@/utils/formatDate'
 import { useDebouncedValue } from '@/utils/hooks/useDebouncedValue'
 import { useOrderStatusCatalog } from '@/utils/hooks/useOrderStatusCatalog'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { CatalogPagination } from '@/views/catalog/components/CatalogPagination'
 import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
 import { useAdminOrders, useAdminOrdersSummary } from '@/views/admin/hooks/useAdminOrders'
@@ -131,6 +132,7 @@ export function AdminOrdersView() {
     const summaryQuery = useAdminOrdersSummary()
     const summary = summaryQuery.data
     const statusCatalog = useOrderStatusCatalog()
+    const { label: methodLabel } = usePaymentMethods()
     const groups = useMemo(
         () => buildOrderGroups(statusCatalog.groups, statusCatalog.statuses),
         [statusCatalog.groups, statusCatalog.statuses],
@@ -552,9 +554,7 @@ export function AdminOrdersView() {
                                                     <div className="space-y-1">
                                                         <p className="truncate text-xs text-ink-soft">
                                                             <span className="font-semibold text-ink">
-                                                                {paymentMethodLabel(
-                                                                    order.paymentMethod,
-                                                                )}
+                                                                {methodLabel(order.paymentMethod)}
                                                             </span>
                                                             {order.latestPayment
                                                                 ? ` · Ref. ${order.latestPayment.reference}`
@@ -604,7 +604,7 @@ export function AdminOrdersView() {
                                             <div>
                                                 <ListTotal order={order} />
                                                 <p className="text-xs text-ink-soft">
-                                                    {paymentMethodLabel(order.paymentMethod)}
+                                                    {methodLabel(order.paymentMethod)}
                                                 </p>
                                             </div>
                                             <OrderListFlags order={order} />

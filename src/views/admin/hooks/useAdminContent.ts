@@ -5,10 +5,12 @@ import type { ContentSection, SiteContent } from '@/@types/content'
 import { queryKeys } from '@/constants/query-keys.constant'
 import { ContentService } from '@/services/ContentService'
 
-export function useAdminContent() {
+/** `enabled: false` skips the request (e.g. the quote editor only needs it for new quotes). */
+export function useAdminContent({ enabled = true }: { enabled?: boolean } = {}) {
     return useQuery({
         queryKey: queryKeys.admin.content(),
         queryFn: ContentService.getAdminContent,
+        enabled,
         // A section edited in another tab should not be overwritten with stale values.
         refetchOnWindowFocus: false,
     })

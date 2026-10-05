@@ -9,6 +9,7 @@ import {
     type SiteContent,
 } from '@/@types/content'
 import { findUnknownPlaceholder, hasBrokenHighlights } from '@/utils/content'
+import { QUOTE_TERMS_MAX_LENGTH } from '@/views/admin/quotes/schema/quote.schema'
 import {
     ID_NUMBER_MESSAGE,
     ID_NUMBER_PATTERN,
@@ -52,7 +53,12 @@ export const CONTENT_LIMITS = {
     testimonialQuote: 400,
     testimonialName: 60,
     testimonialProduct: 80,
+    /** Default terms of a new quote: same limit as the quote's own terms (2000). */
+    quoteTerms: QUOTE_TERMS_MAX_LENGTH,
 } as const
+
+/** Days a new quote stays valid by default (whole days). */
+export const QUOTE_VALIDITY_DAYS = { min: 1, max: 90 } as const
 
 export const CONTENT_LIST_SIZES = {
     heroFeatures: { min: 0, max: 4 },
@@ -368,7 +374,7 @@ const pagoMovilSchema = z
             pattern: BANK_CODE_PATTERN,
         })
         checkField(add, method.enabled, 'phone', method.phone, {
-            required: 'Escribe el teléfono de Pago Móvil',
+            required: 'Escribe el teléfono de pago',
             pattern: VE_MOBILE_PATTERN,
             message: 'Usa un celular con el formato 0412-5550134',
         })
@@ -422,7 +428,7 @@ const zelleSchema = z
     .superRefine((method, context) => {
         const add = issueAdder(context)
         checkField(add, method.enabled, 'email', method.email, {
-            required: 'Escribe el correo de Zelle',
+            required: 'Escribe el correo de la cuenta',
             pattern: EMAIL_PATTERN,
             message: 'Escribe un correo válido, por ejemplo pagos@empresa.com',
         })
@@ -441,7 +447,7 @@ const binanceSchema = z
     .superRefine((method, context) => {
         const add = issueAdder(context)
         checkField(add, method.enabled, 'payId', method.payId, {
-            required: 'Escribe el Binance Pay ID',
+            required: 'Escribe el Pay ID',
             pattern: PAY_ID_PATTERN,
             message: 'Solo letras y números (4 a 64)',
         })
@@ -460,6 +466,16 @@ export const paymentSchema = z.object({
     binance: binanceSchema,
 })
 export type PaymentFormValues = z.input<typeof paymentSchema>
+
+export const quotesSchema = z.object({
+    defaultValidityDays: z
+        .number({ error: 'Escribe los días de vigencia' })
+        .int('Usa un número entero de días')
+        .min(QUOTE_VALIDITY_DAYS.min, `Mínimo ${QUOTE_VALIDITY_DAYS.min} día`)
+        .max(QUOTE_VALIDITY_DAYS.max, `Máximo ${QUOTE_VALIDITY_DAYS.max} días`),
+    defaultTerms: text(L.quoteTerms, { optional: true }),
+})
+export type QuotesFormValues = z.input<typeof quotesSchema>
 
 /* ------------------------------------------------------------- Converters */
 
@@ -506,4 +522,5 @@ export const SECTION_FORMS = {
     contactPage: sameShape<'contactPage', ContactPageFormValues>('contactPage', contactPageSchema),
     shipping: sameShape<'shipping', ShippingFormValues>('shipping', shippingSchema),
     payment: sameShape<'payment', PaymentFormValues>('payment', paymentSchema),
+    quotes: sameShape<'quotes', QuotesFormValues>('quotes', quotesSchema),
 } as const

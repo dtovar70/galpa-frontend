@@ -1,76 +1,71 @@
 import { useState } from 'react'
 
-import type { Quote, QuoteStatus } from '@/@types/quote'
+import type { Quote, QuoteTransition } from '@/@types/quote'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
-import { Select, Textarea, type SelectOption } from '@/components/ui'
-import { QUOTE_MANUAL_TRANSITIONS, QUOTE_STATUS_LABELS } from '@/constants/quote.constant'
+import { Textarea } from '@/components/ui'
 import { getErrorMessage } from '@/services/errors'
+import { useQuoteStatuses } from '@/views/admin/hooks/useAdminCatalogs'
 import { useChangeQuoteStatus } from '@/views/admin/hooks/useAdminQuotes'
 
 const REASON_MAX_LENGTH = 300
 
 export interface QuoteStatusDialogProps {
     quote: Quote
-    isOpen: boolean
+    /** The move picked in the editor (one of `quote.allowedTransitions`); null when closed. */
+    target: QuoteTransition | null
     onClose: () => void
 }
 
-/** "Cambiar estado": the manual moves of the quote, with an optional reason. */
-export function QuoteStatusDialog({ quote, isOpen, onClose }: QuoteStatusDialogProps) {
+/**
+ * Confirms one manual status move ("Marcar como aceptada"), explaining it with the status's own
+ * description from Catálogos, with a note that is optional unless the move requires one.
+ */
+export function QuoteStatusDialog({ quote, target, onClose }: QuoteStatusDialogProps) {
     const changeStatus = useChangeQuoteStatus(quote.code)
-    const targets = QUOTE_MANUAL_TRANSITIONS[quote.status]
-    const [status, setStatus] = useState<QuoteStatus | ''>('')
+    const catalog = useQuoteStatuses()
     const [reason, setReason] = useState('')
-    const options: SelectOption[] = targets.map((target) => ({
-        value: target,
-        label: QUOTE_STATUS_LABELS[target],
-    }))
+    const needsReason = target?.requiresReason === true
+    const label = target?.label.toLowerCase() ?? ''
+    const description = target ? catalog.status(target.status)?.description : undefined
 
     const close = () => {
         changeStatus.reset()
-        setStatus('')
         setReason('')
         onClose()
     }
 
     return (
         <ConfirmDialog
-            isOpen={isOpen}
-            title={`Cambiar el estado de ${quote.code}`}
-            description={`Ahora está «${QUOTE_STATUS_LABELS[quote.status]}».`}
-            confirmLabel="Cambiar estado"
+            isOpen={target !== null}
+            title={`¿Marcar ${quote.code} como «${label}»?`}
+            description={
+                description
+                    ? `${description} Ahora está «${quote.statusLabel.toLowerCase()}».`
+                    : `Ahora está «${quote.statusLabel.toLowerCase()}».`
+            }
+            confirmLabel={`Marcar como ${label}`}
             confirmVariant="primary"
-            confirmDisabled={!status}
+            confirmDisabled={needsReason && !reason.trim()}
             isLoading={changeStatus.isPending}
             error={changeStatus.isError ? getErrorMessage(changeStatus.error) : undefined}
             onConfirm={() => {
-                if (!status) return
+                if (!target) return
                 changeStatus.mutate(
-                    { status, reason: reason.trim() || undefined },
+                    { status: target.status, reason: reason.trim() || undefined },
                     { onSuccess: close },
                 )
             }}
             onClose={close}
         >
-            <div className="space-y-4">
-                <Select
-                    label="Nuevo estado"
-                    placeholder="Elige un estado"
-                    options={options}
-                    value={status}
-                    onChange={(event) =>
-                        setStatus(targets.find((target) => target === event.target.value) ?? '')
-                    }
-                />
-                <Textarea
-                    label="Motivo o nota"
-                    optional
-                    rows={3}
-                    maxLength={REASON_MAX_LENGTH}
-                    value={reason}
-                    onChange={(event) => setReason(event.target.value)}
-                />
-            </div>
+            <Textarea
+                label="Nota"
+                optional={!needsReason}
+                hint="Queda registrada en la cotización, por ejemplo qué respondió el cliente."
+                rows={3}
+                maxLength={REASON_MAX_LENGTH}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+            />
         </ConfirmDialog>
     )
 }

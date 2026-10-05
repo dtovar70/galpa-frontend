@@ -16,6 +16,7 @@ import { ContactSection } from '@/views/admin/content/sections/ContactSection'
 import { GeneralSection } from '@/views/admin/content/sections/GeneralSection'
 import { HomeSection } from '@/views/admin/content/sections/HomeSection'
 import { PaymentSection } from '@/views/admin/content/sections/PaymentSection'
+import { QuotesSection } from '@/views/admin/content/sections/QuotesSection'
 import { SECTION_META } from '@/views/admin/content/sections/sectionMeta'
 import { ShippingSection } from '@/views/admin/content/sections/ShippingSection'
 import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
@@ -58,6 +59,8 @@ function SectionPanel({
             return <ShippingSection saved={content.shipping} onDirtyChange={onDirtyChange} />
         case 'payment':
             return <PaymentSection saved={content.payment} onDirtyChange={onDirtyChange} />
+        case 'quotes':
+            return <QuotesSection saved={content.quotes} onDirtyChange={onDirtyChange} />
     }
 }
 

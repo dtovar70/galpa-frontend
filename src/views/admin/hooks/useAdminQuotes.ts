@@ -10,10 +10,12 @@ import type {
 import { queryKeys } from '@/constants/query-keys.constant'
 import { AdminQuoteService } from '@/services/AdminQuoteService'
 
-export function useAdminQuotes(params: QuoteQueryParams) {
+/** `enabled: false` holds the request (e.g. until the status filter can be validated). */
+export function useAdminQuotes(params: QuoteQueryParams, options: { enabled?: boolean } = {}) {
     return useQuery({
         queryKey: queryKeys.admin.quotes.list(params),
         queryFn: () => AdminQuoteService.getQuotes(params),
+        enabled: options.enabled ?? true,
         placeholderData: keepPreviousData,
         staleTime: 0,
         refetchOnWindowFocus: true,

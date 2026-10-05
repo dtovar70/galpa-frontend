@@ -1,17 +1,27 @@
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 
 import type {
     AdminBank,
+    AdminContactOption,
     AdminMobilePrefix,
     AdminOrderStatusCatalog,
     BankCreateInput,
     BankInput,
+    ContactOptionCreateInput,
+    ContactOptionInput,
+    ContactOptionKind,
     MobilePrefixCreateInput,
     OrderStatusCatalog,
     OrderStatusGroupInput,
     OrderStatusInput,
+    PaymentMethodInfo,
+    PaymentMethodInput,
+    QuoteStatusInfo,
+    QuoteStatusInput,
 } from '@/@types/catalog'
 import type { OrderStatus } from '@/@types/order'
+import type { SelectOption } from '@/components/ui'
 import { queryKeys } from '@/constants/query-keys.constant'
 import { CatalogService } from '@/services/CatalogService'
 import { resolveOrderStatusCatalog } from '@/utils/hooks/useOrderStatusCatalog'
@@ -100,7 +110,51 @@ export function useSwapOrderStatusGroups() {
     })
 }
 
-/** The banks feed the Pago Móvil selects (payment form, content), so both lists go stale. */
+/**
+ * The quote statuses (`GET /admin/catalogs/quote-statuses`), in order, with their select options
+ * and a lookup by code (undefined while loading or for a code the catalog lacks). ADMIN and
+ * EDITOR may read them; editing them in Catálogos refreshes this copy.
+ */
+export function useQuoteStatuses() {
+    const query = useQuery({
+        queryKey: queryKeys.admin.quoteStatuses(),
+        queryFn: ({ signal }) => CatalogService.getQuoteStatuses(signal),
+        staleTime: 10 * 60_000,
+    })
+    const statuses = useMemo(
+        () => [...(query.data ?? [])].sort((a, b) => a.sortOrder - b.sortOrder),
+        [query.data],
+    )
+    const options = useMemo<SelectOption[]>(
+        () => statuses.map((status) => ({ value: status.code, label: status.label })),
+        [statuses],
+    )
+    const byCode = useMemo(
+        () => new Map(statuses.map((status) => [status.code, status])),
+        [statuses],
+    )
+    return {
+        ...query,
+        statuses,
+        options,
+        status: (code: string): QuoteStatusInfo | undefined => byCode.get(code),
+    }
+}
+
+/** A saved edit returns the whole list: it replaces the cached one, and the quotes refetch labels. */
+export function useUpdateQuoteStatus() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ code, input }: { code: string; input: QuoteStatusInput }) =>
+            CatalogService.updateQuoteStatus(code, input),
+        onSuccess: (statuses) => {
+            queryClient.setQueryData(queryKeys.admin.quoteStatuses(), statuses)
+            return queryClient.invalidateQueries({ queryKey: queryKeys.admin.quotes.all() })
+        },
+    })
+}
+
+/** The banks feed the bank selects (payment form, content), so both lists go stale. */
 function invalidateBankCaches(queryClient: QueryClient): Promise<void> {
     return Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.banks() }),
@@ -272,5 +326,155 @@ export function useReorderMobilePrefixes() {
         },
         onSuccess: (prefixes) => queryClient.setQueryData<AdminMobilePrefix[]>(listKey, prefixes),
         onSettled: () => invalidateMobilePrefixCaches(queryClient),
+    })
+}
+
+/**
+ * A saved payment method edit or order returns the whole list: it replaces the session's copy
+ * (checkout, the order page, the panel follow), and the orders refetch the names the API sends.
+ */
+function applyPaymentMethods(
+    queryClient: QueryClient,
+    methods: PaymentMethodInfo[],
+): Promise<void> {
+    queryClient.setQueryData(queryKeys.catalogs.paymentMethods(), methods)
+    return Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.orders.all() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.orders.all }),
+    ]).then(() => undefined)
+}
+
+export function useUpdatePaymentMethod() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ code, input }: { code: string; input: PaymentMethodInput }) =>
+            CatalogService.updatePaymentMethod(code, input),
+        onSuccess: (methods) => applyPaymentMethods(queryClient, methods),
+    })
+}
+
+/** Saves the checkout order; the list moves optimistically and rolls back on failure. */
+export function useReorderPaymentMethods() {
+    const queryClient = useQueryClient()
+    const listKey = queryKeys.catalogs.paymentMethods()
+
+    return useMutation({
+        mutationFn: (codes: string[]) => CatalogService.reorderPaymentMethods(codes),
+        onMutate: async (codes) => {
+            await queryClient.cancelQueries({ queryKey: listKey })
+            const previous = queryClient.getQueryData<PaymentMethodInfo[]>(listKey)
+            if (previous) {
+                const byCode = new Map(previous.map((method) => [method.code, method]))
+                queryClient.setQueryData<PaymentMethodInfo[]>(
+                    listKey,
+                    codes.flatMap((code, sortOrder) => {
+                        const method = byCode.get(code as PaymentMethodInfo['code'])
+                        return method ? [{ ...method, sortOrder }] : []
+                    }),
+                )
+            }
+            return { previous }
+        },
+        onError: (_error, _codes, context) => {
+            if (context?.previous) queryClient.setQueryData(listKey, context.previous)
+        },
+        onSuccess: (methods) => applyPaymentMethods(queryClient, methods),
+        onSettled: () => queryClient.invalidateQueries({ queryKey: listKey }),
+    })
+}
+
+/** The options feed the contact form: the admin list and the public copy both go stale. */
+function invalidateContactOptionCaches(
+    queryClient: QueryClient,
+    kind: ContactOptionKind,
+): Promise<void> {
+    return Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.contactOptions(kind) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.catalogs.contactOptions() }),
+    ]).then(() => undefined)
+}
+
+/** Every topic or space type of the contact form, inactive ones included. */
+export function useAdminContactOptions(kind: ContactOptionKind) {
+    return useQuery({
+        queryKey: queryKeys.admin.contactOptions(kind),
+        queryFn: () => CatalogService.getAdminContactOptions(kind),
+    })
+}
+
+export function useCreateContactOption(kind: ContactOptionKind) {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (input: ContactOptionCreateInput) =>
+            CatalogService.createContactOption(kind, input),
+        onSuccess: (option) => {
+            queryClient.setQueryData<AdminContactOption[]>(
+                queryKeys.admin.contactOptions(kind),
+                (current) => (current ? [...current, option] : current),
+            )
+            return invalidateContactOptionCaches(queryClient, kind)
+        },
+    })
+}
+
+export function useUpdateContactOption(kind: ContactOptionKind) {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ code, input }: { code: string; input: ContactOptionInput }) =>
+            CatalogService.updateContactOption(kind, code, input),
+        onSuccess: (option) => {
+            queryClient.setQueryData<AdminContactOption[]>(
+                queryKeys.admin.contactOptions(kind),
+                (current) => current?.map((item) => (item.code === option.code ? option : item)),
+            )
+            return invalidateContactOptionCaches(queryClient, kind)
+        },
+    })
+}
+
+export function useDeleteContactOption(kind: ContactOptionKind) {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (code: string) => CatalogService.deleteContactOption(kind, code),
+        onSuccess: (_data, code) => {
+            queryClient.setQueryData<AdminContactOption[]>(
+                queryKeys.admin.contactOptions(kind),
+                (current) => current?.filter((item) => item.code !== code),
+            )
+            return invalidateContactOptionCaches(queryClient, kind)
+        },
+        // A 409 means the list shown was stale: refresh it.
+        onError: () =>
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.contactOptions(kind) }),
+    })
+}
+
+/** Saves the form order; the admin list moves optimistically and rolls back on failure. */
+export function useReorderContactOptions(kind: ContactOptionKind) {
+    const queryClient = useQueryClient()
+    const listKey = queryKeys.admin.contactOptions(kind)
+
+    return useMutation({
+        mutationFn: (codes: string[]) => CatalogService.reorderContactOptions(kind, codes),
+        onMutate: async (codes) => {
+            await queryClient.cancelQueries({ queryKey: listKey })
+            const previous = queryClient.getQueryData<AdminContactOption[]>(listKey)
+            if (previous) {
+                const byCode = new Map(previous.map((option) => [option.code, option]))
+                queryClient.setQueryData<AdminContactOption[]>(
+                    listKey,
+                    codes.flatMap((code, sortOrder) => {
+                        const option = byCode.get(code)
+                        return option ? [{ ...option, sortOrder }] : []
+                    }),
+                )
+            }
+            return { previous }
+        },
+        onError: (_error, _codes, context) => {
+            if (context?.previous) queryClient.setQueryData(listKey, context.previous)
+        },
+        onSuccess: (options) => queryClient.setQueryData<AdminContactOption[]>(listKey, options),
+        onSettled: () => invalidateContactOptionCaches(queryClient, kind),
     })
 }

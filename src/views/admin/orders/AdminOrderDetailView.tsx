@@ -41,7 +41,7 @@ export function AdminOrderDetailView() {
         return (
             <div className="space-y-6">
                 <Skeleton className="h-10 w-1/3" />
-                <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
                     <Skeleton shape="block" className="h-80" />
                     <Skeleton shape="block" className="h-64" />
                 </div>

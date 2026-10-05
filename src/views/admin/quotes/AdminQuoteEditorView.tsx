@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
     ArrowLeft,
-    ArrowLeftRight,
+    ArrowRight,
+    Check,
+    CircleCheck,
+    CircleX,
     Download,
     FileOutput,
     Mail,
@@ -12,20 +15,18 @@ import {
     Trash2,
 } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 
-import type { Quote, QuoteWhatsAppMessage } from '@/@types/quote'
+import type { QuotesContent } from '@/@types/content'
+import type { Quote, QuoteTransition, QuoteWhatsAppMessage } from '@/@types/quote'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { CopyButton } from '@/components/shared/CopyButton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { IdNumberField } from '@/components/shared/IdNumberField'
+import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
 import { Alert, Button, Card, Input, Skeleton, Textarea } from '@/components/ui'
 import { DatePicker } from '@/components/ui/DatePicker'
-import {
-    isQuoteConvertible,
-    isQuoteEditable,
-    QUOTE_MANUAL_TRANSITIONS,
-} from '@/constants/quote.constant'
+import { DEFAULT_SITE_CONTENT } from '@/configs/content.defaults'
 import { ADMIN_ROUTES, adminOrderPath, adminQuotePath } from '@/constants/route.constant'
 import { NOTICE_DISMISS_MS } from '@/constants/ui.constant'
 import { AdminQuoteService } from '@/services/AdminQuoteService'
@@ -35,6 +36,7 @@ import { formatDateTime, formatDay, todayInCaracas } from '@/utils/formatDate'
 import { useExchangeRate } from '@/utils/hooks/useExchangeRate'
 import { saveBlob } from '@/utils/saveBlob'
 import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
+import { useAdminContent } from '@/views/admin/hooks/useAdminContent'
 import {
     useAdminQuote,
     useDeleteQuote,
@@ -42,6 +44,7 @@ import {
     useSaveQuote,
     useSendQuote,
 } from '@/views/admin/hooks/useAdminQuotes'
+import { useQuoteStatuses } from '@/views/admin/hooks/useAdminCatalogs'
 import { toOptionalNumber } from '@/views/admin/products/schema/product.schema'
 import { QuoteConvertDialog } from '@/views/admin/quotes/components/QuoteConvertDialog'
 import { QuoteItemsEditor } from '@/views/admin/quotes/components/QuoteItemsEditor'
@@ -61,14 +64,22 @@ import {
 
 const sectionTitleClass = 'text-xl text-ink'
 
-type Dialog = 'status' | 'convert' | 'send' | 'delete' | null
+type Dialog = 'convert' | 'send' | 'delete' | null
+
+/** Navigation state after creating a quote: the new page greets it with this notice. */
+interface CreatedState {
+    created?: string
+}
 
 /** `/admin/cotizaciones/nueva` and `/admin/cotizaciones/:code`. */
 export function AdminQuoteEditorView() {
     const { code } = useParams()
     const quote = useAdminQuote(code)
+    // A new quote starts from Contenido → Cotizaciones; wait for it so the form never opens
+    // with other defaults. If it cannot be loaded, the built-in defaults are used.
+    const content = useAdminContent({ enabled: !code })
 
-    if (code && quote.isPending) {
+    if ((code && quote.isPending) || (!code && content.isPending)) {
         return (
             <div className="space-y-6">
                 <Skeleton className="h-10 w-1/3" />
@@ -98,18 +109,41 @@ export function AdminQuoteEditorView() {
     }
 
     // Remounted per quote, so the form starts from the right values.
-    return <QuoteEditor key={quote.data?.code ?? 'new'} quote={quote.data} />
+    return (
+        <QuoteEditor
+            key={quote.data?.code ?? 'new'}
+            quote={quote.data}
+            defaults={content.data?.quotes.value ?? DEFAULT_SITE_CONTENT.quotes}
+        />
+    )
 }
 
-function QuoteEditor({ quote }: { quote: Quote | undefined }) {
+/** Under «Válida hasta». */
+const VALID_UNTIL_HINT =
+    'Los precios se respetan hasta esta fecha. Si el cliente no responde, la cotización pasa a «Vencida». El plazo por defecto se cambia en Contenido → Cotizaciones.'
+
+function QuoteEditor({ quote, defaults }: { quote: Quote | undefined; defaults: QuotesContent }) {
     const navigate = useNavigate()
+    const location = useLocation()
     const save = useSaveQuote(quote?.code)
     const rate = useExchangeRate()
+    // Creating a quote moves to its own page (and scrolls up): the notice shows at the top.
+    const [createdNotice, setCreatedNotice] = useState(
+        () => (location.state as CreatedState | null)?.created ?? null,
+    )
     const [notice, setNotice] = useState<string | null>(null)
     const [actionError, setActionError] = useState<string | null>(null)
     const [dialog, setDialog] = useState<Dialog>(null)
+    const [statusTarget, setStatusTarget] = useState<QuoteTransition | null>(null)
+
+    // Drops the one-time notice from the history entry, so a reload doesn't show it again.
+    useEffect(() => {
+        if ((location.state as CreatedState | null)?.created) {
+            void navigate(location.pathname, { replace: true, state: null })
+        }
+    }, [location.state, location.pathname, navigate])
     const [isDownloading, setIsDownloading] = useState(false)
-    const editable = quote ? isQuoteEditable(quote.status) : true
+    const editable = quote ? quote.canEdit : true
 
     const {
         control,
@@ -117,10 +151,11 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
         handleSubmit,
         reset,
         setError,
-        formState: { errors, isDirty, isSubmitting },
+        setValue,
+        formState: { errors, isDirty, isSubmitting, submitCount },
     } = useForm<QuoteFormValues>({
         resolver: zodResolver(quoteFormSchema),
-        defaultValues: quote ? toQuoteFormValues(quote) : emptyQuoteForm(),
+        defaultValues: quote ? toQuoteFormValues(quote) : emptyQuoteForm(defaults),
     })
 
     // A saved change (status, send) refreshes the read-only parts; the form keeps its edits.
@@ -133,7 +168,10 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
         try {
             const saved = await save.mutateAsync(toQuoteInput(values))
             if (!quote) {
-                await navigate(adminQuotePath(saved.code), { replace: true })
+                const state: CreatedState = {
+                    created: `Cotización ${saved.code} guardada como «${saved.statusLabel.toLowerCase()}». Ya puedes descargar el PDF o enviársela al cliente por correo o WhatsApp.`,
+                }
+                await navigate(adminQuotePath(saved.code), { replace: true, state })
                 return
             }
             reset(toQuoteFormValues(saved))
@@ -171,7 +209,7 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                 description={
                     quote ? (
                         <span className="flex flex-wrap items-center gap-2">
-                            <QuoteStatusBadge status={quote.status} size="md" />
+                            <QuoteStatusBadge quote={quote} size="md" />
                             <span className="text-sm">
                                 Creada el {formatDateTime(quote.createdAt)}
                                 {quote.createdBy ? ` por ${quote.createdBy.name}` : ''}
@@ -186,6 +224,16 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                 }
             />
 
+            {createdNotice ? (
+                <Alert
+                    tone="success"
+                    className="mb-6"
+                    autoDismissMs={NOTICE_DISMISS_MS * 2}
+                    onDismiss={() => setCreatedNotice(null)}
+                >
+                    {createdNotice}
+                </Alert>
+            ) : null}
             {quote?.convertedOrderCode ? (
                 <Alert tone="info" className="mb-6">
                     Convertida en el pedido{' '}
@@ -241,12 +289,17 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                                 error={errors.customerEmail?.message}
                                 {...register('customerEmail')}
                             />
-                            <Input
-                                label="Teléfono / WhatsApp"
-                                type="tel"
-                                placeholder="0414-1234567"
-                                error={errors.customerPhone?.message}
-                                {...register('customerPhone')}
+                            <Controller
+                                control={control}
+                                name="customerPhone"
+                                render={({ field }) => (
+                                    <MobilePhoneField
+                                        label="Celular / WhatsApp"
+                                        hint="Para enviarle la cotización por WhatsApp."
+                                        error={errors.customerPhone?.message}
+                                        {...field}
+                                    />
+                                )}
                             />
                             <Controller
                                 control={control}
@@ -268,6 +321,7 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                                     <DatePicker
                                         label="Válida hasta"
                                         min={todayInCaracas()}
+                                        hint={VALID_UNTIL_HINT}
                                         error={errors.validUntil?.message}
                                         disabled={!editable}
                                         {...field}
@@ -282,7 +336,9 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                         <QuoteItemsEditor
                             control={control}
                             register={register}
+                            setValue={setValue}
                             errors={errors}
+                            submitCount={submitCount}
                             readOnly={!editable}
                         />
                     </Card>
@@ -352,9 +408,19 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                                 fullWidth
                                 isLoading={isSubmitting}
                                 disabled={Boolean(quote) && !isDirty}
-                                leadingIcon={<Save aria-hidden="true" className="size-4" />}
+                                leadingIcon={
+                                    quote && !isDirty ? (
+                                        <Check aria-hidden="true" className="size-4" />
+                                    ) : (
+                                        <Save aria-hidden="true" className="size-4" />
+                                    )
+                                }
                             >
-                                {quote ? 'Guardar cambios' : 'Guardar cotización'}
+                                {!quote
+                                    ? 'Guardar cotización'
+                                    : isDirty
+                                      ? 'Guardar cambios'
+                                      : 'Todo guardado'}
                             </Button>
                         ) : null}
                     </Card>
@@ -380,6 +446,7 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                             }}
                             onError={setActionError}
                             onOpen={setDialog}
+                            onMarkStatus={setStatusTarget}
                         />
                     ) : null}
                 </aside>
@@ -389,8 +456,8 @@ function QuoteEditor({ quote }: { quote: Quote | undefined }) {
                 <>
                     <QuoteStatusDialog
                         quote={quote}
-                        isOpen={dialog === 'status'}
-                        onClose={() => setDialog(null)}
+                        target={statusTarget}
+                        onClose={() => setStatusTarget(null)}
                     />
                     <QuoteConvertDialog
                         quote={quote}
@@ -422,6 +489,7 @@ interface QuoteActionsProps {
     onDownload: () => Promise<void>
     onError: (message: string | null) => void
     onOpen: (dialog: Dialog) => void
+    onMarkStatus: (target: QuoteTransition) => void
 }
 
 function QuoteActions({
@@ -431,10 +499,10 @@ function QuoteActions({
     onDownload,
     onError,
     onOpen,
+    onMarkStatus,
 }: QuoteActionsProps) {
     const whatsapp = useQuoteWhatsApp(quote.code)
-    // Sending by email needs the customer's email (the API answers 400 without it).
-    const canSend = isQuoteEditable(quote.status) && Boolean(quote.customerEmail)
+    const statuses = useQuoteStatuses()
     // Without a valid mobile number there is no wa.me link: the message is copied by hand.
     const [manualMessage, setManualMessage] = useState<QuoteWhatsAppMessage | null>(null)
 
@@ -479,7 +547,7 @@ function QuoteActions({
                 >
                     Descargar PDF
                 </Button>
-                {canSend ? (
+                {quote.canSend ? (
                     <Button
                         variant="secondary"
                         fullWidth
@@ -524,18 +592,40 @@ function QuoteActions({
                         </div>
                     </div>
                 ) : null}
-                {QUOTE_MANUAL_TRANSITIONS[quote.status].length > 0 ? (
-                    <Button
-                        variant="ghost"
-                        fullWidth
-                        onClick={() => onOpen('status')}
-                        disabled={isDirty}
-                        leadingIcon={<ArrowLeftRight aria-hidden="true" className="size-4" />}
-                    >
-                        Cambiar estado
-                    </Button>
+                {quote.allowedTransitions.length > 0 ? (
+                    <div className="space-y-2 border-t border-line pt-3">
+                        <p className="text-xs text-ink-soft">
+                            Registra la respuesta del cliente o si se la enviaste por otro medio.
+                        </p>
+                        {quote.allowedTransitions.map((target) => {
+                            const tone = statuses.status(target.status)?.tone
+                            const Icon =
+                                tone === 'danger'
+                                    ? CircleX
+                                    : tone === 'brand'
+                                      ? CircleCheck
+                                      : ArrowRight
+                            return (
+                                <Button
+                                    key={target.status}
+                                    variant="ghost"
+                                    fullWidth
+                                    onClick={() => onMarkStatus(target)}
+                                    disabled={isDirty}
+                                    className={
+                                        tone === 'danger'
+                                            ? 'text-danger-700 hover:bg-danger-50'
+                                            : undefined
+                                    }
+                                    leadingIcon={<Icon aria-hidden="true" className="size-4" />}
+                                >
+                                    Marcar como {target.label.toLowerCase()}
+                                </Button>
+                            )
+                        })}
+                    </div>
                 ) : null}
-                {isQuoteConvertible(quote.status) ? (
+                {quote.canConvert ? (
                     <Button
                         variant="dark"
                         fullWidth
@@ -546,7 +636,7 @@ function QuoteActions({
                         Convertir en pedido
                     </Button>
                 ) : null}
-                {quote.status === 'BORRADOR' ? (
+                {quote.canDelete ? (
                     <Button
                         variant="ghost"
                         fullWidth
@@ -583,7 +673,7 @@ function SendQuoteDialog({
         <ConfirmDialog
             isOpen={isOpen}
             title="¿Enviar la cotización por correo?"
-            description={`Le enviaremos el PDF a ${quote.customerEmail}. La cotización quedará como «Enviada».`}
+            description={`Le enviaremos el PDF a ${quote.customerEmail} y la cotización quedará registrada como enviada.`}
             confirmLabel="Enviar"
             confirmVariant="primary"
             isLoading={send.isPending}

@@ -22,7 +22,7 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
 export type DeliveryMethod = 'delivery' | 'pickup'
 
-/** How the customer pays. Pago Móvil and transfers are paid in Bs; Zelle and Binance in USD. */
+/** How the customer pays (codes fixed by the API; names in `GET /catalogs/payment-methods`). */
 export const PAYMENT_METHODS = ['PAGO_MOVIL', 'TRANSFERENCIA', 'ZELLE', 'BINANCE'] as const
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 
@@ -93,7 +93,7 @@ export interface OrderPayment {
     payerPhone: string | null
     payerIdNumber: string | null
     payerName: string | null
-    /** Zelle email/phone or Binance Pay ID/email. */
+    /** Dollar methods: the payer's account (email, phone or Pay ID). */
     payerAccount: string | null
     paidOn: string
     /** Bs methods. */
@@ -218,7 +218,7 @@ export interface SubmitPaymentInput {
 /** Review flags of a payment, computed by the API in the method's currency. */
 export interface PaymentFlags {
     duplicateReference: boolean
-    /** VES for bolívar methods, USD for Zelle and Binance. */
+    /** VES for bolívar methods, USD for dollar methods. */
     currency: PaymentCurrency
     amountMismatch: boolean
     /** Paid minus expected, in `currency`; 0 when exact. */

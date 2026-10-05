@@ -1,7 +1,7 @@
 import type { OrderPayment, PaymentStatus } from '@/@types/order'
 import { Badge, type BadgeVariant } from '@/components/ui'
-import { paymentMethodLabel } from '@/constants/payment.constant'
 import { formatDateTime, formatDay } from '@/utils/formatDate'
+import { usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { formatPaidAmount } from '@/utils/payment'
 
 const PAYMENT_LABELS: Record<PaymentStatus, { label: string; tone: BadgeVariant }> = {
@@ -10,13 +10,14 @@ const PAYMENT_LABELS: Record<PaymentStatus, { label: string; tone: BadgeVariant 
     RECHAZADO: { label: 'Rechazado', tone: 'danger' },
 }
 
-/** Where the payment came from: the payer's bank, or their Zelle/Binance account. */
+/** Where the payment came from: the payer's bank, or their account in a dollar method. */
 function payerOf(payment: OrderPayment): string | null {
     return payment.payerBankName ?? payment.payerAccount ?? payment.payerName
 }
 
 /** Every proof the customer sent for this order, newest first. */
 export function PaymentHistory({ payments }: { payments: OrderPayment[] }) {
+    const { label: methodLabel } = usePaymentMethods()
     if (payments.length === 0) return null
     return (
         <section className="space-y-3" aria-labelledby="payments-title">
@@ -41,7 +42,7 @@ export function PaymentHistory({ payments }: { payments: OrderPayment[] }) {
                                 </Badge>
                             </div>
                             <p className="text-ink-soft">
-                                {paymentMethodLabel(payment.method)} ·{' '}
+                                {methodLabel(payment.method)} ·{' '}
                                 <span className="tabular-nums">{formatPaidAmount(payment)}</span>
                                 {payer ? ` · ${payer}` : ''} · pagado el {formatDay(payment.paidOn)}
                             </p>

@@ -1,5 +1,5 @@
 import type { AdminContent, AdminContentSection } from '@/@types/admin'
-import type { ContentSection, SiteContent } from '@/@types/content'
+import type { ContentSection, PublicSiteContent, SiteContent } from '@/@types/content'
 import { apiClient } from '@/services/ApiClient'
 
 const ADMIN_CONTENT = '/admin/content'
@@ -10,8 +10,8 @@ function sectionPath(section: ContentSection, suffix = ''): string {
 
 /** Editable site content: public read, admin read/replace/reset. */
 export const ContentService = {
-    /** Every section, stored values merged over the defaults by the API. */
-    getContent: (signal?: AbortSignal) => apiClient.get<SiteContent>('/content', { signal }),
+    /** The public sections, stored values merged over the defaults by the API. */
+    getContent: (signal?: AbortSignal) => apiClient.get<PublicSiteContent>('/content', { signal }),
 
     getAdminContent: () => apiClient.get<AdminContent>(ADMIN_CONTENT),
     /** Replaces the whole section; returns it as saved. */

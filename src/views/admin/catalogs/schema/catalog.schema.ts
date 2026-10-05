@@ -63,6 +63,19 @@ export const orderStatusGroupFormSchema = z.object({
 
 export type OrderStatusGroupFormValues = z.infer<typeof orderStatusGroupFormSchema>
 
+/** Mirrors the API's `UpdateQuoteStatusDto`. */
+export const quoteStatusFormSchema = z.object({
+    label: required('Escribe el nombre del estado'),
+    description: z
+        .string()
+        .trim()
+        .min(1, 'Escribe qué significa el estado')
+        .max(CATALOG_DESCRIPTION_MAX_LENGTH, `Máximo ${CATALOG_DESCRIPTION_MAX_LENGTH} caracteres`),
+    tone: z.enum(BADGE_TONES),
+})
+
+export type QuoteStatusFormValues = z.infer<typeof quoteStatusFormSchema>
+
 export const BANK_CODE_PATTERN = /^\d{4}$/
 
 /** Mirrors the API's `CreateBankDto`; the code is only sent on create. */
@@ -87,3 +100,23 @@ export const mobilePrefixFormSchema = z.object({
 })
 
 export type MobilePrefixFormValues = z.infer<typeof mobilePrefixFormSchema>
+
+/** Mirrors the API's `UpdatePaymentMethodDto` (the position is changed with the arrows). */
+export const paymentMethodFormSchema = z.object({
+    label: required('Escribe el nombre del método de pago'),
+    description: z
+        .string()
+        .trim()
+        .min(1, 'Escribe una frase corta para el checkout')
+        .max(CATALOG_DESCRIPTION_MAX_LENGTH, `Máximo ${CATALOG_DESCRIPTION_MAX_LENGTH} caracteres`),
+    icon: z.string().min(1, 'Elige un ícono'),
+})
+
+export type PaymentMethodFormValues = z.infer<typeof paymentMethodFormSchema>
+
+/** Mirrors the API's `CreateContactOptionDto` (the code is generated from the name). */
+export const contactOptionFormSchema = z.object({
+    label: required('Escribe el nombre de la opción'),
+})
+
+export type ContactOptionFormValues = z.infer<typeof contactOptionFormSchema>

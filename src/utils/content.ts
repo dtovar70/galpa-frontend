@@ -1,8 +1,9 @@
 import {
-    CONTENT_SECTIONS,
+    PUBLIC_CONTENT_SECTIONS,
     type ContactContent,
     type ContentPlaceholder,
     type ContentSection,
+    type PublicSiteContent,
     type SiteContent,
 } from '@/@types/content'
 import { DEFAULT_SITE_CONTENT } from '@/configs/content.defaults'
@@ -46,11 +47,14 @@ export function resolveSection<K extends ContentSection>(
  * The API already merges stored values over the defaults; doing it again here keeps the
  * storefront whole against an older API or a partial payload.
  */
-export function resolveSiteContent(raw: unknown): SiteContent {
+export function resolveSiteContent(raw: unknown): PublicSiteContent {
     const source = isPlainObject(raw) ? raw : {}
     return Object.fromEntries(
-        CONTENT_SECTIONS.map((section) => [section, resolveSection(section, source[section])]),
-    ) as unknown as SiteContent
+        PUBLIC_CONTENT_SECTIONS.map((section) => [
+            section,
+            resolveSection(section, source[section]),
+        ]),
+    ) as unknown as PublicSiteContent
 }
 
 /** "$35" for whole amounts (as the copy always read), "$35,50" otherwise. */
@@ -61,7 +65,7 @@ export function formatShortMoney(amount: number): string {
 export type PlaceholderValues = Partial<Record<ContentPlaceholder, string>>
 
 /** Values of the placeholders that come from the content itself. */
-export function placeholderValues(content: SiteContent): PlaceholderValues {
+export function placeholderValues(content: PublicSiteContent): PlaceholderValues {
     return {
         envioGratis: formatShortMoney(content.shipping.freeThreshold),
         tarifaEnvio: formatShortMoney(content.shipping.flatRate),

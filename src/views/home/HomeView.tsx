@@ -1,4 +1,3 @@
-import { BrandsStrip } from '@/views/home/components/BrandsStrip'
 import { BtuCalculator } from '@/views/home/components/BtuCalculator'
 import { CategoryStrip } from '@/views/home/components/CategoryStrip'
 import { CtaBanner } from '@/views/home/components/CtaBanner'
@@ -15,7 +14,6 @@ export function HomeView() {
             <FeaturedProducts />
             <BtuCalculator />
             <WhyChooseUs />
-            <BrandsStrip />
             <Testimonials />
             <CtaBanner />
         </>

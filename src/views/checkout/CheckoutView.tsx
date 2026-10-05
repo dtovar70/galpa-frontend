@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ShoppingBag } from 'lucide-react'
 import { useNavigate } from 'react-router'
 
@@ -20,6 +20,7 @@ import {
 import { cn } from '@/utils/cn'
 import { shippingCost } from '@/utils/content'
 import { useExchangeRate } from '@/utils/hooks/useExchangeRate'
+import { sortPaymentMethods, usePaymentMethods } from '@/utils/hooks/usePaymentMethods'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 import { checkoutPaymentMethods, configuredPaymentMethods } from '@/utils/payment'
 import { rememberOrder } from '@/utils/recentOrders'
@@ -49,6 +50,7 @@ export function CheckoutView() {
     const rate = useExchangeRate()
     const createOrder = useCreateOrder()
     const idempotency = useIdempotencyKey()
+    const { methods: catalog } = usePaymentMethods()
 
     const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('delivery')
     const [problems, setProblems] = useState<OrderLineProblem[]>([])
@@ -63,8 +65,16 @@ export function CheckoutView() {
     const rateValue = rate.data?.available ? rate.data.rate : null
     const configured = serverBlock === 'payment' ? [] : configuredPaymentMethods(content.payment)
     // Without a rate the bolívar methods are hidden; the dollar ones still work.
-    const paymentMethods =
-        serverBlock === 'payment' ? [] : checkoutPaymentMethods(content.payment, !rateMissing)
+    const paymentMethods = useMemo(
+        () =>
+            serverBlock === 'payment'
+                ? []
+                : sortPaymentMethods(
+                      checkoutPaymentMethods(content.payment, !rateMissing),
+                      catalog,
+                  ),
+        [serverBlock, content.payment, rateMissing, catalog],
+    )
     const onlyRateMissing = paymentMethods.length === 0 && configured.some(isBolivarMethod)
 
     const handleDeliveryChange = useCallback((method: DeliveryMethod) => {

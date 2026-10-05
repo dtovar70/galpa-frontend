@@ -12,7 +12,7 @@ export function bankOptionLabel(bank: Bank): string {
 }
 
 /**
- * The active banks (`GET /catalogs/banks`) for the Pago Móvil selects, plus their options.
+ * The active banks (`GET /catalogs/banks`) for the bank selects of the bolívar methods, plus their options.
  * The admin banks page invalidates this key after every change.
  */
 export function useBanks() {

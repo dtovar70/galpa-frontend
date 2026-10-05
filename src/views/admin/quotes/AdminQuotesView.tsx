@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ChevronRight, Plus, ReceiptText, Search, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 
-import { QUOTE_STATUSES, type Quote, type QuoteStatus } from '@/@types/quote'
+import type { Quote } from '@/@types/quote'
 import { EmptyState } from '@/components/shared/EmptyState'
 import {
     Button,
@@ -14,7 +14,6 @@ import {
     Spinner,
     type SelectOption,
 } from '@/components/ui'
-import { QUOTE_STATUS_LABELS } from '@/constants/quote.constant'
 import { ADMIN_ROUTES, adminQuotePath } from '@/constants/route.constant'
 import { getErrorMessage } from '@/services/errors'
 import { formatBolivares } from '@/utils/formatBolivares'
@@ -23,24 +22,18 @@ import { formatDay } from '@/utils/formatDate'
 import { useDebouncedValue } from '@/utils/hooks/useDebouncedValue'
 import { CatalogPagination } from '@/views/catalog/components/CatalogPagination'
 import { AdminPageHeader } from '@/views/admin/components/AdminPageHeader'
+import { useQuoteStatuses } from '@/views/admin/hooks/useAdminCatalogs'
 import { useAdminQuotes } from '@/views/admin/hooks/useAdminQuotes'
 import { QuoteStatusBadge } from '@/views/admin/quotes/components/QuoteStatusBadge'
 
 const SEARCH_DEBOUNCE_MS = 350
 const SKELETON_ROWS = 6
 
-const STATUS_OPTIONS: SelectOption[] = [
-    { value: '', label: 'Todos los estados' },
-    ...QUOTE_STATUSES.map((status) => ({ value: status, label: QUOTE_STATUS_LABELS[status] })),
-]
+const ALL_STATUSES: SelectOption = { value: '', label: 'Todos los estados' }
 
 const headerCellClass =
     'px-4 py-3 text-left text-xs font-bold tracking-wide text-ink-soft uppercase'
 const cellClass = 'px-4 py-3 align-middle'
-
-function isQuoteStatus(value: string | null): value is QuoteStatus {
-    return value !== null && (QUOTE_STATUSES as readonly string[]).includes(value)
-}
 
 function QuoteTotal({ quote, align }: { quote: Quote; align?: 'right' }) {
     return (
@@ -60,11 +53,17 @@ export function AdminQuotesView() {
     const [searchParams, setSearchParams] = useSearchParams()
     const page = Math.max(1, Number(searchParams.get('page')) || 1)
     const search = searchParams.get('q') ?? ''
+    const statuses = useQuoteStatuses()
     const rawStatus = searchParams.get('estado')
-    const status = isQuoteStatus(rawStatus) ? rawStatus : undefined
+    // `?estado=` only filters with a code the catalog knows; while it loads the list waits.
+    const status = rawStatus && statuses.status(rawStatus) ? rawStatus : undefined
+    const isStatusPending = Boolean(rawStatus) && statuses.isPending
     const [searchInput, setSearchInput] = useState(search)
     const debouncedSearch = useDebouncedValue(searchInput.trim(), SEARCH_DEBOUNCE_MS)
-    const quotes = useAdminQuotes({ status, search: search || undefined, page })
+    const quotes = useAdminQuotes(
+        { status, search: search || undefined, page },
+        { enabled: !isStatusPending },
+    )
 
     const updateParams = (patch: Record<string, string | null>) => {
         setSearchParams(
@@ -143,8 +142,19 @@ export function AdminQuotesView() {
                 <Select
                     label="Estado"
                     hideLabel
-                    options={STATUS_OPTIONS}
+                    options={[
+                        statuses.isPending
+                            ? { ...ALL_STATUSES, label: 'Cargando estados…' }
+                            : ALL_STATUSES,
+                        ...statuses.options,
+                    ]}
                     value={status ?? ''}
+                    disabled={statuses.isPending}
+                    error={
+                        statuses.isError
+                            ? 'No pudimos cargar los estados. Recarga la página.'
+                            : undefined
+                    }
                     onChange={(event) =>
                         updateParams({ estado: event.target.value || null, page: null })
                     }
@@ -159,7 +169,7 @@ export function AdminQuotesView() {
                 ) : null}
             </div>
 
-            {quotes.isPending ? (
+            {quotes.isPending || isStatusPending ? (
                 <Card padding="none" className="divide-y divide-line overflow-hidden">
                     {Array.from({ length: SKELETON_ROWS }, (_, index) => (
                         <div key={index} className="flex items-center gap-4 p-4">
@@ -271,7 +281,7 @@ export function AdminQuotesView() {
                                                 <QuoteTotal quote={quote} align="right" />
                                             </td>
                                             <td className={cellClass}>
-                                                <QuoteStatusBadge status={quote.status} />
+                                                <QuoteStatusBadge quote={quote} />
                                             </td>
                                             <td className={`${cellClass} text-ink-soft`}>
                                                 {formatDay(quote.validUntil)}
@@ -310,7 +320,7 @@ export function AdminQuotesView() {
                                             <p className="truncate text-sm font-semibold text-ink">
                                                 {quote.customerName}
                                             </p>
-                                            <QuoteStatusBadge status={quote.status} />
+                                            <QuoteStatusBadge quote={quote} />
                                         </div>
                                         <QuoteTotal quote={quote} align="right" />
                                     </div>

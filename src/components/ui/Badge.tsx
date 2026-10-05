@@ -21,10 +21,12 @@ const badgeVariants = cva(
                 /** Thin outline on white, for low-emphasis labels. */
                 outline: 'border border-line-strong bg-white text-ink-soft',
                 solid: 'bg-ink text-white',
+                /** Soft brand blue with a hairline ring: finished, positive states ("Convertida"). */
+                done: 'bg-brand-50 text-brand-700 ring-1 ring-brand-200 ring-inset',
             },
             size: {
-                sm: 'px-2.5 py-0.5 text-[11px]',
-                md: 'px-3 py-1 text-xs',
+                sm: 'px-3 py-1 text-[11px]',
+                md: 'px-3.5 py-1.5 text-xs',
             },
         },
         defaultVariants: {

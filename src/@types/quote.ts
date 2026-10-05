@@ -1,16 +1,17 @@
 import type { DeliveryMethod, PaymentMethod } from '@/@types/order'
 
-/** `VENCIDA` is set by the API when `validUntil` passes on a sent quote. */
-export const QUOTE_STATUSES = [
-    'BORRADOR',
-    'ENVIADA',
-    'ACEPTADA',
-    'CONVERTIDA',
-    'RECHAZADA',
-    'VENCIDA',
-] as const
+/**
+ * A quote status code. The codes, their labels, tones and rules live in the API: the list comes
+ * from `GET /admin/catalogs/quote-statuses` and each quote carries what may be done with it.
+ */
+export type QuoteStatus = string
 
-export type QuoteStatus = (typeof QUOTE_STATUSES)[number]
+/** A status the admin may move the quote to by hand ("Cambiar estado"). */
+export interface QuoteTransition {
+    status: QuoteStatus
+    label: string
+    requiresReason: boolean
+}
 
 /** A quote line: a catalog product or free text (`productId` null). */
 export interface QuoteItem {
@@ -33,6 +34,7 @@ export interface Quote {
     /** `COT-000045`. */
     code: string
     status: QuoteStatus
+    /** The catalog's admin label of the status. */
     statusLabel: string
     /** Why it was rejected (when given). */
     statusReason: string | null
@@ -57,6 +59,16 @@ export interface Quote {
     convertedOrderCode: string | null
     createdAt: string
     updatedAt: string
+    /** Manual moves allowed from the current status (none: no "Cambiar estado"). */
+    allowedTransitions: QuoteTransition[]
+    /** Its lines and conditions may still change. */
+    canEdit: boolean
+    /** "Convertir en pedido". */
+    canConvert: boolean
+    /** Only drafts. */
+    canDelete: boolean
+    /** It may be emailed (the status allows it and the customer has an email). */
+    canSend: boolean
 }
 
 /** `GET /admin/quotes`: list rows are full quotes. */

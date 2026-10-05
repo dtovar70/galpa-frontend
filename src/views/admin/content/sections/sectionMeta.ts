@@ -38,6 +38,11 @@ export const SECTION_META: Record<ContentSection, SectionMeta> = {
     payment: {
         label: 'Métodos de pago',
         description:
-            'Pago Móvil, transferencia, Zelle y Binance. El checkout ofrece solo los métodos activos y completos.',
+            'Los datos de tus cuentas para cada método. El checkout ofrece solo los métodos activos y completos.',
+    },
+    quotes: {
+        label: 'Cotizaciones',
+        description:
+            'Valores con los que empieza cada cotización nueva. La vigencia es cuántos días se respetan los precios: pasada esa fecha, una cotización «Enviada» sin respuesta del cliente pasa a «Vencida» automáticamente. En Venezuela lo habitual es de 5 a 15 días, porque la tasa de cambio y los precios de los proveedores cambian seguido. No se muestra en la tienda.',
     },
 }

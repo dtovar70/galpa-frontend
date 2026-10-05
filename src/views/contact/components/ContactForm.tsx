@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { CircleCheck, MessageCircle, Package, Send, X } from 'lucide-react'
@@ -6,44 +6,32 @@ import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 
 import { MobilePhoneField } from '@/components/shared/MobilePhoneField'
-import { Alert, Button, Card, Input, Select, Textarea, type SelectOption } from '@/components/ui'
+import { Alert, Button, Card, Input, Select, Textarea } from '@/components/ui'
 import { ContactService } from '@/services/ContactService'
 import { getErrorMessage, isApiError } from '@/services/errors'
 import { withCapitalizedWords } from '@/utils/capitalizeWords'
 import { whatsappUrl } from '@/utils/content'
+import { useContactOptions } from '@/utils/hooks/useContactOptions'
 import { useSiteContent } from '@/utils/hooks/useSiteContent'
 import {
     CONTACT_AREA_MAX,
     CONTACT_FIELDS,
     CONTACT_MESSAGE_MAX_LENGTH,
     contactSchema,
-    CONTACT_TOPIC_LABELS,
-    CONTACT_TOPICS,
-    SPACE_TYPE_LABELS,
-    SPACE_TYPES,
     type ContactValues,
 } from '@/views/contact/schema/contact.schema'
 import { productDetailQueryOptions } from '@/views/product/hooks/useProduct'
 
-const TOPIC_OPTIONS: SelectOption[] = CONTACT_TOPICS.map((topic) => ({
-    value: topic,
-    label: CONTACT_TOPIC_LABELS[topic],
-}))
-
-const SPACE_OPTIONS: SelectOption[] = [
-    { value: '', label: 'Prefiero no indicarlo' },
-    ...SPACE_TYPES.map((type) => ({ value: type, label: SPACE_TYPE_LABELS[type] })),
-]
-
 /** `?producto=<slug>`: set by "Solicitar asesoría" on a product page. */
 const ADVISORY_PRODUCT_PARAM = 'producto'
 
-function defaultValues(productSlug: string): ContactValues {
+/** `topic`: the first option of the catalog ("" until it loads). */
+function defaultValues(productSlug: string, topic: string): ContactValues {
     return {
         fullName: '',
         email: '',
         phone: '',
-        topic: 'ASESORIA',
+        topic,
         spaceType: '',
         areaM2: '',
         productSlug,
@@ -53,10 +41,11 @@ function defaultValues(productSlug: string): ContactValues {
 }
 
 /** What the WhatsApp fallback pre-fills: who writes and the message they could not send. */
-function whatsappFallbackText(values: ContactValues): string {
+function whatsappFallbackText(values: ContactValues, topicLabel: string | undefined): string {
     const name = values.fullName.trim()
     const intro = name ? `Hola, soy ${name}.` : 'Hola.'
-    return `${intro} ${CONTACT_TOPIC_LABELS[values.topic]}: ${values.message.trim()}`
+    const message = values.message.trim()
+    return `${intro} ${topicLabel ? `${topicLabel}: ${message}` : message}`
 }
 
 function parseArea(value: string): number | undefined {
@@ -67,6 +56,9 @@ function parseArea(value: string): number | undefined {
 
 export function ContactForm() {
     const { contact } = useSiteContent()
+    // Topics and space types: Catálogos → Asesoría.
+    const options = useContactOptions()
+    const firstTopic = options.topics[0]?.code ?? ''
     const [searchParams, setSearchParams] = useSearchParams()
     const linkedSlug = searchParams.get(ADVISORY_PRODUCT_PARAM)?.trim() ?? ''
     const [sentToName, setSentToName] = useState<string | null>(null)
@@ -81,9 +73,16 @@ export function ContactForm() {
         formState: { errors, isSubmitting },
     } = useForm<ContactValues>({
         resolver: zodResolver(contactSchema),
-        defaultValues: defaultValues(linkedSlug),
+        defaultValues: defaultValues(linkedSlug, firstTopic),
     })
     const productSlug = useWatch({ control, name: 'productSlug' })
+    const topic = useWatch({ control, name: 'topic' })
+    // Until the options load (or when the chosen topic was removed) the first topic is picked.
+    useEffect(() => {
+        if (firstTopic && !options.topics.some((option) => option.code === topic)) {
+            setValue('topic', firstTopic)
+        }
+    }, [firstTopic, options.topics, topic, setValue])
     // The name of the linked product; an unknown slug simply shows the slug.
     const { data: linkedProduct } = useQuery({
         ...productDetailQueryOptions(productSlug),
@@ -132,12 +131,12 @@ export function ContactForm() {
                     error,
                     'No pudimos enviar tu solicitud. Intenta de nuevo en unos minutos.',
                 ),
-                whatsappText: whatsappFallbackText(values),
+                whatsappText: whatsappFallbackText(values, options.topicLabel(values.topic)),
             })
             return
         }
         setSentToName(values.fullName)
-        reset(defaultValues(''))
+        reset(defaultValues('', firstTopic))
     })
 
     if (sentToName) {
@@ -226,18 +225,30 @@ export function ContactForm() {
                     />
                     <Select
                         label="¿En qué te ayudamos?"
-                        options={TOPIC_OPTIONS}
-                        error={errors.topic?.message}
+                        options={options.topicOptions}
+                        placeholder={options.isPending ? 'Cargando temas…' : 'Elige un tema'}
+                        disabled={options.topics.length === 0}
+                        error={
+                            errors.topic?.message ??
+                            (options.isError
+                                ? 'No pudimos cargar los temas. Recarga la página o escríbenos por WhatsApp.'
+                                : undefined)
+                        }
                         {...register('topic')}
                     />
                     <div className="grid gap-5 sm:grid-cols-2">
-                        <Select
-                            label="Tipo de espacio"
-                            optional
-                            options={SPACE_OPTIONS}
-                            error={errors.spaceType?.message}
-                            {...register('spaceType')}
-                        />
+                        {options.spaceTypes.length ? (
+                            <Select
+                                label="Tipo de espacio"
+                                optional
+                                options={[
+                                    { value: '', label: 'Prefiero no indicarlo' },
+                                    ...options.spaceTypeOptions,
+                                ]}
+                                error={errors.spaceType?.message}
+                                {...register('spaceType')}
+                            />
+                        ) : null}
                         <Input
                             label="Área aproximada (m²)"
                             optional

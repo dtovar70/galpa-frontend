@@ -102,8 +102,8 @@ function NewBankForm({
 }
 
 /**
- * "Bancos": the Venezuelan banks offered in the Pago Móvil selects (the customer's payment
- * form, "Registrar pago manualmente" and Contenido → Pago Móvil). Inactive banks disappear
+ * "Bancos": the Venezuelan banks offered in the bank selects of the bolívar methods (the
+ * customer's payment form, "Registrar pago manualmente" and Contenido → Pago). Inactive banks disappear
  * from those selects; a bank in use can be deactivated but not deleted.
  */
 export function BanksSection() {
@@ -141,9 +141,9 @@ export function BanksSection() {
         <div className="space-y-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <p className="text-sm text-ink-soft">
-                    Los bancos activos aparecen, en este orden, al elegir el banco de un Pago Móvil
-                    o una transferencia. Desactiva un banco para ocultarlo; los que ya tienen pagos
-                    no se pueden eliminar.
+                    Los bancos activos aparecen, en este orden, al elegir el banco de un pago en
+                    bolívares. Desactiva un banco para ocultarlo; los que ya tienen pagos no se
+                    pueden eliminar.
                 </p>
                 {isCreating ? null : (
                     <Button
