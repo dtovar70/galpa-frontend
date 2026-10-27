@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-ssr
+.vite-cache
+*.tsbuildinfo
+.git
+.env
+.env.*
+!.env.example
+*.log
